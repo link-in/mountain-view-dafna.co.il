@@ -1,0 +1,45 @@
+//
+// general.scss
+//
+
+
+body {
+    font-family: $font-family-base;
+    color: $dark !important;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5 {
+    font-family: $font-family-secondary;
+    color: $light; // ניתן לשנות את הצבע כאן או להשתמש במשתנה מ-_variables.scss
+}
+
+h6 {
+    font-family: $font-family-secondary;
+    color: #000000; // שחור
+}
+
+.btn,
+.btn:focus,
+button,
+button:focus {
+    outline: none !important;
+}
+
+a {
+    text-decoration: none !important;
+    outline: none;
+}
+
+p {
+    line-height: 1.8;
+}
+
+hr{
+    border-top: 1px solid #dee2e6;
+}

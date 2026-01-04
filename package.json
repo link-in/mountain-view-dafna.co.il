@@ -1,0 +1,36 @@
+{
+  "name": "joognu_next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "export": "next build",
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'"
+  },
+  "dependencies": {
+    "@iconify/react": "^6.0.2",
+    "bootstrap": "5.3.8",
+    "glightbox": "^3.3.1",
+    "imagesloaded": "^5.0.0",
+    "isotope-layout": "^3.0.6",
+    "next": "^16.0.8",
+    "next-auth": "4.24.13",
+    "react": "19.2.0",
+    "react-bootstrap": "2.10.10",
+    "react-dom": "19.1.0",
+    "react-typed": "^2.0.12",
+    "sass": "1.77.6"
+  },
+  "devDependencies": {
+    "@types/imagesloaded": "^4.1.7",
+    "@types/isotope-layout": "^3.0.15",
+    "@types/node": "24.9.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "baseline-browser-mapping": "^2.9.6",
+    "prettier": "^3.6.2",
+    "typescript": "5.9.3"
+  }
+}
