@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "export": "next build",
-    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'"
+    "format": "prettier --write 'src/**/*.{ts,tsx,js,jsx}'",
+    "preview": "npx serve@latest out -p 3001",
+    "test-production": "npm run build && npx serve@latest out -p 3001"
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",

@@ -30,24 +30,12 @@ const FloatingAvailabilityContent = () => {
         0%, 100% { transform: scale(1); }
         50% { transform: scale(1.05); }
       }
-      @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
       .floating-availability-button {
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        background-size: 200% 200%;
-        animation: gradientShift 3s ease infinite;
       }
       .floating-availability-button:hover {
         transform: scale(1.1);
         box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5), 0 0 0 6px rgba(102, 126, 234, 0.15);
-        animation: gradientShift 1.5s ease infinite;
-      }
-      .gradient-header {
-        background-size: 200% 200%;
-        animation: gradientShift 4s ease infinite;
       }
       @media (max-width: 768px) {
         .floating-availability-button { 
@@ -169,7 +157,6 @@ const FloatingAvailabilityContent = () => {
           >
             {/* כותרת מודרנית עם גרדיאנט */}
             <div 
-              className="gradient-header"
               style={{ 
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
                 color: 'white',
@@ -182,17 +169,6 @@ const FloatingAvailabilityContent = () => {
                 overflow: 'hidden',
               }}
             >
-              {/* אפקט זוהר עדין */}
-              <div style={{
-                position: 'absolute',
-                top: '-50%',
-                left: '-50%',
-                width: '200%',
-                height: '200%',
-                background: 'radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%)',
-                animation: 'pulse 4s ease-in-out infinite',
-                pointerEvents: 'none',
-              }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', position: 'relative', zIndex: 1 }}>
                 <Icon icon="mdi:calendar-clock" style={{ fontSize: '24px', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
                 <h3 style={{ margin: 0, fontSize: '20px', fontWeight: '600', letterSpacing: '0.3px', textShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>

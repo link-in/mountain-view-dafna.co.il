@@ -2,7 +2,6 @@
 
 import { Icon } from '@iconify/react'
 import { Col, Container, Row } from 'react-bootstrap'
-import { useEffect } from 'react'
 
 interface Feature {
   icon: string
@@ -45,22 +44,6 @@ const features: Feature[] = [
 ]
 
 const Features = () => {
-  // הוספת אנימציה לגרדיאנט
-  useEffect(() => {
-    const style = document.createElement('style')
-    style.textContent = `
-      @keyframes gradientShift {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-      .feature-icon-gradient {
-        animation: gradientShift 3s ease infinite;
-      }
-    `
-    document.head.appendChild(style)
-    return () => { if (document.head.contains(style)) document.head.removeChild(style) }
-  }, [])
 
   const handleBookNow = () => {
     // גלילה לכפתור ההזמנות או פתיחת חלון ההזמנות
@@ -135,13 +118,11 @@ const Features = () => {
                     }}
                   >
                     <div
-                      className="feature-icon-gradient"
                       style={{
                         width: '50px',
                         height: '50px',
                         borderRadius: '12px',
                         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-                        backgroundSize: '200% 200%',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

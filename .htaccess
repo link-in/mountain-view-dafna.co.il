@@ -6,11 +6,38 @@ RewriteEngine On
     SetHandler application/x-httpd-php
 </FilesMatch>
 
-# Redirect all requests to index.html (for Next.js static export)
-# But exclude API calls and existing files
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_URI} !^/api/
+# MIME Types - חשוב לקבצי JS/CSS
+<IfModule mod_mime.c>
+    AddType application/javascript .js
+    AddType text/css .css
+    AddType application/json .json
+    AddType image/svg+xml .svg
+    AddType font/woff2 .woff2
+    AddType font/woff .woff
+    AddType font/ttf .ttf
+    AddType font/eot .eot
+</IfModule>
+
+# CRITICAL: Don't rewrite files that physically exist
+# This must be FIRST to prevent routing existing files to index.html
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# Don't rewrite directories that exist
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Don't rewrite static assets directories (_next, next, photos, api)
+RewriteCond %{REQUEST_URI} ^/(_next|next|photos|api)/
+RewriteRule ^ - [L]
+
+# Don't rewrite files with static file extensions
+# This catches any .js, .css, .json, etc. files
+RewriteCond %{REQUEST_URI} \.(js|css|json|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico|webp|pdf|zip|map)$ [NC]
+RewriteRule ^ - [L]
+
+# Redirect all other requests to index.html (for Next.js static export)
+# Only routes that don't match above conditions
 RewriteRule ^(.*)$ /index.html [L]
 
 # Security headers
