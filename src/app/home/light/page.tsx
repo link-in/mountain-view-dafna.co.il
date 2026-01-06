@@ -1,6 +1,7 @@
 import Footer from '@/components/layout/footer/Footer'
 import Header from '@/components/layout/topnav/Header'
 import Attractions from './components/Attractions'
+import Restaurants from './components/Restaurants'
 import Contact from './components/Contact'
 import Features from './components/Features'
 import FloatingAvailability from './components/FloatingAvailability'
@@ -36,6 +37,7 @@ const Page = () => {
       <Features />
       <Portfolio />
       <Attractions />
+      <Restaurants />
       <Contact />
       <Footer />
       <FloatingAvailability />
