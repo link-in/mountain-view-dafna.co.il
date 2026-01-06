@@ -28,10 +28,10 @@ const Page = () => {
           transition: 'background 0.3s ease',
         }}>
       
-        <h1 className="main-title" style={{ fontSize: '38px' , fontWeight: 'bold', color: '#ffffff',margin: '0', textShadow: '0px 0px 3px #000' }}> 
+        <h1 className="main-title" style={{ fontSize: '38px' , fontWeight: 'bold', color: '#ffffff',margin: '0', textShadow: '0px 0px 3px #000', fontFamily: 'Rubik, sans-serif' }}> 
           <span className="font-weight-300">נוף הרים</span> בדפנה
         </h1>
-        <h2 className="main-subtitle" style={{margin: '0',fontSize: '12px',textShadow: '0px 0px 3px      #000' }}>בין פלגי הדן אל מול נופי חרמון</h2>
+        <h2 className="main-subtitle" style={{margin: '0',fontSize: '12px',textShadow: '0px 0px 3px      #000', fontFamily: 'Rubik, sans-serif' }}>בין פלגי הדן אל מול נופי חרמון</h2>
       </div>
       <Hero />
       <Features />

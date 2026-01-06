@@ -131,6 +131,7 @@ const AttractionsCarousel = () => {
                 marginBottom: '10px',
                 lineHeight: '1.2',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                fontFamily: 'Rubik, sans-serif',
               }}
             >
               אטרקציות באזור
@@ -300,6 +301,7 @@ const AttractionsCarousel = () => {
                     fontWeight: 'bold',
                     lineHeight: '1.2',
                     margin: 0,
+                    fontFamily: 'Rubik, sans-serif',
                   }}
                 >
                   {item.title}
@@ -419,6 +421,7 @@ const AttractionsCarousel = () => {
                   color: '#1a365d',
                   marginBottom: '12px',
                   lineHeight: '1.2',
+                  fontFamily: 'Rubik, sans-serif',
                 }}
               >
                 {selectedAttraction.title}

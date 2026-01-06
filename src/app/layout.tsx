@@ -1,6 +1,6 @@
 import logo from '@/assets/images/favicon.ico'
 import type { Metadata } from 'next'
-import { Open_Sans, Poppins } from 'next/font/google'
+import { Open_Sans, Poppins, Rubik } from 'next/font/google'
 
 import 'bootstrap/dist/css/bootstrap.min.css'
 
@@ -22,6 +22,14 @@ const poppins = Poppins({
   variable: '--font-poppins',
 })
 
+const rubik = Rubik({
+  display: 'swap',
+  style: ['normal'],
+  subsets: ['latin', 'hebrew'],
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-rubik',
+})
+
 export const metadata: Metadata = {
   title: 'נוף הרים בדפנה',
   icons: {
@@ -36,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he">
-      <body className={`${openSans.className} ${poppins.variable} `}> {children}</body>
+      <body className={`${openSans.className} ${poppins.variable} ${rubik.variable}`}> {children}</body>
     </html>
   )
 }

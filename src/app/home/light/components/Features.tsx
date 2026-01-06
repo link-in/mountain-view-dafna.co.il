@@ -75,6 +75,7 @@ const Features = () => {
                 lineHeight: '1.2',
                 textAlign: 'center',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+                fontFamily: 'Rubik, sans-serif',
               }}
             >
              בין פלגי הדן אל מול נופי חרמון היחידה שלנו מציעה לכם חוויה מושלמת

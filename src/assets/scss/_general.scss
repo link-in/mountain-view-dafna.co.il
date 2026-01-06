@@ -15,12 +15,12 @@ h2,
 h3,
 h4,
 h5 {
-    font-family: $font-family-secondary;
+    font-family: $font-family-headings;
     color: $light; // ניתן לשנות את הצבע כאן או להשתמש במשתנה מ-_variables.scss
 }
 
 h6 {
-    font-family: $font-family-secondary;
+    font-family: $font-family-headings;
     color: #000000; // שחור
 }
 
