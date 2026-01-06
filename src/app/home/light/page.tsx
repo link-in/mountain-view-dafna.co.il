@@ -1,5 +1,6 @@
 import Footer from '@/components/layout/footer/Footer'
 import Header from '@/components/layout/topnav/Header'
+import Attractions from './components/Attractions'
 import Contact from './components/Contact'
 import Features from './components/Features'
 import FloatingAvailability from './components/FloatingAvailability'
@@ -34,6 +35,7 @@ const Page = () => {
       <Hero />
       <Features />
       <Portfolio />
+      <Attractions />
       <Contact />
       <Footer />
       <FloatingAvailability />
