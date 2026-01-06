@@ -1,11 +1,32 @@
 'use client'
 
 import { Icon } from '@iconify/react'
+import { useEffect } from 'react'
 
 const WazeButton = () => {
   // כתובת: קיבוץ דפנה
   // Waze URL לניווט - משתמש בשם המקום
   const wazeUrl = 'https://waze.com/ul?q=קיבוץ%20דפנה&navigate=yes'
+
+  // הוספת CSS למובייל
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @media (max-width: 768px) {
+        .waze-floating-button {
+          bottom: 150px !important;
+          left: 20px !important;
+          width: 56px !important;
+          height: 56px !important;
+        }
+        .waze-floating-button svg {
+          font-size: 28px !important;
+        }
+      }
+    `
+    document.head.appendChild(style)
+    return () => { if (document.head.contains(style)) document.head.removeChild(style) }
+  }, [])
 
   return (
     <a
@@ -26,7 +47,7 @@ const WazeButton = () => {
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 4px 20px rgba(51, 204, 255, 0.4)',
-        zIndex: 1000,
+        zIndex: 10000,
         textDecoration: 'none',
         transition: 'all 0.3s ease',
       }}

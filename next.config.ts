@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   distDir: '.next',
   // התעלם מתיקיות API שלא תואמות ל-static export
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  // הגדרות Turbopack
+  turbopack: {},
 };
 
 export default nextConfig;

@@ -1,12 +1,33 @@
 'use client'
 
 import { Icon } from '@iconify/react'
+import { useEffect } from 'react'
 
 const WhatsAppButton = () => {
   // המספר הישראלי: 052-8676516
   // פורמט בינלאומי ל-WhatsApp: 972 + 52 (בלי ה-0) + 8676516
   const phoneNumber = '972528676516'
   const whatsappUrl = `https://wa.me/${phoneNumber}`
+
+  // הוספת CSS למובייל
+  useEffect(() => {
+    const style = document.createElement('style')
+    style.textContent = `
+      @media (max-width: 768px) {
+        .whatsapp-floating-button {
+          bottom: 80px !important;
+          left: 20px !important;
+          width: 56px !important;
+          height: 56px !important;
+        }
+        .whatsapp-floating-button svg {
+          font-size: 28px !important;
+        }
+      }
+    `
+    document.head.appendChild(style)
+    return () => { if (document.head.contains(style)) document.head.removeChild(style) }
+  }, [])
 
   return (
     <a
@@ -27,7 +48,7 @@ const WhatsAppButton = () => {
         alignItems: 'center',
         justifyContent: 'center',
         boxShadow: '0 4px 20px rgba(37, 211, 102, 0.4)',
-        zIndex: 1000,
+        zIndex: 10000,
         textDecoration: 'none',
         transition: 'all 0.3s ease',
       }}

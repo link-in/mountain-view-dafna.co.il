@@ -83,7 +83,7 @@ const Header = () => {
                     alt="נוף הרים בדפנה" 
                     width={120} 
                     height={60}
-                    style={{ objectFit: 'contain' }}
+                    style={{ objectFit: 'contain', width: '100%' }}
                   />
                 </Link>
               </div>

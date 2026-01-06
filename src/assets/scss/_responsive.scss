@@ -306,8 +306,9 @@
         .mobile-logo {
             display: flex !important;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             height: 70px;
+            margin-right: auto;
             a {
                 display: flex;
                 align-items: center;
@@ -327,18 +328,22 @@
     .floating-availability-button,
     .whatsapp-floating-button,
     .waze-floating-button {
-        width: 60px !important;
-        height: 60px !important;
-        left: 30px !important;
+        width: 56px !important;
+        height: 56px !important;
+        left: 20px !important;
+        display: flex !important;
+        z-index: 1000 !important;
+        visibility: visible !important;
+        opacity: 1 !important;
     }
     .floating-availability-button {
-        bottom: 30px !important;
+        bottom: 20px !important;
     }
     .whatsapp-floating-button {
-        bottom: 100px !important;
+        bottom: 80px !important;
     }
     .waze-floating-button {
-        bottom: 170px !important;
+        bottom: 150px !important;
     }
     // הקטנת מרווח עליון/תחתון בין איקונים במובייל
     .features-icons-list {

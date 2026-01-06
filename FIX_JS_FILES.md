@@ -136,3 +136,4 @@ find /path/to/public_html/_next -type d -exec chmod 755 {} \;
 
 **אחרי זה הכל אמור לעבוד! 🚀**
 
+

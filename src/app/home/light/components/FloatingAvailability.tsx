@@ -42,7 +42,11 @@ const FloatingAvailabilityContent = () => {
           bottom: 20px !important; 
           left: 20px !important; 
           width: 56px !important; 
-          height: 56px !important; 
+          height: 56px !important;
+          font-size: 24px !important;
+        }
+        .floating-availability-button svg {
+          font-size: 24px !important;
         }
         .floating-availability-window { 
           bottom: 80px !important; 
@@ -100,7 +104,7 @@ const FloatingAvailabilityContent = () => {
           border: 'none',
           cursor: 'pointer',
           boxShadow: '0 8px 32px rgba(102, 126, 234, 0.4), 0 0 0 4px rgba(102, 126, 234, 0.1)',
-          zIndex: 1000,
+          zIndex: 10000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -129,7 +133,7 @@ const FloatingAvailabilityContent = () => {
               bottom: 0, 
               background: 'rgba(0, 0, 0, 0.5)',
               backdropFilter: 'blur(4px)',
-              zIndex: 998,
+              zIndex: 1039,
               animation: 'fadeIn 0.3s ease-out'
             }} 
           />
@@ -148,7 +152,7 @@ const FloatingAvailabilityContent = () => {
               background: 'white',
               borderRadius: '24px',
               boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.05)',
-              zIndex: 999,
+              zIndex: 1040,
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',

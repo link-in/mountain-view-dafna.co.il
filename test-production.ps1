@@ -58,3 +58,4 @@ Write-Host ""
 # הרצת שרת
 npx serve@latest out -p 3001
 
+
