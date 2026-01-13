@@ -68,7 +68,7 @@ const restaurants: Restaurant[] = [
     id: 7, 
     title: "קפה פילוסוף - הגושרים", 
     distance: "5 דק' נסיעה", 
-    image: "https://lh3.googleusercontent.com/p/AF1QipP0zGwu3BtJNsLVEtfVlmAr_kRQWCZjDS1N-GA_=s680-w680-h510-rw",
+    image: "/photos/cafe_philosopher.jpg",
     description: "בית קפה ייחודי עם אווירה של פעם, מוזיקה מתקליטים וסנדוויצ'ים מעולים. המקום המושלם לעצור בו למנוחה וליהנות מהרגע.",
     wazeQuery: "קפה%20פילוסוף%20הגושרים"
   }
@@ -356,6 +356,7 @@ const RestaurantsCarousel = () => {
               position: 'fixed',
               top: '50%',
               left: '50%',
+              transform: 'translate(-50%, -50%)',
               width: '90%',
               maxWidth: '800px',
               maxHeight: '90vh',
@@ -366,7 +367,7 @@ const RestaurantsCarousel = () => {
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               direction: 'rtl',
             }}
           >
