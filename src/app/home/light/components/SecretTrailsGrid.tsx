@@ -19,7 +19,7 @@ const secretTrails: Trail[] = [
     distance: "10 דק' נסיעה",
     description: "בריכה נסתרת וקסומה בלב צמחייה עבותה. מקום מושלם למי שמחפש שקט מוחלט ומים קרירים וצלולים הרחק מהמסלולים המוכרים.",
     wazeQuery: "עין%20ירדנון",
-    image: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800"
+    image: "/photos/yardenon_spring.jpg"
   },
   {
     id: 2,
@@ -27,15 +27,14 @@ const secretTrails: Trail[] = [
     distance: "12 דק' נסיעה",
     description: "מסלול קצר ומרתק בתוך ערוץ הנחל שמוביל לטנק סורי שהתהפך לתוך המים. שילוב של היסטוריה, ממים זורמים וטבע פראי.",
     wazeQuery: "הטנק%20הסורי%20בניאס",
-    image: "https://images.unsplash.com/photo-1464207687429-7505649dae38?q=80&w=800"
+    image: "/photos/syrian_tank.jpg"
   },
   {
     id: 3,
-    title: "תצפית האמיר (קנאפה)",
-    distance: "15 דק' נסיעה",
-    description: "נקודת תצפית עוצרת נשימה מעל עמק החולה. אין כאן המוני מטיילים, רק אתם מול כל הנוף של הצפון. מומלץ להגיע לקראת שקיעה.",
-    wazeQuery: "מצפה%20אמיר",
-    image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=800"
+    title: "מפל פרע - הג'ונגל הנסתר",
+    distance: "10 דק' נסיעה",
+    image: "/photos/prat_spring.jpg",
+    description: "חווית מים נדירה שנמצאת ממש ליד קיבוץ שניר. מפל פרע הוא מפל עונתי שמתעורר לחיים רק לאחר גשמים משמעותיים או שיטפונות. המסלול אליו קצר מאוד, אך הוא הופך לבוצי ומחליק במיוחד – מה שמוסיף לאווירת ההרפתקה.",     wazeQuery: "מפל%20פרע"
   },
   {
     id: 4,
@@ -76,7 +75,7 @@ const SecretTrailsGrid = () => {
                 fontFamily: 'Rubik, sans-serif',
               }}
             >
-              טיולים OFF-GRID
+              טיולים OFF-GRID בגליל העליון
             </h2>
           </div>
           <p style={{ fontSize: '18px', color: '#666', maxWidth: '700px', margin: '0 auto', lineHeight: '1.6' }}>
