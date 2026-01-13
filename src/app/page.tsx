@@ -2,6 +2,7 @@ import Footer from '@/components/layout/footer/Footer'
 import Header from '@/components/layout/topnav/Header'
 import Attractions from '@/app/home/light/components/Attractions'
 import Restaurants from '@/app/home/light/components/Restaurants'
+import SecretTrails from '@/app/home/light/components/SecretTrails'
 import Contact from '@/app/home/light/components/Contact'
 import Features from '@/app/home/light/components/Features'
 import FloatingAvailability from '@/app/home/light/components/FloatingAvailability'
@@ -28,7 +29,7 @@ const Page = () => {
           transition: 'background 0.3s ease',
         }}>
       
-        <h1 className="main-title" style={{ fontSize: '38px' , fontWeight: 'bold', color: '#ffffff',margin: '0', textShadow: '0px 0px 3px #000', fontFamily: 'Rubik, sans-serif' }}> 
+        <h1 className="main-title" style={{ fontSize: '38px' , fontWeight: 'bold', color: '#0d9488',margin: '0', textShadow: '0px 0px 1px #ffffff', fontFamily: 'Rubik, sans-serif' }}> 
           <span className="font-weight-300">נוף הרים</span> בדפנה
         </h1>
         <h2 className="main-subtitle" style={{margin: '0',fontSize: '12px',textShadow: '0px 0px 3px      #000', fontFamily: 'Rubik, sans-serif' }}>בין פלגי הדן אל מול נופי חרמון</h2>
@@ -38,6 +39,7 @@ const Page = () => {
       <Portfolio />
       <Attractions />
       <Restaurants />
+      <SecretTrails />
       <Contact />
       <Footer />
       <FloatingAvailability />

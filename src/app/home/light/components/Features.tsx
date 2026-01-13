@@ -10,24 +10,16 @@ interface Feature {
 
 const features: Feature[] = [
   {
-    icon: 'mdi:wifi',
-    title: 'WiFi חינם במהירות גבוהה',
-  },
-  {
-    icon: 'mdi:bag-checked',
-    title: 'אחסון חינם למזוודות מכל גודל',
+    icon: 'mdi:bed-double',
+    title: '2 חדרי שינה',
   },
   {
     icon: 'mdi:map-marker',
     title: 'מיקום נוח במרכז',
   },
   {
-    icon: 'mdi:car',
-    title: 'מקום חניה מוקצה',
-  },
-  {
-    icon: 'mdi:air-conditioner',
-    title: 'מיזוג אוויר',
+    icon: 'mdi:door-open',
+    title: 'כניסה נפרדת ופרטיות',
   },
   {
     icon: 'mdi:image-filter-hdr',
@@ -66,7 +58,7 @@ const Features = () => {
         <Row className="justify-content-center">
           {/* טקסט ותיאור */}
           <Col lg={10} xl={8}>
-            <h2
+            <h1
               style={{
                 fontSize: '42px',
                 fontWeight: 'bold',
@@ -79,7 +71,7 @@ const Features = () => {
               }}
             >
              בין פלגי הדן אל מול נופי חרמון היחידה שלנו מציעה לכם חוויה מושלמת
-            </h2>
+            </h1>
             <p
               style={{
                 fontSize: '18px',
@@ -97,7 +89,7 @@ const Features = () => {
             {/* רשימת שירותים */}
             <Row className="g-4 features-icons-list">
               {features.map((feature, index) => (
-                <Col key={index} xs={6} sm={6} md={6}>
+                <Col key={index} xs={4} sm={4} md={2}>
                   <div
                     style={{
                       display: 'flex',
@@ -123,21 +115,21 @@ const Features = () => {
                         width: '50px',
                         height: '50px',
                         borderRadius: '12px',
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                        background: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
-                        boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
+                        boxShadow: '0 4px 12px rgba(13, 148, 136, 0.3)',
                         transition: 'all 0.3s ease',
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'scale(1.1)'
-                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(102, 126, 234, 0.4)'
+                        e.currentTarget.style.boxShadow = '0 6px 16px rgba(13, 148, 136, 0.4)'
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'scale(1)'
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.3)'
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.3)'
                       }}
                     >
                       <Icon

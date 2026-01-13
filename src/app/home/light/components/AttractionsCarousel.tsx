@@ -20,31 +20,31 @@ const attractions: Attraction[] = [
     id: 1, 
     title: "נחל שניר (חצבאני)", 
     distance: "5 דק' נסיעה", 
-    image: "/photos/snir_nature_reserve.jpg",
+    image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800",
     description: "נחל שניר הוא אחד משלושת מקורות הירדן, זורם כל השנה במים צלולים וקרים. הנחל מציע מסלולי הליכה מרהיבים בין עצי ערבה וצמחייה עשירה, בריכות טבעיות לשחייה, ואזורי פיקניק מוצלים. זהו מקום מושלם למשפחות המחפשות רגיעה וקרבה לטבע. הנחל מתאים גם לטיולי משפחות עם ילדים, עם שבילים נוחים ונגישים.",
     wazeQuery: "נחל%20שניר"
   },
   { 
     id: 2, 
-    title: "שמורת תל דן", 
-    distance: "7 דק' נסיעה", 
+    title: "שמורת טבע תל דן", 
+    distance: "3 דק' נסיעה", 
     image: "/photos/tel_dan_nature_reserve.jpg",
-    description: "שמורת טבע ייחודית המכילה את אחד מהאתרים הארכיאולוגיים החשובים בישראל. השמורה משלבת בין טבע מרהיב לבין היסטוריה עתיקה, עם שרידי עיר כנענית קדומה ומקדש מתקופת בית ראשון. המסלול עובר בין עצי דולב ענקיים, מעיינות שופעים, ושרידים ארכיאולוגיים מרתקים. השמורה מתאימה לכל המשפחה ומציעה חוויה חינוכית ומהנה.",
+    description: "אחת השמורות היפות בישראל, הנמצאת במרחק הליכה קצר מדפנה. בשמורה תמצאו את נהר הדן השוצף, \"בריכת השכשוך\" המפורסמת, ותל ארכיאולוגי מרתק. מסלול הליכה מוצל ונגיש שמתאים לכל הגילאים. גן עדן של מים זורמים ועצי ענק - מקום מושלם למשפחות, חובבי טבע וצילום.",
     wazeQuery: "שמורת%20תל%20דן"
   },
   { 
     id: 3, 
-    title: "קיאקי דפנה", 
-    distance: "במרחק הליכה", 
+    title: "קייקי כפר בלום", 
+    distance: "10 דק' נסיעה", 
     image: "/photos/kayak_kfar_blum.jpg",
-    description: "חוויה ייחודית של שייט קיאקים בנחל דן, אחד מהנחלים היפים ביותר בצפון. הפעילות מתאימה לכל המשפחה ומציעה שייט רגוע בין נופים ירוקים ומים צלולים. הקיאקים זמינים לשכירה והשייט מתבצע בקטע בטוח של הנחל. זו הזדמנות מצוינת לחוות את הטבע מזווית אחרת וליהנות מפעילות מים מרעננת.",
-    wazeQuery: "קיאקי%20דפנה"
+    description: "האטרקציה המובילה בצפון לשייט קיאקים ורפטינג בנהר הירדן. תוכלו לבחור בין מסלול משפחתי רגוע ופסטורלי לבין מסלול אתגרי הכולל מפלים וזרימה חזקה. במקום תמצאו גם את פארק \"טופ-רופ\" הכולל חבלים, קיר טיפוס ואומגה למים. מתאים למשפחות, זוגות וקבוצות (מגובה 1 מטר במסלול הרגיל).",
+    wazeQuery: "קייקי%20כפר%20בלום"
   },
   { 
     id: 4, 
     title: "מבצר נמרוד", 
     distance: "15 דק' נסיעה", 
-    image: "/photos/nimrod_fortress.jpg",
+    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
     description: "מבצר צלבני מרשים מהמאה ה-12, השוכן על פסגת הר בגובה 800 מטר ומציע נוף פנורמי מרהיב על כל הגולן והחרמון. המבצר הוא אחד מהמבצרים השמורים ביותר בישראל ומציע טיול מרתק בין אולמות, מגדלים, ושרידים היסטוריים. הנוף מהמבצר הוא אחד מהיפים ביותר בישראל, עם תצפית על הר החרמון, הגולן, והגליל העליון.",
     wazeQuery: "מבצר%20נמרוד"
   },
@@ -52,7 +52,7 @@ const attractions: Attraction[] = [
     id: 5, 
     title: "אגמון החולה", 
     distance: "20 דק' נסיעה", 
-    image: "/photos/hula_agmon.jpg",
+    image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=800",
     description: "שמורת טבע ייחודית המהווה תחנת עצירה חשובה לעופות נודדים. האגמון מציע מסלולי הליכה וטיולי אופניים, תצפיות ציפורים, ונופים מרהיבים של מים וצמחייה. זהו מקום מושלם לחובבי טבע וצפרות, עם מגוון רחב של בעלי חיים וצמחייה ייחודית. האגמון מתאים לכל המשפחה ומציע פעילויות מגוונות לכל הגילאים.",
     wazeQuery: "אגמון%20החולה"
   },
@@ -291,6 +291,7 @@ const AttractionsCarousel = () => {
                     fontSize: '12px',
                     marginBottom: '12px',
                     fontWeight: '500',
+                    color: 'white',
                   }}
                 >
                   {item.distance}
@@ -302,6 +303,7 @@ const AttractionsCarousel = () => {
                     lineHeight: '1.2',
                     margin: 0,
                     fontFamily: 'Rubik, sans-serif',
+                    color: 'white',
                   }}
                 >
                   {item.title}
@@ -466,7 +468,7 @@ const AttractionsCarousel = () => {
                 style={{
                   width: '100%',
                   padding: '16px 24px',
-                  background: '#33CCFF',
+                  background: '#0d9488',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
@@ -478,17 +480,17 @@ const AttractionsCarousel = () => {
                   justifyContent: 'center',
                   gap: '12px',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 12px rgba(51, 204, 255, 0.4)',
+                  boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#29b8e6'
+                  e.currentTarget.style.background = '#0b8378'
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(51, 204, 255, 0.5)'
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(13, 148, 136, 0.5)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#33CCFF'
+                  e.currentTarget.style.background = '#0d9488'
                   e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(51, 204, 255, 0.4)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.4)'
                 }}
               >
                 <Icon icon="mdi:waze" style={{ fontSize: '24px' }} />
@@ -523,6 +525,13 @@ const AttractionsCarousel = () => {
           to {
             opacity: 1;
             transform: translate(-50%, -50%);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .attractions-modal {
+            width: 95% !important;
+            max-height: 85vh !important;
           }
         }
       `}</style>
