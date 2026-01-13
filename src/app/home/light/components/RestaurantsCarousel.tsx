@@ -356,6 +356,7 @@ const RestaurantsCarousel = () => {
               position: 'fixed',
               top: '50%',
               left: '50%',
+              transform: 'translate(-50%, -50%)',
               width: '90%',
               maxWidth: '800px',
               maxHeight: '90vh',
@@ -366,7 +367,7 @@ const RestaurantsCarousel = () => {
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
               direction: 'rtl',
             }}
           >
@@ -535,11 +536,11 @@ const RestaurantsCarousel = () => {
         @keyframes slideInUp {
           from {
             opacity: 0;
-            transform: translate(-50%, -48%) scale(0.95);
+            transform: translate(-50%, -45%);
           }
           to {
             opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
+            transform: translate(-50%, -50%);
           }
         }
 

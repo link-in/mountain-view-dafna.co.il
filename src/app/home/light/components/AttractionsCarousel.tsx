@@ -20,7 +20,7 @@ const attractions: Attraction[] = [
     id: 1, 
     title: "נחל שניר (חצבאני)", 
     distance: "5 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?q=80&w=800",
+    image: "/photos/snir_nature_reserve.jpg",
     description: "נחל שניר הוא אחד משלושת מקורות הירדן, זורם כל השנה במים צלולים וקרים. הנחל מציע מסלולי הליכה מרהיבים בין עצי ערבה וצמחייה עשירה, בריכות טבעיות לשחייה, ואזורי פיקניק מוצלים. זהו מקום מושלם למשפחות המחפשות רגיעה וקרבה לטבע. הנחל מתאים גם לטיולי משפחות עם ילדים, עם שבילים נוחים ונגישים.",
     wazeQuery: "נחל%20שניר"
   },
@@ -28,7 +28,7 @@ const attractions: Attraction[] = [
     id: 2, 
     title: "שמורת תל דן", 
     distance: "7 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?q=80&w=800",
+    image: "/photos/tel_dan_nature_reserve.jpg",
     description: "שמורת טבע ייחודית המכילה את אחד מהאתרים הארכיאולוגיים החשובים בישראל. השמורה משלבת בין טבע מרהיב לבין היסטוריה עתיקה, עם שרידי עיר כנענית קדומה ומקדש מתקופת בית ראשון. המסלול עובר בין עצי דולב ענקיים, מעיינות שופעים, ושרידים ארכיאולוגיים מרתקים. השמורה מתאימה לכל המשפחה ומציעה חוויה חינוכית ומהנה.",
     wazeQuery: "שמורת%20תל%20דן"
   },
@@ -36,7 +36,7 @@ const attractions: Attraction[] = [
     id: 3, 
     title: "קיאקי דפנה", 
     distance: "במרחק הליכה", 
-    image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800",
+    image: "/photos/kayak_kfar_blum.jpg",
     description: "חוויה ייחודית של שייט קיאקים בנחל דן, אחד מהנחלים היפים ביותר בצפון. הפעילות מתאימה לכל המשפחה ומציעה שייט רגוע בין נופים ירוקים ומים צלולים. הקיאקים זמינים לשכירה והשייט מתבצע בקטע בטוח של הנחל. זו הזדמנות מצוינת לחוות את הטבע מזווית אחרת וליהנות מפעילות מים מרעננת.",
     wazeQuery: "קיאקי%20דפנה"
   },
@@ -44,7 +44,7 @@ const attractions: Attraction[] = [
     id: 4, 
     title: "מבצר נמרוד", 
     distance: "15 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=800",
+    image: "/photos/nimrod_fortress.jpg",
     description: "מבצר צלבני מרשים מהמאה ה-12, השוכן על פסגת הר בגובה 800 מטר ומציע נוף פנורמי מרהיב על כל הגולן והחרמון. המבצר הוא אחד מהמבצרים השמורים ביותר בישראל ומציע טיול מרתק בין אולמות, מגדלים, ושרידים היסטוריים. הנוף מהמבצר הוא אחד מהיפים ביותר בישראל, עם תצפית על הר החרמון, הגולן, והגליל העליון.",
     wazeQuery: "מבצר%20נמרוד"
   },
@@ -52,7 +52,7 @@ const attractions: Attraction[] = [
     id: 5, 
     title: "אגמון החולה", 
     distance: "20 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?q=80&w=800",
+    image: "/photos/hula_agmon.jpg",
     description: "שמורת טבע ייחודית המהווה תחנת עצירה חשובה לעופות נודדים. האגמון מציע מסלולי הליכה וטיולי אופניים, תצפיות ציפורים, ונופים מרהיבים של מים וצמחייה. זהו מקום מושלם לחובבי טבע וצפרות, עם מגוון רחב של בעלי חיים וצמחייה ייחודית. האגמון מתאים לכל המשפחה ומציע פעילויות מגוונות לכל הגילאים.",
     wazeQuery: "אגמון%20החולה"
   },
@@ -127,7 +127,7 @@ const AttractionsCarousel = () => {
               style={{
                 fontSize: '42px',
                 fontWeight: 'bold',
-                color: '#1a365d',
+                color: '#0d9488',
                 marginBottom: '10px',
                 lineHeight: '1.2',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
@@ -139,7 +139,7 @@ const AttractionsCarousel = () => {
             <p 
               style={{
                 fontSize: '18px',
-                color: '#666',
+                color: '#4b5563',
                 margin: 0,
                 lineHeight: '1.8',
               }}
@@ -418,7 +418,7 @@ const AttractionsCarousel = () => {
                 style={{
                   fontSize: '32px',
                   fontWeight: 'bold',
-                  color: '#1a365d',
+                  color: '#1f2937',
                   marginBottom: '12px',
                   lineHeight: '1.2',
                   fontFamily: 'Rubik, sans-serif',
@@ -436,11 +436,11 @@ const AttractionsCarousel = () => {
                   marginBottom: '24px',
                 }}
               >
-                <Icon icon="mdi:map-marker-distance" style={{ fontSize: '20px', color: '#667eea' }} />
+                <Icon icon="mdi:map-marker-distance" style={{ fontSize: '20px', color: '#0d9488' }} />
                 <span
                   style={{
                     fontSize: '16px',
-                    color: '#666',
+                    color: '#4b5563',
                     fontWeight: '500',
                   }}
                 >
@@ -523,13 +523,6 @@ const AttractionsCarousel = () => {
           to {
             opacity: 1;
             transform: translate(-50%, -50%);
-          }
-        }
-
-        @media (max-width: 768px) {
-          .attractions-modal {
-            width: 95% !important;
-            max-height: 85vh !important;
           }
         }
       `}</style>
