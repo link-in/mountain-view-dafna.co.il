@@ -18,44 +18,60 @@ interface Restaurant {
 const restaurants: Restaurant[] = [
   { 
     id: 1, 
-    title: "מסעדת דן", 
-    distance: "5 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=800",
-    description: "מסעדה כשרה המציעה מטבח איטלקי ואירופאי משובח. המסעדה מתמחה במנות בשריות איכותיות, פסטות טריות, ופיצות אפויות בתנור עץ. האווירה חמה ומזמינה, עם שירות מקצועי וארוחות מושלמות לכל המשפחה. המסעדה מתאימה גם לאירועים פרטיים וקבוצות גדולות.",
-    wazeQuery: "מסעדת%20דן"
+    title: "סימני דרך - כפר סאלד", 
+    distance: "7 דק' נסיעה", 
+    image: "/photos/simanei_derech.jpg",
+    description: "עגלת קפה וסנדוויצ'ים מעולה בכפר סאלד. האווירה רגועה, הנוף פתוח והאוכל טרי ואיכותי. המלצה חמה שלנו לארוחת בוקר או קפה של אמצע היום - הרבה יותר מוצלח מבתי הקפה הסטנדרטיים באזור.",
+    wazeQuery: "סימני%20דרך%20כפר%20סאלד"
   },
   { 
     id: 2, 
-    title: "בית קפה דפנה", 
-    distance: "במרחק הליכה", 
-    image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?q=80&w=800",
-    description: "בית קפה כפרי ונעים המציע ארוחות בוקר עשירות, כריכים טריים, וקינוחים ביתיים. המקום מתאים לארוחת בוקר מאוחרת, צהריים קלילים, או קפה ועוגה בשעות אחר הצהריים. האווירה שלווה ונינוחה, עם נוף לטבע המקיף את הקיבוץ.",
-    wazeQuery: "בית%20קפה%20דפנה"
+    title: "לה לונה - הגושרים", 
+    distance: "5 דק' נסיעה", 
+    image: "/photos/la_luna.jpg",
+    description: "מסעדה איטלקית נהדרת ופיצה מעולה בקיבוץ הגושרים. מקום עם אווירה טובה שמתאים מאוד לערב זוגי או משפחתי. המנות נדיבות והשירות חם.",
+    wazeQuery: "לה%20לונה%20הגושרים"
   },
   { 
     id: 3, 
-    title: "מסעדת החרמון", 
-    distance: "10 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?q=80&w=800",
-    description: "מסעדה יוקרתית עם נוף מרהיב להר החרמון. המסעדה מציעה מטבח ישראלי מודרני עם דגש על חומרי גלם טריים ואיכותיים מהאזור. התפריט כולל מנות דגים, בשרים, וסלטים טריים. המקום מושלם לארוחת ערב רומנטית או חגיגה מיוחדת.",
-    wazeQuery: "מסעדת%20החרמון"
+    title: "קולקטיב - עמיר", 
+    distance: "8 דק' נסיעה", 
+    image: "/photos/collective.jpg",
+    description: "בר יין עם שיק תל אביבי בלב קיבוץ עמיר. מציע מבחר יינות מצוין לצד אוכל איכותי ומנות קטנות וטעימות. מושלם למי שמחפש בילוי לילי ברמה גבוהה.",
+    wazeQuery: "קולקטיב%20עמיר"
   },
   { 
     id: 4, 
-    title: "פיצריית הגולן", 
-    distance: "12 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=800",
-    description: "פיצרייה איטלקית אותנטית עם פיצות אפויות בתנור אבן. התפריט כולל מגוון רחב של פיצות, פסטות, וסלטים טריים. המקום מתאים למשפחות עם ילדים ולחבר'ה שמחפשים אוכל מהיר וטעים. יש אפשרות להזמנות טייק-אאווי.",
-    wazeQuery: "פיצריית%20הגולן"
+    title: "שירי פסטה - דפנה", 
+    distance: "במרחק הליכה", 
+    image: "/photos/shiri_pasta.jpg",
+    description: "פסטה טרייה בעבודת יד המוגשת ברחבת הכלבו בתוך קיבוץ דפנה. חוויה קולינרית פשוטה, טעימה ואותנטית ממש ליד הבית. מתאים מאוד לארוחת צהריים משפחתית.",
+    wazeQuery: "שירי%20פסטה%20דפנה"
   },
   { 
     id: 5, 
-    title: "מסעדת הנחלים", 
-    distance: "8 דק' נסיעה", 
-    image: "https://images.unsplash.com/photo-1555396273-367ea86eb684?q=80&w=800",
-    description: "מסעדה כשרה המתמחה במטבח ישראלי מסורתי עם טוויסט מודרני. התפריט כולל מנות בשריות, דגים טריים, ומגוון סלטים ומתאבנים. המסעדה ידועה באווירה המשפחתית החמה ובשירות המסור. מתאימה לארוחות משפחתיות ואירועים.",
-    wazeQuery: "מסעדת%20הנחלים"
+    title: "דארמה - הגושרים", 
+    distance: "5 דק' נסיעה", 
+    image: "/photos/darma.png",
+    description: "הפאב המקומי בהגושרים. יש כאן שולחן סנוקר, אוכל טוב, ולעיתים קרובות הופעות חיות ומסיבות. מקום עם וייב גלילי צעיר ותוסס.",
+    wazeQuery: "דארמה%20הגושרים"
   },
+  { 
+    id: 6, 
+    title: "לולו קיבוצטריה - עמיר", 
+    distance: "8 דק' נסיעה", 
+    image: "/photos/lulu.jpg",
+    description: "מסעדה איטלקית איכותית בקיבוץ עמיר הפתוחה גם בשבת. המקום ידוע ברמה קולינרית גבוהה ושירות מצוין. מחירים גבוהים יחסית אבל התמורה שווה את זה.",
+    wazeQuery: "מסעדת%20לולו%20עמיר"
+  },
+  { 
+    id: 7, 
+    title: "קפה פילוסוף - הגושרים", 
+    distance: "5 דק' נסיעה", 
+    image: "https://lh3.googleusercontent.com/p/AF1QipP0zGwu3BtJNsLVEtfVlmAr_kRQWCZjDS1N-GA_=s680-w680-h510-rw",
+    description: "בית קפה ייחודי עם אווירה של פעם, מוזיקה מתקליטים וסנדוויצ'ים מעולים. המקום המושלם לעצור בו למנוחה וליהנות מהרגע.",
+    wazeQuery: "קפה%20פילוסוף%20הגושרים"
+  }
 ]
 
 const RestaurantsCarousel = () => {
@@ -127,7 +143,7 @@ const RestaurantsCarousel = () => {
               style={{
                 fontSize: '42px',
                 fontWeight: 'bold',
-                color: '#1a365d',
+                color: '#0d9488',
                 marginBottom: '10px',
                 lineHeight: '1.2',
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
@@ -139,7 +155,7 @@ const RestaurantsCarousel = () => {
             <p 
               style={{
                 fontSize: '18px',
-                color: '#666',
+                color: '#4b5563',
                 margin: 0,
                 lineHeight: '1.8',
               }}
@@ -291,6 +307,7 @@ const RestaurantsCarousel = () => {
                     fontSize: '12px',
                     marginBottom: '12px',
                     fontWeight: '500',
+                    color: 'white',
                   }}
                 >
                   {item.distance}
@@ -302,6 +319,7 @@ const RestaurantsCarousel = () => {
                     lineHeight: '1.2',
                     margin: 0,
                     fontFamily: 'Rubik, sans-serif',
+                    color: 'white',
                   }}
                 >
                   {item.title}
@@ -338,7 +356,6 @@ const RestaurantsCarousel = () => {
               position: 'fixed',
               top: '50%',
               left: '50%',
-              transform: 'translate(-50%, -50%)',
               width: '90%',
               maxWidth: '800px',
               maxHeight: '90vh',
@@ -349,7 +366,7 @@ const RestaurantsCarousel = () => {
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
-              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+              animation: 'slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards',
               direction: 'rtl',
             }}
           >
@@ -418,7 +435,7 @@ const RestaurantsCarousel = () => {
                 style={{
                   fontSize: '32px',
                   fontWeight: 'bold',
-                  color: '#1a365d',
+                  color: '#1f2937',
                   marginBottom: '12px',
                   lineHeight: '1.2',
                   fontFamily: 'Rubik, sans-serif',
@@ -436,11 +453,11 @@ const RestaurantsCarousel = () => {
                   marginBottom: '24px',
                 }}
               >
-                <Icon icon="mdi:map-marker-distance" style={{ fontSize: '20px', color: '#667eea' }} />
+                <Icon icon="mdi:map-marker-distance" style={{ fontSize: '20px', color: '#0d9488' }} />
                 <span
                   style={{
                     fontSize: '16px',
-                    color: '#666',
+                    color: '#4b5563',
                     fontWeight: '500',
                   }}
                 >
@@ -466,7 +483,7 @@ const RestaurantsCarousel = () => {
                 style={{
                   width: '100%',
                   padding: '16px 24px',
-                  background: '#33CCFF',
+                  background: '#0d9488',
                   color: 'white',
                   border: 'none',
                   borderRadius: '12px',
@@ -478,17 +495,17 @@ const RestaurantsCarousel = () => {
                   justifyContent: 'center',
                   gap: '12px',
                   transition: 'all 0.3s ease',
-                  boxShadow: '0 4px 12px rgba(51, 204, 255, 0.4)',
+                  boxShadow: '0 4px 12px rgba(13, 148, 136, 0.4)',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#29b8e6'
+                  e.currentTarget.style.background = '#0b8378'
                   e.currentTarget.style.transform = 'translateY(-2px)'
-                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(51, 204, 255, 0.5)'
+                  e.currentTarget.style.boxShadow = '0 6px 16px rgba(13, 148, 136, 0.5)'
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#33CCFF'
+                  e.currentTarget.style.background = '#0d9488'
                   e.currentTarget.style.transform = 'translateY(0)'
-                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(51, 204, 255, 0.4)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(13, 148, 136, 0.4)'
                 }}
               >
                 <Icon icon="mdi:waze" style={{ fontSize: '24px' }} />
@@ -518,11 +535,11 @@ const RestaurantsCarousel = () => {
         @keyframes slideInUp {
           from {
             opacity: 0;
-            transform: translate(-50%, -45%);
+            transform: translate(-50%, -48%) scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, -50%) scale(1);
           }
         }
 
