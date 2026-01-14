@@ -260,11 +260,32 @@
 
 @media (max-width: 768px) {
     #topnav {
-        background-color: $white !important;
+        background-color: #0d9488 !important;
         box-shadow: 0 0 7px 0 rgba(0, 0, 0, 0.2) !important;
+        position: relative;
+        overflow: hidden;
+    }
+    #topnav::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -10px;
+        width: 80px;
+        height: 100%;
+        background: $white;
+        transform: skewX(18deg);
+        transform-origin: top left;
+        z-index: 0;
+    }
+    #topnav .container {
+        position: relative;
+        z-index: 1;
     }
     #topnav .logo {
         line-height: 70px !important;
+        position: relative;
+        z-index: 1;
+        color: $white !important;
     }
     #topnav .navigation-menu > li > a {
         color: $dark !important;
@@ -309,6 +330,8 @@
             justify-content: flex-start;
             height: 70px;
             margin-right: auto;
+            position: relative;
+            z-index: 1;
             a {
                 display: flex;
                 align-items: center;

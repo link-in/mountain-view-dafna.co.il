@@ -3,6 +3,7 @@ import Header from '@/components/layout/topnav/Header'
 import Attractions from '@/app/home/light/components/Attractions'
 import Restaurants from '@/app/home/light/components/Restaurants'
 import SecretTrails from '@/app/home/light/components/SecretTrails'
+import ReviewsCarousel from '@/app/home/light/components/ReviewsCarousel'
 import Contact from '@/app/home/light/components/Contact'
 import Features from '@/app/home/light/components/Features'
 import FloatingAvailability from '@/app/home/light/components/FloatingAvailability'
@@ -40,6 +41,7 @@ const Page = () => {
       <Attractions />
       <Restaurants />
       <SecretTrails />
+      <ReviewsCarousel />
       <Contact />
       <Footer />
       <FloatingAvailability />

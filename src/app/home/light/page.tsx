@@ -7,9 +7,10 @@ import Features from './components/Features'
 import FloatingAvailability from './components/FloatingAvailability'
 import Hero from './components/Hero'
 import Portfolio from './components/Portfolio'
+import SecretTrails from './components/SecretTrails'
+import ReviewsCarousel from './components/ReviewsCarousel'
 import WhatsAppButton from './components/WhatsAppButton'
 import WazeButton from './components/WazeButton'
-import ReviewsGrid from '@/app/components/ReviewsGrid'
 
 const Page = () => {
   return (
@@ -39,7 +40,8 @@ const Page = () => {
       <Portfolio />
       <Attractions />
       <Restaurants />
-      <ReviewsGrid />
+      <SecretTrails />
+      <ReviewsCarousel />
       <Contact />
       <Footer />
       <FloatingAvailability />
