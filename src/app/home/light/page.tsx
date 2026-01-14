@@ -9,6 +9,7 @@ import Hero from './components/Hero'
 import Portfolio from './components/Portfolio'
 import WhatsAppButton from './components/WhatsAppButton'
 import WazeButton from './components/WazeButton'
+import ReviewsGrid from '@/app/components/ReviewsGrid'
 
 const Page = () => {
   return (
@@ -38,6 +39,7 @@ const Page = () => {
       <Portfolio />
       <Attractions />
       <Restaurants />
+      <ReviewsGrid />
       <Contact />
       <Footer />
       <FloatingAvailability />
