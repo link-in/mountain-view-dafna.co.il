@@ -5,6 +5,7 @@ import { Open_Sans, Poppins, Rubik } from 'next/font/google'
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import '@/assets/scss/style.scss'
+import GoogleTagManager from './components/GoogleTagManager'
 
 const openSans = Open_Sans({
   display: 'swap',
@@ -42,9 +43,15 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  // Google Tag Manager ID
+  const gtmId = 'GTM-WZJ2QGJ6'
+  
   return (
     <html lang="he">
-      <body className={`${openSans.className} ${poppins.variable} ${rubik.variable}`}> {children}</body>
+      <body className={`${openSans.className} ${poppins.variable} ${rubik.variable}`}>
+        <GoogleTagManager gtmId={gtmId} />
+        {children}
+      </body>
     </html>
   )
 }
