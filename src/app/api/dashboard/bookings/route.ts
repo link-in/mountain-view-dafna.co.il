@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 export const dynamic = 'force-static'
 export const revalidate = false
@@ -9,7 +9,7 @@ const getBaseUrl = () => process.env.BEDS24_API_BASE_URL ?? DEFAULT_BASE_URL
 
 const getApiKey = () => process.env.BEDS24_TOKEN ?? process.env.BEDS24_API_KEY
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   const apiKey = getApiKey()
 
   if (!apiKey) {
@@ -17,9 +17,16 @@ export async function GET(request: NextRequest) {
   }
 
   const url = new URL(`${getBaseUrl()}/bookings`)
-  request.nextUrl.searchParams.forEach((value, key) => {
-    url.searchParams.set(key, value)
-  })
+  const query = process.env.BEDS24_BOOKINGS_QUERY
+  if (query) {
+    const params = new URLSearchParams(query)
+    params.forEach((value, key) => {
+      url.searchParams.set(key, value)
+    })
+  } else {
+    url.searchParams.set('arrivalFrom', '2024-01-01')
+    url.searchParams.set('includeInvoice', 'true')
+  }
 
   try {
     const response = await fetch(url.toString(), {

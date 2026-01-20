@@ -25,7 +25,14 @@ export interface PriceRule {
   notes?: string
 }
 
+export interface RoomPrice {
+  date: string
+  price: number
+  roomId?: string | null
+}
+
 export interface DashboardProvider {
   getReservations: () => Promise<Reservation[]>
   getPricingRules: () => Promise<PriceRule[]>
+  getRoomPrices: () => Promise<RoomPrice[]>
 }

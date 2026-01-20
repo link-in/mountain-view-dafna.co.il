@@ -1,4 +1,4 @@
-import type { DashboardProvider, PriceRule, Reservation } from '@/lib/dashboard/types'
+import type { DashboardProvider, PriceRule, Reservation, RoomPrice } from '@/lib/dashboard/types'
 
 const reservations: Reservation[] = [
   {
@@ -83,7 +83,18 @@ const pricingRules: PriceRule[] = [
   },
 ]
 
+const roomPrices: RoomPrice[] = [
+  { date: '2026-02-10', price: 650, roomId: 'room_1' },
+  { date: '2026-02-11', price: 650, roomId: 'room_1' },
+  { date: '2026-02-12', price: 720, roomId: 'room_1' },
+  { date: '2026-02-13', price: 720, roomId: 'room_1' },
+  { date: '2026-02-14', price: 720, roomId: 'room_1' },
+  { date: '2026-02-15', price: 650, roomId: 'room_1' },
+  { date: '2026-02-16', price: 650, roomId: 'room_1' },
+]
+
 export const mockDashboardProvider: DashboardProvider = {
   getReservations: async () => reservations,
   getPricingRules: async () => pricingRules,
+  getRoomPrices: async () => roomPrices,
 }

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { PriceRule, Reservation } from '@/lib/dashboard/types'
+import type { PriceRule, Reservation, RoomPrice } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
 import PricingTable from './components/PricingTable'
@@ -14,10 +14,13 @@ const DashboardClient = () => {
   const [{ provider, meta }] = useState(() => getDashboardProvider())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [pricingRules, setPricingRules] = useState<PriceRule[]>([])
+  const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
   const [loadingPricing, setLoadingPricing] = useState(true)
+  const [loadingRoomPrices, setLoadingRoomPrices] = useState(true)
   const [reservationsError, setReservationsError] = useState<string | null>(null)
   const [pricingError, setPricingError] = useState<string | null>(null)
+  const [roomPricesError, setRoomPricesError] = useState<string | null>(null)
   const [logoSrc, setLogoSrc] = useState('/photos/logo.png')
   const [logoVisible, setLogoVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -26,9 +29,10 @@ const DashboardClient = () => {
     let isActive = true
 
     const load = async () => {
-      const [reservationsResult, pricingResult] = await Promise.allSettled([
+      const [reservationsResult, pricingResult, roomPricesResult] = await Promise.allSettled([
         provider.getReservations(),
         provider.getPricingRules(),
+        provider.getRoomPrices(),
       ])
 
       if (!isActive) {
@@ -53,8 +57,18 @@ const DashboardClient = () => {
         )
       }
 
+      if (roomPricesResult.status === 'fulfilled') {
+        setRoomPrices(roomPricesResult.value)
+        setRoomPricesError(null)
+      } else {
+        setRoomPricesError(
+          roomPricesResult.reason instanceof Error ? roomPricesResult.reason.message : 'טעינת מחירי לילה נכשלה'
+        )
+      }
+
       setLoadingReservations(false)
       setLoadingPricing(false)
+      setLoadingRoomPrices(false)
     }
 
     load()
@@ -183,7 +197,16 @@ const DashboardClient = () => {
                 סנכרון מחירים
               </button>
             </div>
-            <CalendarPricing reservations={reservations} />
+            {roomPricesError ? (
+              <div className="alert alert-warning mb-3" role="alert">
+                {roomPricesError}
+              </div>
+            ) : null}
+            {loadingRoomPrices ? (
+              <div className="text-muted">טוען מחירי לילה...</div>
+            ) : (
+              <CalendarPricing reservations={reservations} prices={roomPrices} />
+            )}
           </div>
         </div>
 

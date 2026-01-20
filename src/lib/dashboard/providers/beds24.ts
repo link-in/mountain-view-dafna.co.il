@@ -1,4 +1,4 @@
-import type { DashboardProvider, PriceRule, Reservation } from '@/lib/dashboard/types'
+import type { DashboardProvider, PriceRule, Reservation, RoomPrice } from '@/lib/dashboard/types'
 
 type Beds24ProviderConfig = {
   baseUrl?: string
@@ -7,7 +7,7 @@ type Beds24ProviderConfig = {
 
 const DEFAULT_BASE_URL = '/api/dashboard'
 
-const buildHeaders = (apiKey?: string) => {
+const buildHeaders = (apiKey?: string): Record<string, string> => {
   if (!apiKey) {
     return {}
   }
@@ -40,7 +40,14 @@ export const createBeds24Provider = (config: Beds24ProviderConfig = {}): Dashboa
       return bookings.map(mapBookingToReservation)
     },
     getPricingRules: async () => {
-      return fetchJson<PriceRule[]>(`${baseUrl}/pricing`, apiKey)
+      // Beds24 API does not expose a pricing rules endpoint in this flow.
+      // Use the inventory calendar prices instead.
+      return []
+    },
+    getRoomPrices: async () => {
+      const payload = await fetchJson<unknown>(`${baseUrl}/rooms`, apiKey)
+      const prices = extractRoomPrices(payload)
+      return prices
     },
   }
 }
@@ -63,6 +70,21 @@ const extractBookings = (payload: unknown): Record<string, unknown>[] => {
     const bookings = (payload as { bookings?: unknown }).bookings
     if (Array.isArray(bookings)) {
       return bookings as Record<string, unknown>[]
+    }
+  }
+
+  return []
+}
+
+const extractRoomPrices = (payload: unknown): RoomPrice[] => {
+  if (!payload) {
+    return []
+  }
+
+  if (typeof payload === 'object') {
+    const prices = (payload as { prices?: unknown }).prices
+    if (Array.isArray(prices)) {
+      return prices as RoomPrice[]
     }
   }
 
