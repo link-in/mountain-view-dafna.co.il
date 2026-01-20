@@ -18,7 +18,12 @@ const normalizeDate = (value: Date) => {
   return normalized
 }
 
-const toKey = (value: Date) => value.toISOString().slice(0, 10)
+const toKey = (value: Date) => {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
 
 const isSameDay = (a: Date, b: Date) => a.getTime() === b.getTime()
 
@@ -26,6 +31,44 @@ const addDays = (date: Date, days: number) => {
   const copy = new Date(date)
   copy.setDate(copy.getDate() + days)
   return copy
+}
+
+const addMonths = (date: Date, months: number) => {
+  const copy = new Date(date)
+  copy.setDate(1)
+  copy.setMonth(copy.getMonth() + months)
+  return copy
+}
+
+const sortDates = (dates: Date[]) => {
+  return [...dates].sort((a, b) => a.getTime() - b.getTime())
+}
+
+const buildDateRanges = (dates: Date[]) => {
+  const sorted = sortDates(dates)
+  if (!sorted.length) {
+    return []
+  }
+
+  const ranges: { from: string; to: string }[] = []
+  let rangeStart = sorted[0]
+  let prev = sorted[0]
+
+  for (let i = 1; i < sorted.length; i += 1) {
+    const current = sorted[i]
+    const expected = addDays(prev, 1)
+    if (isSameDay(current, expected)) {
+      prev = current
+      continue
+    }
+
+    ranges.push({ from: toKey(rangeStart), to: toKey(prev) })
+    rangeStart = current
+    prev = current
+  }
+
+  ranges.push({ from: toKey(rangeStart), to: toKey(prev) })
+  return ranges
 }
 
 const buildBookingMap = (reservations: Reservation[]) => {
@@ -122,6 +165,11 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
   const [selectedDates, setSelectedDates] = useState<Date[]>([])
   const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({})
   const [priceInput, setPriceInput] = useState(DEFAULT_PRICE)
+  const [minStayInput, setMinStayInput] = useState(1)
+  const [saveError, setSaveError] = useState<string | null>(null)
+  const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const todayKey = toKey(normalizeDate(new Date()))
 
   const bookingMap = useMemo(() => buildBookingMap(reservations), [reservations])
@@ -144,7 +192,7 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
   const days = useMemo(() => {
     const start = startOfMonth(currentMonth)
     const end = endOfMonth(currentMonth)
-    const leading = (start.getDay() + 6) % 7
+    const leading = start.getDay()
     const totalCells = leading + end.getDate()
     const rows = Math.ceil(totalCells / 7) * 7
 
@@ -162,8 +210,11 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
   const handleDateToggle = (date: Date) => {
     const key = toKey(date)
     if (bookingMap.has(key)) {
+      const list = bookingMap.get(key)
+      setSelectedReservation(list?.[0] ?? null)
       return
     }
+    setSelectedReservation(null)
     setSelectedDates((prev) => {
       const exists = prev.some((item) => isSameDay(item, date))
       if (exists) {
@@ -173,18 +224,63 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
     })
   }
 
-  const applyPrice = () => {
+  const applyPrice = async () => {
     if (!selectedDates.length) {
       return
     }
-    setPriceOverrides((prev) => {
-      const next = { ...prev }
-      selectedDates.forEach((date) => {
-        next[toKey(date)] = priceInput
+    if (saving) {
+      return
+    }
+    setSaveError(null)
+    setSaveSuccess(null)
+    setSaving(true)
+
+    const roomId = prices.find((entry) => entry.roomId)?.roomId
+    if (!roomId) {
+      setSaveError('חסר roomId לעדכון מחירים.')
+      setSaving(false)
+      return
+    }
+
+    const ranges = buildDateRanges(selectedDates)
+    const payload = [
+      {
+        roomId: Number(roomId),
+        calendar: ranges.map((range) => ({
+          from: range.from,
+          to: range.to,
+          minStay: minStayInput,
+          price1: priceInput,
+          numAvail: 1,
+        })),
+      },
+    ]
+
+    try {
+      const response = await fetch('/api/dashboard/rooms', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
       })
-      return next
-    })
-    setSelectedDates([])
+      if (!response.ok) {
+        const details = await response.text()
+        throw new Error(details || 'Failed to update prices')
+      }
+
+      setPriceOverrides((prev) => {
+        const next = { ...prev }
+        selectedDates.forEach((date) => {
+          next[toKey(date)] = priceInput
+        })
+        return next
+      })
+      setSelectedDates([])
+      setSaveSuccess('המחיר עודכן בהצלחה.')
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : 'עדכון המחיר נכשל')
+    } finally {
+      setSaving(false)
+    }
   }
 
   const clearSelection = () => {
@@ -202,14 +298,14 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
             <button
               type="button"
               className="btn btn-outline-secondary btn-sm"
-              onClick={() => setCurrentMonth(addDays(currentMonth, -30))}
+              onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}
             >
               הקודם
             </button>
             <button
               type="button"
               className="btn btn-outline-secondary btn-sm"
-              onClick={() => setCurrentMonth(addDays(currentMonth, 30))}
+              onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
             >
               הבא
             </button>
@@ -217,7 +313,7 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
         </div>
         <div className="border rounded-4 overflow-hidden bg-white">
           <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {['ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳', 'א׳'].map((day) => (
+            {['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'].map((day) => (
               <div key={day} className="text-center py-2 border-bottom text-muted small fw-semibold">
                 {day}
               </div>
@@ -249,15 +345,14 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
                     style={{
                       position: 'relative',
                       minHeight: '90px',
-                      background: isSelected ? '#0d9488' : showTodayHighlight ? 'rgba(13, 148, 136, 0.12)' : 'transparent',
-                      color: isSelected ? '#fff' : 'inherit',
+                      background: isSelected ? 'rgba(13, 148, 136, 0.18)' : showTodayHighlight ? 'rgba(13, 148, 136, 0.12)' : 'transparent',
+                      color: isSelected ? '#0f172a' : 'inherit',
                       opacity: isCurrentMonth ? 1 : 0.4,
                       cursor: isBooked ? 'not-allowed' : 'pointer',
                       border: isToday ? '2px solid #0d9488' : '1px solid transparent',
                       borderRadius: bookingRadius,
                     }}
                     onClick={() => handleDateToggle(date)}
-                    disabled={isBooked}
                   >
                     <span
                       className="fw-semibold"
@@ -333,8 +428,31 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
               value={priceInput}
               onChange={(event) => setPriceInput(Number(event.target.value))}
             />
-            <button type="button" className="btn btn-success w-100" onClick={applyPrice} disabled={!selectedDates.length}>
-              עדכן מחיר לתאריכים שנבחרו
+            <label className="form-label small fw-semibold">מינימום לילות</label>
+            <input
+              type="number"
+              min={1}
+              className="form-control mb-3"
+              value={minStayInput}
+              onChange={(event) => setMinStayInput(Math.max(1, Number(event.target.value)))}
+            />
+            {saveError ? (
+              <div className="alert alert-danger py-2 mb-3" role="alert">
+                {saveError}
+              </div>
+            ) : null}
+            {saveSuccess ? (
+              <div className="alert alert-success py-2 mb-3" role="alert">
+                {saveSuccess}
+              </div>
+            ) : null}
+            <button
+              type="button"
+              className="btn btn-success w-100"
+              onClick={applyPrice}
+              disabled={!selectedDates.length || saving}
+            >
+              {saving ? 'שומר מחיר...' : 'עדכן מחיר לתאריכים שנבחרו'}
             </button>
             <button
               type="button"
@@ -370,6 +488,38 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
                   תאריך שנבחר לעדכון מחיר
                 </div>
               </div>
+            </div>
+            <div className="mt-4">
+              <div className="small fw-semibold mb-2">פרטי הזמנה</div>
+              {selectedReservation ? (
+                <div className="border rounded-3 p-3 bg-light">
+                  <div className="fw-semibold">{selectedReservation.guestName}</div>
+                  <div className="small text-muted">
+                    {selectedReservation.checkIn} - {selectedReservation.checkOut}
+                  </div>
+                  <div className="small mt-2">
+                    <span className="fw-semibold">סטטוס:</span> {selectedReservation.status}
+                  </div>
+                  <div className="small">
+                    <span className="fw-semibold">לילות:</span> {selectedReservation.nights}
+                  </div>
+                  <div className="small">
+                    <span className="fw-semibold">סה״כ:</span> {formatCurrency(selectedReservation.total)}
+                  </div>
+                  {selectedReservation.source ? (
+                    <div className="small">
+                      <span className="fw-semibold">מקור:</span> {selectedReservation.source}
+                    </div>
+                  ) : null}
+                  {selectedReservation.unitName ? (
+                    <div className="small">
+                      <span className="fw-semibold">יחידה:</span> {selectedReservation.unitName}
+                    </div>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="small text-muted">בחר תאריך עם הזמנה כדי לראות פרטים.</div>
+              )}
             </div>
           </div>
         </div>

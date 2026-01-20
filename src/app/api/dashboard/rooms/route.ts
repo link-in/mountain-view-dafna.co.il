@@ -76,6 +76,13 @@ const normalizeDate = (value: Date) => {
   return normalized
 }
 
+const formatLocalDate = (value: Date) => {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 const addDays = (value: Date, days: number) => {
   const next = new Date(value)
   next.setDate(next.getDate() + days)
@@ -223,7 +230,7 @@ export async function GET() {
       let cursor = start
       while (cursor <= end) {
         entries.push({
-          date: cursor.toISOString().slice(0, 10),
+          date: formatLocalDate(cursor),
           price,
           roomId: roomId ?? calendarId ?? null,
         })
@@ -235,4 +242,46 @@ export async function GET() {
   })
 
   return NextResponse.json({ prices, raw: data })
+}
+
+export async function POST(request: Request) {
+  const apiKey = getApiKey()
+  const propertyId = process.env.BEDS24_PROPERTY_ID
+
+  if (!apiKey) {
+    return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
+  }
+
+  let payload: unknown
+  try {
+    payload = await request.json()
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+  }
+
+  const url = new URL(`${getBaseUrl()}/inventory/rooms/calendar`)
+  if (propertyId) {
+    url.searchParams.set('propertyId', propertyId)
+  }
+
+  const response = await fetch(url.toString(), {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      token: apiKey,
+    },
+    body: JSON.stringify(payload),
+  })
+
+  if (!response.ok) {
+    const details = await response.text()
+    return NextResponse.json(
+      { error: 'Beds24 request failed', status: response.status, details, requestUrl: url.toString() },
+      { status: 502 }
+    )
+  }
+
+  const data = await response.json()
+  return NextResponse.json(data)
 }

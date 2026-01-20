@@ -2,10 +2,9 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
-import type { PriceRule, Reservation, RoomPrice } from '@/lib/dashboard/types'
+import type { Reservation, RoomPrice } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
-import PricingTable from './components/PricingTable'
 import ReservationsTable from './components/ReservationsTable'
 import StatCard from './components/StatCard'
 import CalendarPricing from './components/CalendarPricing'
@@ -13,13 +12,10 @@ import CalendarPricing from './components/CalendarPricing'
 const DashboardClient = () => {
   const [{ provider, meta }] = useState(() => getDashboardProvider())
   const [reservations, setReservations] = useState<Reservation[]>([])
-  const [pricingRules, setPricingRules] = useState<PriceRule[]>([])
   const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
-  const [loadingPricing, setLoadingPricing] = useState(true)
   const [loadingRoomPrices, setLoadingRoomPrices] = useState(true)
   const [reservationsError, setReservationsError] = useState<string | null>(null)
-  const [pricingError, setPricingError] = useState<string | null>(null)
   const [roomPricesError, setRoomPricesError] = useState<string | null>(null)
   const [logoSrc, setLogoSrc] = useState('/photos/logo.png')
   const [logoVisible, setLogoVisible] = useState(true)
@@ -29,9 +25,8 @@ const DashboardClient = () => {
     let isActive = true
 
     const load = async () => {
-      const [reservationsResult, pricingResult, roomPricesResult] = await Promise.allSettled([
+      const [reservationsResult, roomPricesResult] = await Promise.allSettled([
         provider.getReservations(),
-        provider.getPricingRules(),
         provider.getRoomPrices(),
       ])
 
@@ -48,15 +43,6 @@ const DashboardClient = () => {
         )
       }
 
-      if (pricingResult.status === 'fulfilled') {
-        setPricingRules(pricingResult.value)
-        setPricingError(null)
-      } else {
-        setPricingError(
-          pricingResult.reason instanceof Error ? pricingResult.reason.message : 'טעינת מחירים נכשלה'
-        )
-      }
-
       if (roomPricesResult.status === 'fulfilled') {
         setRoomPrices(roomPricesResult.value)
         setRoomPricesError(null)
@@ -67,7 +53,6 @@ const DashboardClient = () => {
       }
 
       setLoadingReservations(false)
-      setLoadingPricing(false)
       setLoadingRoomPrices(false)
     }
 
@@ -94,6 +79,54 @@ const DashboardClient = () => {
       upcomingCount,
     }
   }, [reservations])
+
+  const priceSummary = useMemo(() => {
+    if (!roomPrices.length) {
+      return null
+    }
+
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
+    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+    const toLocalKey = (value: Date) => {
+      const year = value.getFullYear()
+      const month = String(value.getMonth() + 1).padStart(2, '0')
+      const day = String(value.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
+    }
+    const startKey = toLocalKey(monthStart)
+    const endKey = toLocalKey(monthEnd)
+
+    const monthPrices = roomPrices.filter((entry) => entry.date >= startKey && entry.date <= endKey)
+    if (!monthPrices.length) {
+      return null
+    }
+
+    const prices = monthPrices.map((entry) => entry.price).filter((value) => Number.isFinite(value))
+    if (!prices.length) {
+      return null
+    }
+
+    const total = prices.reduce((sum, value) => sum + value, 0)
+    const uniqueDays = new Set(monthPrices.map((entry) => entry.date)).size
+    const roomsCount = new Set(monthPrices.map((entry) => entry.roomId ?? 'unknown')).size
+    const minPrice = Math.min(...prices)
+    const maxPrice = Math.max(...prices)
+    const avgPrice = total / prices.length
+    const formatMonth = (value: Date) => {
+      return new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(value)
+    }
+
+    return {
+      uniqueDays,
+      roomsCount,
+      minPrice,
+      maxPrice,
+      avgPrice,
+      monthLabel: formatMonth(monthStart),
+      monthRange: `${startKey} - ${endKey}`,
+    }
+  }, [roomPrices])
 
   return (
     <main className="bg-light" style={{ minHeight: '100vh' }} dir="rtl">
@@ -213,17 +246,34 @@ const DashboardClient = () => {
         <div className="card border-0 shadow-sm">
           <div className="card-body">
             <div className="d-flex align-items-center justify-content-between mb-3">
-              <h2 className="h5 fw-bold mb-0">ניהול מחירים</h2>
-              <button type="button" className="btn btn-outline-secondary btn-sm" disabled>
-                ערוך מחירים
-              </button>
+              <h2 className="h5 fw-bold mb-0">סיכום מחירים</h2>
             </div>
-            {pricingError ? (
-              <div className="alert alert-warning mb-3" role="alert">
-                {pricingError}
+            {loadingRoomPrices ? (
+              <div className="text-muted">טוען נתונים...</div>
+            ) : priceSummary ? (
+              <div className="row g-3">
+                <div className="col-md-4">
+                  <StatCard title="חודש" value={priceSummary.monthLabel} helper={priceSummary.monthRange} />
+                </div>
+                <div className="col-md-4">
+                  <StatCard title="ימים מתומחרים" value={`${priceSummary.uniqueDays}`} helper="מספר הימים עם מחיר" />
+                </div>
+                <div className="col-md-4">
+                  <StatCard title="מספר חדרים" value={`${priceSummary.roomsCount}`} helper="חדרים שנכללו בנתונים" />
+                </div>
+                <div className="col-md-4">
+                  <StatCard title="מחיר מינימום" value={formatCurrency(priceSummary.minPrice)} />
+                </div>
+                <div className="col-md-4">
+                  <StatCard title="מחיר ממוצע" value={formatCurrency(priceSummary.avgPrice)} />
+                </div>
+                <div className="col-md-4">
+                  <StatCard title="מחיר מקסימום" value={formatCurrency(priceSummary.maxPrice)} />
+                </div>
               </div>
-            ) : null}
-            {loadingPricing ? <div className="text-muted">טוען נתונים...</div> : <PricingTable rules={pricingRules} />}
+            ) : (
+              <div className="text-muted">אין מחירים להצגה.</div>
+            )}
           </div>
         </div>
       </div>

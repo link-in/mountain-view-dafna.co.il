@@ -11,6 +11,7 @@
 | Bookings (dash) | GET | `/api/dashboard/bookings` | פרוקסי ל־Beds24 להזמנות. מעביר query params לשירות החיצוני. | עובד עם `token` מה־`.env.local` |
 | Properties (test) | GET | `/api/dashboard/properties` | פרוקסי ל־Beds24 לנכסים. | לשימוש בדיקות |
 | Rooms inventory | GET | `/api/dashboard/rooms` | פרוקסי ל־Beds24 ללוח מחירים של חדרים. | דורש `propertyId`, `startDate`, `endDate`, `includePrices=true`. אופציונלי `roomId`, `includeAvailability` ו‑`includeNumAvail/includeMinStay/includeMaxStay/includeMultiplier/includeOverride/includeChannels`. מחזיר `prices[]` מפושט |
+| Rooms inventory | POST | `/api/dashboard/rooms` | עדכון מחירים ל־Beds24. | גוף הבקשה תואם ל־`/inventory/rooms/calendar` |
 | Pricing (placeholder) | GET | `/api/dashboard/pricing` | פרוקסי ל־Beds24 למחירים. | כרגע מחזיר 404 מהספק (אין endpoint) |
 | Reservations (legacy) | GET | `/api/dashboard/reservations` | פרוקסי ל־Beds24 להזמנות. | הוחלף ב־`/bookings` |
 
@@ -23,6 +24,7 @@
 | Bookings | GET | `https://api.beds24.com/v2/bookings` | `arrivalFrom`, `includeInvoice` | דורש header `token` |
 | Properties | GET | `https://api.beds24.com/v2/properties` | `includeAllRooms` | דורש header `token` |
 | Rooms inventory | GET | `https://api.beds24.com/v2/inventory/rooms/calendar` | `propertyId`, `startDate`, `endDate`, `includePrices` | דורש header `token` |
+| Rooms inventory | POST | `https://api.beds24.com/v2/inventory/rooms/calendar` | — | גוף בקשה: מערך חדרים עם `roomId` ו־`calendar` |
 
 ## משתני סביבה נדרשים
 
