@@ -5,6 +5,7 @@ import { formatCurrency } from '@/lib/dashboard/utils'
 type CalendarPricingProps = {
   reservations: Reservation[]
   prices: RoomPrice[]
+  onPricesUpdated?: () => Promise<void> | void
 }
 
 const DEFAULT_PRICE = 650
@@ -160,7 +161,7 @@ const buildBookingSegments = (reservations: Reservation[], days: Date[]) => {
   return Array.from(segments.values())
 }
 
-const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
+const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPricingProps) => {
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()))
   const [selectedDates, setSelectedDates] = useState<Date[]>([])
   const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({})
@@ -235,17 +236,10 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
     setSaveSuccess(null)
     setSaving(true)
 
-    const roomId = prices.find((entry) => entry.roomId)?.roomId
-    if (!roomId) {
-      setSaveError('חסר roomId לעדכון מחירים.')
-      setSaving(false)
-      return
-    }
-
     const ranges = buildDateRanges(selectedDates)
     const payload = [
       {
-        roomId: Number(roomId),
+        ...(prices.find((entry) => entry.roomId)?.roomId ? { roomId: Number(prices.find((entry) => entry.roomId)?.roomId) } : {}),
         calendar: ranges.map((range) => ({
           from: range.from,
           to: range.to,
@@ -266,6 +260,10 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
         const details = await response.text()
         throw new Error(details || 'Failed to update prices')
       }
+      const result = await response.json()
+      if (result && typeof result === 'object' && (result as { success?: boolean; error?: string }).success === false) {
+        throw new Error((result as { error?: string }).error ?? 'עדכון המחיר נכשל')
+      }
 
       setPriceOverrides((prev) => {
         const next = { ...prev }
@@ -275,6 +273,9 @@ const CalendarPricing = ({ reservations, prices }: CalendarPricingProps) => {
         return next
       })
       setSelectedDates([])
+      if (onPricesUpdated) {
+        await onPricesUpdated()
+      }
       setSaveSuccess('המחיר עודכן בהצלחה.')
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : 'עדכון המחיר נכשל')

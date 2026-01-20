@@ -57,3 +57,91 @@ export async function GET() {
     )
   }
 }
+
+export async function POST(request: Request) {
+  const apiKey = getApiKey()
+
+  if (!apiKey) {
+    return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
+  }
+
+  let payload: unknown
+  try {
+    payload = await request.json()
+  } catch (error) {
+    return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+  }
+
+  const propertyId = process.env.BEDS24_PROPERTY_ID
+  const roomId = process.env.BEDS24_ROOM_ID
+
+  if (!propertyId || !roomId) {
+    return NextResponse.json({ error: 'Missing BEDS24_PROPERTY_ID or BEDS24_ROOM_ID' }, { status: 500 })
+  }
+
+  const extractInvoiceTotal = (items: unknown[]) => {
+    return items.reduce((sum, entry) => {
+      if (!entry || typeof entry !== 'object') {
+        return sum
+      }
+      const amount =
+        (typeof (entry as { amount?: unknown }).amount === 'number' && (entry as { amount: number }).amount) ||
+        (typeof (entry as { amount?: unknown }).amount === 'string' && Number.parseFloat((entry as { amount: string }).amount)) ||
+        (typeof (entry as { total?: unknown }).total === 'number' && (entry as { total: number }).total) ||
+        (typeof (entry as { total?: unknown }).total === 'string' && Number.parseFloat((entry as { total: string }).total)) ||
+        0
+      return Number.isFinite(amount) ? sum + amount : sum
+    }, 0)
+  }
+
+  const normalizeItem = (item: Record<string, unknown>) => {
+    const invoiceItems = Array.isArray(item.invoice) ? item.invoice : []
+    const explicitPrice =
+      (typeof item.price === 'number' && item.price) ||
+      (typeof item.price === 'string' && Number.parseFloat(item.price)) ||
+      0
+    const invoiceTotal = extractInvoiceTotal(invoiceItems)
+    const price = explicitPrice || invoiceTotal
+    return {
+      propertyId: Number(propertyId),
+      roomId: Number(roomId),
+      arrival: item.arrival,
+      departure: item.departure,
+      firstName: item.firstName,
+      lastName: item.lastName,
+      status: item.status ?? 'confirmed',
+      invoice: invoiceItems,
+      ...(price ? { price } : {}),
+    }
+  }
+
+  const normalizedPayload = Array.isArray(payload)
+    ? payload.map((item) => normalizeItem(item as Record<string, unknown>))
+    : [normalizeItem(payload as Record<string, unknown>)]
+
+  console.log('Beds24 booking payload', normalizedPayload)
+
+  const response = await fetch(`${getBaseUrl()}/bookings`, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      token: apiKey,
+    },
+    body: JSON.stringify(normalizedPayload),
+  })
+
+  if (!response.ok) {
+    const details = await response.text()
+    return NextResponse.json(
+      { error: 'Beds24 request failed', status: response.status, details },
+      { status: 502 }
+    )
+  }
+
+  const data = await response.json()
+  if (process.env.NODE_ENV !== 'production') {
+    return NextResponse.json({ data, debugPayload: normalizedPayload })
+  }
+  return NextResponse.json(data)
+}

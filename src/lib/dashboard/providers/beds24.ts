@@ -122,8 +122,9 @@ const mapBookingToReservation = (booking: Record<string, unknown>, index: number
     Number(booking.numNights ?? booking.nights ?? booking.nightCount ?? 0) ||
     calculateNights(checkIn, checkOut)
 
-  const total =
+  const totalFromFields =
     Number(booking.price ?? booking.totalPrice ?? booking.total ?? booking.grandTotal ?? booking.invoiceTotal ?? 0) || 0
+  const total = totalFromFields || extractInvoiceTotal(booking)
 
   const rawStatus =
     (typeof booking.status === 'string' && booking.status) ||
@@ -176,4 +177,32 @@ const calculateNights = (checkIn: string, checkOut: string) => {
   }
   const diffMs = end.getTime() - start.getTime()
   return diffMs > 0 ? Math.ceil(diffMs / (1000 * 60 * 60 * 24)) : 0
+}
+
+const extractInvoiceTotal = (booking: Record<string, unknown>) => {
+  const invoice = booking.invoice
+  const invoiceItems = Array.isArray(invoice)
+    ? invoice
+    : (invoice && typeof invoice === 'object' && Array.isArray((invoice as { items?: unknown }).items)
+        ? (invoice as { items: unknown[] }).items
+        : [])
+
+  if (!invoiceItems.length) {
+    return 0
+  }
+
+  const sum = invoiceItems.reduce((total, item) => {
+    if (!item || typeof item !== 'object') {
+      return total
+    }
+    const amount =
+      (typeof (item as { amount?: unknown }).amount === 'number' && (item as { amount: number }).amount) ||
+      (typeof (item as { amount?: unknown }).amount === 'string' && Number.parseFloat((item as { amount: string }).amount)) ||
+      (typeof (item as { total?: unknown }).total === 'number' && (item as { total: number }).total) ||
+      (typeof (item as { total?: unknown }).total === 'string' && Number.parseFloat((item as { total: string }).total)) ||
+      0
+    return Number.isFinite(amount) ? total + amount : total
+  }, 0)
+
+  return Number.isFinite(sum) ? sum : 0
 }

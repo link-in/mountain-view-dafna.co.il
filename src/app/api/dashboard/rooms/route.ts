@@ -247,6 +247,7 @@ export async function GET() {
 export async function POST(request: Request) {
   const apiKey = getApiKey()
   const propertyId = process.env.BEDS24_PROPERTY_ID
+  const defaultRoomId = process.env.BEDS24_ROOM_ID
 
   if (!apiKey) {
     return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
@@ -264,6 +265,20 @@ export async function POST(request: Request) {
     url.searchParams.set('propertyId', propertyId)
   }
 
+  const normalizedPayload = Array.isArray(payload)
+    ? payload.map((item) => ({
+        ...item,
+        propertyId: propertyId ? Number(propertyId) : (item as { propertyId?: number }).propertyId,
+        roomId: (item as { roomId?: number }).roomId ?? (defaultRoomId ? Number(defaultRoomId) : undefined),
+      }))
+    : {
+        ...(payload as Record<string, unknown>),
+        propertyId: propertyId ? Number(propertyId) : (payload as { propertyId?: number }).propertyId,
+        roomId: (payload as { roomId?: number }).roomId ?? (defaultRoomId ? Number(defaultRoomId) : undefined),
+      }
+
+  console.log('Beds24 rooms calendar payload', normalizedPayload)
+
   const response = await fetch(url.toString(), {
     method: 'POST',
     headers: {
@@ -271,7 +286,7 @@ export async function POST(request: Request) {
       'content-type': 'application/json',
       token: apiKey,
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(normalizedPayload),
   })
 
   if (!response.ok) {
@@ -283,5 +298,8 @@ export async function POST(request: Request) {
   }
 
   const data = await response.json()
+  if (process.env.NODE_ENV !== 'production') {
+    return NextResponse.json({ data, debugPayload: normalizedPayload, requestUrl: url.toString() })
+  }
   return NextResponse.json(data)
 }
