@@ -80,7 +80,7 @@ export async function POST(request: Request) {
   }
 
   const extractInvoiceTotal = (items: unknown[]) => {
-    return items.reduce((sum, entry) => {
+    return items.reduce<number>((sum, entry) => {
       if (!entry || typeof entry !== 'object') {
         return sum
       }
