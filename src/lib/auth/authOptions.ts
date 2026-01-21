@@ -48,14 +48,27 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt',
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
+      // Initial sign in
       if (user) {
         token.id = user.id
         token.email = user.email
         token.displayName = user.displayName
         token.propertyId = user.propertyId
         token.roomId = user.roomId
+        token.landingPageUrl = user.landingPageUrl
       }
+      
+      // Handle session updates (from update() call)
+      if (trigger === 'update' && session) {
+        if (session.displayName) {
+          token.displayName = session.displayName
+        }
+        if (session.landingPageUrl !== undefined) {
+          token.landingPageUrl = session.landingPageUrl
+        }
+      }
+      
       return token
     },
     async session({ session, token }) {
@@ -66,6 +79,7 @@ export const authOptions: NextAuthOptions = {
           displayName: token.displayName,
           propertyId: token.propertyId,
           roomId: token.roomId,
+          landingPageUrl: token.landingPageUrl as string | undefined,
         }
       }
       return session

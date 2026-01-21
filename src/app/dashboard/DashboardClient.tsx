@@ -391,6 +391,9 @@ const DashboardClient = () => {
                 <Link className="dropdown-item py-2" href="/dashboard" onClick={() => setMenuOpen(false)}>
                   ניהול זמינות/מחירים
                 </Link>
+                <Link className="dropdown-item py-2" href="/dashboard/profile" onClick={() => setMenuOpen(false)}>
+                  איזור אישי
+                </Link>
                 <Link className="dropdown-item py-2" href="/dashboard/landing" onClick={() => setMenuOpen(false)}>
                   ניהול דף נחיתה
                 </Link>

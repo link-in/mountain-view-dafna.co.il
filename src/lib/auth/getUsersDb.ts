@@ -57,5 +57,6 @@ export const toAuthUser = (user: User): AuthUser => {
     displayName: user.displayName,
     propertyId: user.propertyId,
     roomId: user.roomId,
+    landingPageUrl: user.landingPageUrl,
   }
 }

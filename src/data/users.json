@@ -5,7 +5,8 @@
     "passwordHash": "$2b$10$VTjQH1KkpifyV7wDrQUn4e22c006qBsvEIzJ1QsqALVVdY95LlLAe",
     "displayName": "נוף הרים בדפנה",
     "propertyId": "306559",
-    "roomId": "638851"
+    "roomId": "638851",
+    "landingPageUrl": "https://mountain-view-dafna.co.il"
   },
   {
     "id": "user_2",
@@ -13,7 +14,8 @@
     "passwordHash": "$2b$10$VTjQH1KkpifyV7wDrQUn4e22c006qBsvEIzJ1QsqALVVdY95LlLAe",
     "displayName": "יחידה 2",
     "propertyId": "123456",
-    "roomId": "789012"
+    "roomId": "789012",
+    "landingPageUrl": ""
   },
   {
     "id": "user_3",
@@ -21,6 +23,7 @@
     "passwordHash": "$2b$10$VTjQH1KkpifyV7wDrQUn4e22c006qBsvEIzJ1QsqALVVdY95LlLAe",
     "displayName": "יחידה 3",
     "propertyId": "111111",
-    "roomId": "222222"
+    "roomId": "222222",
+    "landingPageUrl": ""
   }
 ]

@@ -5,6 +5,7 @@ export interface User {
   displayName: string
   propertyId: string
   roomId: string
+  landingPageUrl?: string
 }
 
 export interface AuthUser {
@@ -13,6 +14,7 @@ export interface AuthUser {
   displayName: string
   propertyId: string
   roomId: string
+  landingPageUrl?: string
 }
 
 export interface UserCredentials {
