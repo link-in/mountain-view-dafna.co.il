@@ -13,13 +13,14 @@
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
+    "bcryptjs": "^3.0.3",
     "bootstrap": "5.3.8",
     "glightbox": "^3.3.1",
     "imagesloaded": "^5.0.0",
     "isotope-layout": "^3.0.6",
     "lucide-react": "^0.562.0",
     "next": "^16.0.8",
-    "next-auth": "4.24.13",
+    "next-auth": "^4.24.13",
     "react": "19.2.0",
     "react-bootstrap": "2.10.10",
     "react-dom": "19.2.0",
@@ -27,6 +28,7 @@
     "sass": "1.77.6"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/imagesloaded": "^4.1.7",
     "@types/isotope-layout": "^3.0.15",
     "@types/node": "24.9.2",

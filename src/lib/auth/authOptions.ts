@@ -1,0 +1,75 @@
+import type { NextAuthOptions } from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { getUserByEmail, verifyPassword, toAuthUser } from './getUsersDb'
+import type { AuthUser } from './types'
+
+declare module 'next-auth' {
+  interface Session {
+    user: AuthUser
+  }
+  interface User extends AuthUser {}
+}
+
+declare module 'next-auth/jwt' {
+  interface JWT extends AuthUser {}
+}
+
+export const authOptions: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null
+        }
+
+        const user = await getUserByEmail(credentials.email)
+        if (!user) {
+          return null
+        }
+
+        const isValid = await verifyPassword(credentials.password, user.passwordHash)
+        if (!isValid) {
+          return null
+        }
+
+        return toAuthUser(user)
+      },
+    }),
+  ],
+  pages: {
+    signIn: '/dashboard/login',
+  },
+  session: {
+    strategy: 'jwt',
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.displayName = user.displayName
+        token.propertyId = user.propertyId
+        token.roomId = user.roomId
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          id: token.id,
+          email: token.email,
+          displayName: token.displayName,
+          propertyId: token.propertyId,
+          roomId: token.roomId,
+        }
+      }
+      return session
+    },
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+}

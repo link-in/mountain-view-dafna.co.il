@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useSession, signOut } from 'next-auth/react'
 import type { Reservation, RoomPrice } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
@@ -29,6 +30,7 @@ const addDays = (value: Date, days: number) => {
 }
 
 const DashboardClient = () => {
+  const { data: session } = useSession()
   const [{ provider, meta }] = useState(() => getDashboardProvider())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
@@ -356,12 +358,22 @@ const DashboardClient = () => {
               />
             ) : null}
             <div>
-              <h1 className="fw-bold mb-1 text-dark">נוף הרים בדפנה</h1>
+              <h1 className="fw-bold mb-1 text-dark">{session?.user?.displayName ?? 'נוף הרים בדפנה'}</h1>
+              {session?.user?.email ? (
+                <p className="text-muted small mb-0">{session.user.email}</p>
+              ) : null}
             </div>
           </div>
           <div className="d-flex align-items-center gap-2 position-relative">
             <span className="text-muted small">מקור נתונים:</span>
             <span className={`badge ${meta.isMock ? 'bg-warning text-dark' : 'bg-success'}`}>{meta.label}</span>
+            <button
+              type="button"
+              className="btn btn-outline-danger btn-sm"
+              onClick={() => signOut({ callbackUrl: '/dashboard/login' })}
+            >
+              התנתק
+            </button>
             <button
               type="button"
               className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"

@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth/authOptions'
 
 export const dynamic = 'force-static'
 export const revalidate = false
@@ -72,8 +74,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
   }
 
-  const propertyId = process.env.BEDS24_PROPERTY_ID
-  const roomId = process.env.BEDS24_ROOM_ID
+  const session = await getServerSession(authOptions)
+  const propertyId = session?.user?.propertyId ?? process.env.BEDS24_PROPERTY_ID
+  const roomId = session?.user?.roomId ?? process.env.BEDS24_ROOM_ID
 
   if (!propertyId || !roomId) {
     return NextResponse.json({ error: 'Missing BEDS24_PROPERTY_ID or BEDS24_ROOM_ID' }, { status: 500 })

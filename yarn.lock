@@ -99,6 +99,11 @@
   dependencies:
     tslib "^2.8.0"
 
+"@types/bcryptjs@^2.4.6":
+  version "2.4.6"
+  resolved "https://registry.npmjs.org/@types/bcryptjs/-/bcryptjs-2.4.6.tgz"
+  integrity sha512-9xlo6R2qDs5uixm0bcIqCeMCE6HiQsIyel9KQySStiyqNl2tnj2mP3DX1Nf56MD6KMenNNlBBsy3LJ7gUEQPXQ==
+
 "@types/imagesloaded@^4.1.7":
   version "4.1.7"
   resolved "https://registry.npmjs.org/@types/imagesloaded/-/imagesloaded-4.1.7.tgz"
@@ -169,6 +174,11 @@ baseline-browser-mapping@^2.8.3, baseline-browser-mapping@^2.9.6:
   version "2.9.6"
   resolved "https://registry.npmjs.org/baseline-browser-mapping/-/baseline-browser-mapping-2.9.6.tgz"
   integrity sha512-v9BVVpOTLB59C9E7aSnmIF8h7qRsFpx+A2nugVMTszEOMcfjlZMsXRm4LF23I3Z9AJxc8ANpIvzbzONoX9VJlg==
+
+bcryptjs@^3.0.3:
+  version "3.0.3"
+  resolved "https://registry.npmjs.org/bcryptjs/-/bcryptjs-3.0.3.tgz"
+  integrity sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==
 
 binary-extensions@^2.0.0:
   version "2.3.0"
@@ -387,7 +397,7 @@ nanoid@^3.3.6:
   resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.3.11.tgz"
   integrity sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==
 
-next-auth@4.24.13:
+next-auth@^4.24.13:
   version "4.24.13"
   resolved "https://registry.npmjs.org/next-auth/-/next-auth-4.24.13.tgz"
   integrity sha512-sgObCfcfL7BzIK76SS5TnQtc3yo2Oifp/yIpfv6fMfeBOiBJkDWF3A2y9+yqnmJ4JKc2C+nMjSjmgDeTwgN1rQ==

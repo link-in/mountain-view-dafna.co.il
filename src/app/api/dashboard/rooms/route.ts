@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth/authOptions'
 
 export const dynamic = 'force-static'
 export const revalidate = false
@@ -123,8 +125,9 @@ const extractRowPrice = (row: unknown) => {
 
 export async function GET() {
   const apiKey = getApiKey()
-  const propertyId = process.env.BEDS24_PROPERTY_ID
-  const roomId = process.env.BEDS24_ROOM_ID
+  const session = await getServerSession(authOptions)
+  const propertyId = session?.user?.propertyId ?? process.env.BEDS24_PROPERTY_ID
+  const roomId = session?.user?.roomId ?? process.env.BEDS24_ROOM_ID
   const includeAvailability = process.env.BEDS24_INCLUDE_AVAILABILITY
 
   if (!apiKey) {
@@ -246,8 +249,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const apiKey = getApiKey()
-  const propertyId = process.env.BEDS24_PROPERTY_ID
-  const defaultRoomId = process.env.BEDS24_ROOM_ID
+  const session = await getServerSession(authOptions)
+  const propertyId = session?.user?.propertyId ?? process.env.BEDS24_PROPERTY_ID
+  const defaultRoomId = session?.user?.roomId ?? process.env.BEDS24_ROOM_ID
 
   if (!apiKey) {
     return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
