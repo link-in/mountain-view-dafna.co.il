@@ -555,14 +555,39 @@ const DashboardClient = () => {
               <div className="d-flex align-items-center gap-2">
                 <button
                   type="button"
-                  className="btn btn-sm"
+                  className="btn btn-sm d-flex align-items-center gap-2"
                   style={{ 
-                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                    border: 'none',
-                    color: 'white',
+                    backgroundColor: 'transparent',
+                    border: '1px solid #764ba2',
+                    color: '#764ba2',
+                    padding: '0.375rem 0.75rem',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = '#764ba2'
+                    e.currentTarget.style.color = 'white'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent'
+                    e.currentTarget.style.color = '#764ba2'
                   }}
                   onClick={() => setShowNewReservation((prev) => !prev)}
                 >
+                  {!showNewReservation && (
+                    <svg 
+                      xmlns="http://www.w3.org/2000/svg" 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 24 24" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      strokeWidth="2" 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round"
+                    >
+                      <line x1="12" y1="5" x2="12" y2="19" />
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                  )}
                   {showNewReservation ? 'סגור טופס' : 'הזמנה חדשה'}
                 </button>
               </div>

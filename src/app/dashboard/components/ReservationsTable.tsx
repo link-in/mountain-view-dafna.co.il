@@ -4,6 +4,18 @@ import React, { useState } from 'react'
 import type { Reservation } from '@/lib/dashboard/types'
 import { formatCurrency, formatDate, formatStatus } from '@/lib/dashboard/utils'
 
+// Add styles for nearest reservation
+const styles = `
+  .nearest-reservation {
+    background-color: #e3f2fd !important;
+    border-left: 4px solid #764ba2 !important;
+  }
+  .nearest-reservation td {
+    background-color: #e3f2fd !important;
+    font-weight: 500 !important;
+  }
+`
+
 const getStatusClass = (status: Reservation['status']) => {
   switch (status) {
     case 'confirmed':
@@ -50,6 +62,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
 
   return (
     <div className="table-responsive">
+      <style>{styles}</style>
       <table className="table align-middle">
         <thead>
           <tr className="text-muted small">
@@ -67,14 +80,8 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
             <React.Fragment key={reservation.id}>
               <tr 
                 onClick={() => toggleExpanded(reservation.id)}
-                style={{ 
-                  cursor: 'pointer',
-                  ...(isNearestReservation(reservation.id) ? {
-                    backgroundColor: 'rgba(102, 126, 234, 0.15)',
-                    borderLeft: '4px solid #667eea',
-                  } : {})
-                }}
-                className={expandedId === reservation.id ? 'table-active' : ''}
+                style={{ cursor: 'pointer' }}
+                className={`${expandedId === reservation.id ? 'table-active' : ''} ${isNearestReservation(reservation.id) ? 'nearest-reservation' : ''}`}
               >
                 <td>
                   <svg 
