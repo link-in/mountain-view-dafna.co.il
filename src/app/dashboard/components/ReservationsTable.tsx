@@ -69,9 +69,10 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                 onClick={() => toggleExpanded(reservation.id)}
                 style={{ 
                   cursor: 'pointer',
-                  backgroundColor: isNearestReservation(reservation.id) 
-                    ? 'rgba(102, 126, 234, 0.1)' 
-                    : undefined
+                  ...(isNearestReservation(reservation.id) ? {
+                    backgroundColor: 'rgba(102, 126, 234, 0.15)',
+                    borderLeft: '4px solid #667eea',
+                  } : {})
                 }}
                 className={expandedId === reservation.id ? 'table-active' : ''}
               >
