@@ -12,7 +12,12 @@ export const formatDate = (value?: string) => {
 }
 
 export const formatCurrency = (value: number) =>
-  new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(value)
+  new Intl.NumberFormat('he-IL', { 
+    style: 'currency', 
+    currency: 'ILS',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
 
 export const formatStatus = (status: string) => {
   switch (status) {

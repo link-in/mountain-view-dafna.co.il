@@ -299,20 +299,76 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
       <div className="col-lg-8">
         <div className="d-flex align-items-center justify-content-between mb-3">
           <div className="fw-semibold">{monthLabel}</div>
-          <div className="btn-group">
+          <div className="d-flex align-items-center gap-1">
             <button
               type="button"
-              className="btn btn-outline-secondary btn-sm"
+              className="btn btn-sm d-flex align-items-center justify-content-center"
+              style={{
+                width: '32px',
+                height: '32px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                color: '#667eea',
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(102, 126, 234, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
               onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}
+              title="חודש קודם"
+              aria-label="חודש קודם"
             >
-              הקודם
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             </button>
             <button
               type="button"
-              className="btn btn-outline-secondary btn-sm"
+              className="btn btn-sm d-flex align-items-center justify-content-center"
+              style={{
+                width: '32px',
+                height: '32px',
+                border: 'none',
+                backgroundColor: 'transparent',
+                color: '#667eea',
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(102, 126, 234, 0.1)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+              }}
               onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
+              title="חודש הבא"
+              aria-label="חודש הבא"
             >
-              הבא
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="20" 
+                height="20" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
             </button>
           </div>
         </div>
@@ -436,25 +492,31 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
             <div className="small text-muted mb-3">
               בחר תאריכים בלוח משמאל, ועדכן מחיר ללילה.
             </div>
-            <label className="form-label small fw-semibold">
-              מחיר ללילה (₪) <span className="text-danger">*</span>
-            </label>
-            <input
-              type="number"
-              min={0}
-              className="form-control mb-3"
-              value={priceInput}
-              onChange={(event) => setPriceInput(event.target.value)}
-              required
-            />
-            <label className="form-label small fw-semibold">מינימום לילות</label>
-            <input
-              type="number"
-              min={1}
-              className="form-control mb-3"
-              value={minStayInput}
-              onChange={(event) => setMinStayInput(Math.max(1, Number(event.target.value)))}
-            />
+            <div className="row g-2 mb-3">
+              <div className="col-6">
+                <label className="form-label small fw-semibold">
+                  מחיר ללילה (₪) <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  className="form-control"
+                  value={priceInput}
+                  onChange={(event) => setPriceInput(event.target.value)}
+                  required
+                />
+              </div>
+              <div className="col-6">
+                <label className="form-label small fw-semibold">מינימום לילות</label>
+                <input
+                  type="number"
+                  min={1}
+                  className="form-control"
+                  value={minStayInput}
+                  onChange={(event) => setMinStayInput(Math.max(1, Number(event.target.value)))}
+                />
+              </div>
+            </div>
             {saveError ? (
               <div className="alert alert-danger py-2 mb-3" role="alert">
                 {saveError}
@@ -478,16 +540,27 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
             >
               {saving ? 'שומר מחיר...' : 'עדכן מחיר לתאריכים שנבחרו'}
             </button>
-            <button
-              type="button"
-              className="btn btn-outline-secondary w-100 mt-2"
-              onClick={clearSelection}
-              disabled={!selectedDates.length}
-            >
-              איפוס בחירה
-            </button>
             <div className="mt-4">
-              <div className="small fw-semibold mb-2">תאריכים שנבחרו</div>
+              <div className="d-flex align-items-center justify-content-between mb-2">
+                <div className="small fw-semibold">תאריכים שנבחרו</div>
+                {selectedDates.length ? (
+                  <button
+                    type="button"
+                    className="btn btn-sm"
+                    style={{
+                      border: '1px solid #cbd5e1',
+                      color: '#64748b',
+                      backgroundColor: 'transparent',
+                      fontSize: '0.7rem',
+                      padding: '0.15rem 0.4rem',
+                    }}
+                    onClick={clearSelection}
+                    title="איפוס בחירה"
+                  >
+                    איפוס
+                  </button>
+                ) : null}
+              </div>
               {selectedDates.length ? (
                 <div className="d-flex flex-wrap gap-2">
                   {selectedDates.map((date) => (

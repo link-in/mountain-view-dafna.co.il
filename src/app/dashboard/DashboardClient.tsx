@@ -517,13 +517,13 @@ const DashboardClient = () => {
         ) : null}
 
         <div className="row g-3 mb-4">
-          <div className="col-md-4">
+          <div className="col-4">
             <StatCard title="סה״כ הכנסות" value={formatCurrency(stats.totalRevenue)} helper="מתוך ההזמנות במערכת" />
           </div>
-          <div className="col-md-4">
+          <div className="col-4">
             <StatCard title="הזמנות מאושרות" value={`${stats.confirmedCount}`} helper="כולל הזמנות עתידיות" />
           </div>
-          <div className="col-md-4">
+          <div className="col-4">
             <StatCard title="הזמנות קרובות" value={`${stats.upcomingCount}`} helper="כניסות קרובות" />
           </div>
         </div>
@@ -564,9 +564,6 @@ const DashboardClient = () => {
                   onClick={() => setShowNewReservation((prev) => !prev)}
                 >
                   {showNewReservation ? 'סגור טופס' : 'הזמנה חדשה'}
-                </button>
-                <button type="button" className="btn btn-outline-secondary btn-sm" disabled>
-                  ייצוא CSV
                 </button>
               </div>
             </div>
@@ -765,26 +762,8 @@ const DashboardClient = () => {
           </div>
         </div>
 
-        <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
-          <div 
-            className="card-body"
-            style={{
-              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
-            }}
-          >
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <h2 
-                className="h5 fw-bold mb-0"
-                style={{
-                  background: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                סיכום מחירים
-              </h2>
-            </div>
+        <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', background: 'transparent' }}>
+          <div className="card-body">
             {loadingRoomPrices ? (
               <div className="text-muted">טוען נתונים...</div>
             ) : priceSummary ? (

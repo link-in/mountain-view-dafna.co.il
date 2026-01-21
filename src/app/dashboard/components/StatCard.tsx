@@ -17,28 +17,31 @@ const StatCard = ({ title, value, helper }: StatCardProps) => {
         borderRadius: '12px',
       }}
     >
-      <div className="card-body">
+      <div className="card-body p-2 p-md-3">
         <div 
-          className="text-uppercase fw-semibold small mb-2"
+          className="text-uppercase fw-semibold mb-1 mb-md-2"
           style={{
             color: 'rgba(249, 147, 251, 0.8)',
+            fontSize: '0.65rem',
           }}
         >
           {title}
         </div>
         <div 
-          className="fs-3 fw-bold"
+          className="fw-bold"
           style={{
             color: 'white',
+            fontSize: '1.25rem',
           }}
         >
           {value}
         </div>
         {helper ? (
           <div 
-            className="small mt-1"
+            className="mt-1"
             style={{
               color: 'rgba(255, 255, 255, 0.6)',
+              fontSize: '0.65rem',
             }}
           >
             {helper}
