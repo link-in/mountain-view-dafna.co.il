@@ -31,14 +31,14 @@ const addDays = (value: Date, days: number) => {
 
 const DashboardClient = () => {
   const { data: session } = useSession()
-  const [{ provider, meta }] = useState(() => getDashboardProvider())
+  const [{ provider }] = useState(() => getDashboardProvider())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
   const [loadingRoomPrices, setLoadingRoomPrices] = useState(true)
   const [reservationsError, setReservationsError] = useState<string | null>(null)
   const [roomPricesError, setRoomPricesError] = useState<string | null>(null)
-  const [logoSrc, setLogoSrc] = useState('/photos/logo.png')
+  const [logoSrc, setLogoSrc] = useState('/photos/hostly-logo.png')
   const [logoVisible, setLogoVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
   const [showNewReservation, setShowNewReservation] = useState(false)
@@ -339,45 +339,150 @@ const DashboardClient = () => {
   }, [reservations, monthRange])
 
   return (
-    <main className="bg-light" style={{ minHeight: '100vh' }} dir="rtl">
+    <main 
+      style={{ 
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+      }} 
+      dir="rtl"
+    >
       <div className="container py-5">
-        <div className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4 gap-3">
+        <div 
+          className="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between mb-4 gap-3"
+          style={{
+            backgroundColor: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          }}
+        >
           <div className="d-flex align-items-center gap-3">
             {logoVisible ? (
               <img
                 src={logoSrc}
-                alt="נוף הרים בדפנה"
-                style={{ width: '56px', height: '56px', objectFit: 'contain' }}
+                alt="Hostly"
+                style={{ height: '48px', objectFit: 'contain' }}
                 onError={() => {
-                  if (logoSrc.startsWith('/')) {
-                    setLogoSrc('https://mountain-view-dafna.co.il/photos/logo.png')
-                  } else {
-                    setLogoVisible(false)
-                  }
+                  setLogoVisible(false)
                 }}
               />
             ) : null}
             <div>
-              <h1 className="fw-bold mb-1 text-dark">{session?.user?.displayName ?? 'נוף הרים בדפנה'}</h1>
+              <h1 
+                className="fw-bold mb-1"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                {session?.user?.displayName ?? 'נוף הרים בדפנה'}
+              </h1>
               {session?.user?.email ? (
                 <p className="text-muted small mb-0">{session.user.email}</p>
               ) : null}
             </div>
           </div>
           <div className="d-flex align-items-center gap-2 position-relative">
-            <span className="text-muted small">מקור נתונים:</span>
-            <span className={`badge ${meta.isMock ? 'bg-warning text-dark' : 'bg-success'}`}>{meta.label}</span>
+            {session?.user?.landingPageUrl ? (
+              <button
+                type="button"
+                className="btn btn-sm d-flex align-items-center justify-content-center"
+                style={{ 
+                  width: '36px',
+                  height: '36px',
+                  border: '1px solid #f093fb',
+                  color: '#f093fb',
+                  backgroundColor: 'transparent',
+                  padding: 0,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = '#f093fb'
+                  e.currentTarget.style.color = 'white'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = '#f093fb'
+                }}
+                onClick={() => window.open(session.user.landingPageUrl, '_blank')}
+                title="צפה באתר"
+                aria-label="צפה באתר"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
+                </svg>
+              </button>
+            ) : null}
             <button
               type="button"
-              className="btn btn-outline-danger btn-sm"
+              className="btn btn-sm d-flex align-items-center justify-content-center"
+              style={{ 
+                width: '36px',
+                height: '36px',
+                border: '1px solid #764ba2',
+                color: '#764ba2',
+                backgroundColor: 'transparent',
+                padding: 0,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#764ba2'
+                e.currentTarget.style.color = 'white'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = '#764ba2'
+              }}
               onClick={() => signOut({ callbackUrl: '/dashboard/login' })}
+              title="התנתק"
+              aria-label="התנתק"
             >
-              התנתק
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <polyline points="16 17 21 12 16 7" />
+                <line x1="21" y1="12" x2="9" y2="12" />
+              </svg>
             </button>
             <button
               type="button"
-              className="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center"
-              style={{ width: '36px', height: '36px' }}
+              className="btn btn-sm d-flex align-items-center justify-content-center"
+              style={{ 
+                width: '36px', 
+                height: '36px',
+                border: '1px solid #667eea',
+                color: '#667eea',
+                backgroundColor: 'transparent',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#667eea'
+                e.currentTarget.style.color = 'white'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = '#667eea'
+              }}
               aria-label="תפריט"
               onClick={() => setMenuOpen((prev) => !prev)}
             >
@@ -405,12 +510,6 @@ const DashboardClient = () => {
           </div>
         </div>
 
-        {meta.isMock ? (
-          <div className="alert alert-warning">
-            מוצגים נתוני דוגמה בלבד. כדי להתחבר ל-Beds24, הגדר את משתני הסביבה של ספק ה-API.
-          </div>
-        ) : null}
-
         {reservationsError ? (
           <div className="alert alert-danger" role="alert">
             {reservationsError}
@@ -429,11 +528,26 @@ const DashboardClient = () => {
           </div>
         </div>
 
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-body">
+        <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: '12px' }}>
+          <div 
+            className="card-body"
+            style={{
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
+            }}
+          >
             <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3 gap-2">
               <div className="d-flex align-items-center gap-2">
-                <h2 className="h5 fw-bold mb-0">הזמנות</h2>
+                <h2 
+                  className="h5 fw-bold mb-0"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  הזמנות
+                </h2>
                 {loadingReservations && reservations.length ? (
                   <span className="text-muted small">מרענן...</span>
                 ) : null}
@@ -441,8 +555,12 @@ const DashboardClient = () => {
               <div className="d-flex align-items-center gap-2">
                 <button
                   type="button"
-                  className="btn btn-primary btn-sm"
-                  style={{ backgroundColor: '#3b82f6', borderColor: '#3b82f6' }}
+                  className="btn btn-sm"
+                  style={{ 
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    border: 'none',
+                    color: 'white',
+                  }}
                   onClick={() => setShowNewReservation((prev) => !prev)}
                 >
                   {showNewReservation ? 'סגור טופס' : 'הזמנה חדשה'}
@@ -574,12 +692,27 @@ const DashboardClient = () => {
                     </div>
                   ) : null}
                   <div className="col-12 d-flex flex-column flex-sm-row gap-2">
-                    <button type="button" className="btn btn-success" onClick={handleCreateReservation} disabled={savingReservation}>
+                    <button 
+                      type="button" 
+                      className="btn"
+                      style={{ 
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        border: 'none',
+                        color: 'white',
+                      }}
+                      onClick={handleCreateReservation} 
+                      disabled={savingReservation}
+                    >
                       {savingReservation ? 'שומר הזמנה...' : 'שמירת הזמנה'}
                     </button>
                     <button
                       type="button"
-                      className="btn btn-outline-secondary"
+                      className="btn"
+                      style={{
+                        border: '1px solid #cbd5e1',
+                        color: '#64748b',
+                        backgroundColor: 'transparent',
+                      }}
                       onClick={() => {
                         setShowNewReservation(false)
                         resetReservationForm()
@@ -599,13 +732,25 @@ const DashboardClient = () => {
           </div>
         </div>
 
-        <div className="card border-0 shadow-sm mb-4">
-          <div className="card-body">
-            <div className="d-flex align-items-center justify-content-between mb-3">
-              <h2 className="h5 fw-bold mb-0">לוח שנה ותמחור</h2>
-              <button type="button" className="btn btn-outline-secondary btn-sm" disabled>
-                סנכרון מחירים
-              </button>
+        <div className="card border-0 shadow-sm mb-4" style={{ borderRadius: '12px' }}>
+          <div 
+            className="card-body"
+            style={{
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
+            }}
+          >
+            <div className="mb-3">
+              <h2 
+                className="h5 fw-bold mb-0"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #f093fb 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                לוח שנה ותמחור
+              </h2>
             </div>
             {roomPricesError ? (
               <div className="alert alert-warning mb-3" role="alert">
@@ -620,10 +765,25 @@ const DashboardClient = () => {
           </div>
         </div>
 
-        <div className="card border-0 shadow-sm">
-          <div className="card-body">
+        <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+          <div 
+            className="card-body"
+            style={{
+              background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
+            }}
+          >
             <div className="d-flex align-items-center justify-content-between mb-3">
-              <h2 className="h5 fw-bold mb-0">סיכום מחירים</h2>
+              <h2 
+                className="h5 fw-bold mb-0"
+                style={{
+                  background: 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                סיכום מחירים
+              </h2>
             </div>
             {loadingRoomPrices ? (
               <div className="text-muted">טוען נתונים...</div>

@@ -467,7 +467,12 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
             ) : null}
             <button
               type="button"
-              className="btn btn-success w-100"
+              className="btn w-100"
+              style={{ 
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: 'none',
+                color: 'white',
+              }}
               onClick={applyPrice}
               disabled={!selectedDates.length || !priceInput.trim() || saving}
             >
