@@ -95,29 +95,8 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                   </svg>
                 </td>
                 <td>
-                  <div className="d-flex align-items-center gap-2">
-                    <div>
-                      <div className="fw-semibold">{reservation.guestName}</div>
-                      <div className="text-muted small">{reservation.unitName ?? '—'}</div>
-                    </div>
-                    {isNearestReservation(reservation.id) ? (
-                      <svg 
-                        xmlns="http://www.w3.org/2000/svg" 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="#667eea" 
-                        stroke="#667eea" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
-                        strokeLinejoin="round"
-                        aria-label="הזמנה קרובה"
-                      >
-                        <title>הזמנה קרובה</title>
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                    ) : null}
-                  </div>
+                  <div className="fw-semibold">{reservation.guestName}</div>
+                  <div className="text-muted small">{reservation.unitName ?? '—'}</div>
                 </td>
                 <td className="small">
                   {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}
