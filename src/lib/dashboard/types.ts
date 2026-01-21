@@ -11,6 +11,12 @@ export interface Reservation {
   source?: string
   unitName?: string
   createdAt?: string
+  phone?: string
+  email?: string
+  guests?: number
+  adults?: number
+  children?: number
+  notes?: string
 }
 
 export interface PriceRule {

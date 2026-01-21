@@ -1,4 +1,6 @@
-import React from 'react'
+'use client'
+
+import React, { useState } from 'react'
 import type { Reservation } from '@/lib/dashboard/types'
 import { formatCurrency, formatDate, formatStatus } from '@/lib/dashboard/utils'
 
@@ -20,8 +22,14 @@ type ReservationsTableProps = {
 }
 
 const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+
   if (!reservations.length) {
     return <div className="text-muted">אין הזמנות להצגה כרגע.</div>
+  }
+
+  const toggleExpanded = (id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id))
   }
 
   return (
@@ -29,6 +37,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
       <table className="table align-middle">
         <thead>
           <tr className="text-muted small">
+            <th style={{ width: '30px' }}></th>
             <th>אורח</th>
             <th>תאריכים</th>
             <th>לילות</th>
@@ -39,23 +48,128 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
         </thead>
         <tbody>
           {reservations.map((reservation) => (
-            <tr key={reservation.id}>
-              <td>
-                <div className="fw-semibold">{reservation.guestName}</div>
-                <div className="text-muted small">{reservation.unitName ?? '—'}</div>
-              </td>
-              <td className="small">
-                {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}
-              </td>
-              <td>{reservation.nights}</td>
-              <td className="small">{reservation.source ?? '—'}</td>
-              <td className="fw-semibold">{formatCurrency(reservation.total)}</td>
-              <td>
-                <span className={`badge ${getStatusClass(reservation.status)}`}>
-                  {formatStatus(reservation.status)}
-                </span>
-              </td>
-            </tr>
+            <React.Fragment key={reservation.id}>
+              <tr 
+                onClick={() => toggleExpanded(reservation.id)}
+                style={{ cursor: 'pointer' }}
+                className={expandedId === reservation.id ? 'table-active' : ''}
+              >
+                <td>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    style={{
+                      transform: expandedId === reservation.id ? 'rotate(90deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.2s',
+                    }}
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </td>
+                <td>
+                  <div className="fw-semibold">{reservation.guestName}</div>
+                  <div className="text-muted small">{reservation.unitName ?? '—'}</div>
+                </td>
+                <td className="small">
+                  {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}
+                </td>
+                <td>{reservation.nights}</td>
+                <td className="small">{reservation.source ?? '—'}</td>
+                <td className="fw-semibold">{formatCurrency(reservation.total)}</td>
+                <td>
+                  <span className={`badge ${getStatusClass(reservation.status)}`}>
+                    {formatStatus(reservation.status)}
+                  </span>
+                </td>
+              </tr>
+              {expandedId === reservation.id ? (
+                <tr>
+                  <td colSpan={7} style={{ backgroundColor: '#f8f9fa' }}>
+                    <div className="p-3">
+                      <div className="row g-3">
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">מזהה הזמנה</div>
+                          <div className="fw-semibold">{reservation.id}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">שם אורח מלא</div>
+                          <div className="fw-semibold">{reservation.guestName}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">תאריך כניסה</div>
+                          <div>{formatDate(reservation.checkIn)}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">תאריך יציאה</div>
+                          <div>{formatDate(reservation.checkOut)}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">מספר לילות</div>
+                          <div>{reservation.nights}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">מספר אורחים</div>
+                          <div>
+                            {reservation.adults || reservation.children ? (
+                              <>
+                                {reservation.adults ? `${reservation.adults} מבוגרים` : ''}
+                                {reservation.adults && reservation.children ? ' + ' : ''}
+                                {reservation.children ? `${reservation.children} ילדים` : ''}
+                              </>
+                            ) : reservation.guests ? (
+                              reservation.guests
+                            ) : (
+                              '—'
+                            )}
+                          </div>
+                        </div>
+                        {reservation.phone ? (
+                          <div className="col-md-6">
+                            <div className="small text-muted mb-1">טלפון</div>
+                            <div>
+                              <a href={`tel:${reservation.phone}`} className="text-decoration-none">
+                                {reservation.phone}
+                              </a>
+                            </div>
+                          </div>
+                        ) : null}
+                        {reservation.email ? (
+                          <div className="col-md-6">
+                            <div className="small text-muted mb-1">אימייל</div>
+                            <div>
+                              <a href={`mailto:${reservation.email}`} className="text-decoration-none">
+                                {reservation.email}
+                              </a>
+                            </div>
+                          </div>
+                        ) : null}
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">מקור הזמנה</div>
+                          <div>{reservation.source ?? '—'}</div>
+                        </div>
+                        <div className="col-md-6">
+                          <div className="small text-muted mb-1">סכום כולל</div>
+                          <div className="fw-bold">{formatCurrency(reservation.total)}</div>
+                        </div>
+                        {reservation.notes ? (
+                          <div className="col-12">
+                            <div className="small text-muted mb-1">הערות</div>
+                            <div className="border rounded p-2 bg-white">{reservation.notes}</div>
+                          </div>
+                        ) : null}
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              ) : null}
+            </React.Fragment>
           ))}
         </tbody>
       </table>

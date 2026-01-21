@@ -152,6 +152,39 @@ const mapBookingToReservation = (booking: Record<string, unknown>, index: number
       (typeof booking.propertyName === 'string' && booking.propertyName) ||
       undefined,
     createdAt: typeof booking.bookingTime === 'string' ? booking.bookingTime : undefined,
+    phone:
+      (typeof booking.phone === 'string' && booking.phone) ||
+      (typeof booking.guestPhone === 'string' && booking.guestPhone) ||
+      (typeof booking.mobile === 'string' && booking.mobile) ||
+      undefined,
+    email:
+      (typeof booking.email === 'string' && booking.email) ||
+      (typeof booking.guestEmail === 'string' && booking.guestEmail) ||
+      undefined,
+    adults: (() => {
+      const numAdults = Number(booking.numAdult ?? booking.numAdults ?? booking.adults ?? 0) || 0
+      return numAdults > 0 ? numAdults : undefined
+    })(),
+    children: (() => {
+      const numChildren = Number(booking.numChild ?? booking.numChildren ?? booking.children ?? 0) || 0
+      return numChildren > 0 ? numChildren : undefined
+    })(),
+    guests: (() => {
+      const numAdults = Number(booking.numAdult ?? booking.numAdults ?? booking.adults ?? 0) || 0
+      const numChildren = Number(booking.numChild ?? booking.numChildren ?? booking.children ?? 0) || 0
+      const numGuests = Number(booking.numGuest ?? booking.numGuests ?? booking.guests ?? 0) || 0
+      
+      // If we have a total guest count, use it
+      if (numGuests > 0) return numGuests
+      
+      // Otherwise, sum adults and children
+      const total = numAdults + numChildren
+      return total > 0 ? total : undefined
+    })(),
+    notes:
+      (typeof booking.notes === 'string' && booking.notes) ||
+      (typeof booking.infoItems === 'string' && booking.infoItems) ||
+      undefined,
   }
 }
 
