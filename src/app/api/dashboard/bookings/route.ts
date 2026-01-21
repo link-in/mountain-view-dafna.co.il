@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
+import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
 
 export const dynamic = 'force-static'
 export const revalidate = false
@@ -9,15 +10,7 @@ const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 
 const getBaseUrl = () => process.env.BEDS24_API_BASE_URL ?? DEFAULT_BASE_URL
 
-const getApiKey = () => process.env.BEDS24_TOKEN ?? process.env.BEDS24_API_KEY
-
 export async function GET() {
-  const apiKey = getApiKey()
-
-  if (!apiKey) {
-    return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
-  }
-
   const url = new URL(`${getBaseUrl()}/bookings`)
   const query = process.env.BEDS24_BOOKINGS_QUERY
   if (query) {
@@ -31,12 +24,7 @@ export async function GET() {
   }
 
   try {
-    const response = await fetch(url.toString(), {
-      headers: {
-        accept: 'application/json',
-        token: apiKey,
-      },
-    })
+    const response = await fetchWithTokenRefresh(url.toString())
 
     if (!response.ok) {
       const details = await response.text()
@@ -61,12 +49,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const apiKey = getApiKey()
-
-  if (!apiKey) {
-    return NextResponse.json({ error: 'Missing BEDS24_TOKEN' }, { status: 500 })
-  }
-
   let payload: unknown
   try {
     payload = await request.json()
@@ -124,12 +106,10 @@ export async function POST(request: Request) {
 
   console.log('Beds24 booking payload', normalizedPayload)
 
-  const response = await fetch(`${getBaseUrl()}/bookings`, {
+  const response = await fetchWithTokenRefresh(`${getBaseUrl()}/bookings`, {
     method: 'POST',
     headers: {
-      accept: 'application/json',
       'content-type': 'application/json',
-      token: apiKey,
     },
     body: JSON.stringify(normalizedPayload),
   })

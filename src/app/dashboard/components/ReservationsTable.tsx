@@ -28,9 +28,25 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
     return <div className="text-muted">אין הזמנות להצגה כרגע.</div>
   }
 
+  // Find the nearest upcoming reservation
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const upcomingReservations = reservations
+    .filter(r => {
+      const checkInDate = new Date(r.checkIn)
+      checkInDate.setHours(0, 0, 0, 0)
+      return checkInDate >= today && r.status !== 'cancelled'
+    })
+    .sort((a, b) => new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime())
+  
+  const nearestReservationId = upcomingReservations.length > 0 ? upcomingReservations[0].id : null
+
   const toggleExpanded = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id))
   }
+
+  const isNearestReservation = (id: string) => id === nearestReservationId
 
   return (
     <div className="table-responsive">
@@ -51,7 +67,12 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
             <React.Fragment key={reservation.id}>
               <tr 
                 onClick={() => toggleExpanded(reservation.id)}
-                style={{ cursor: 'pointer' }}
+                style={{ 
+                  cursor: 'pointer',
+                  backgroundColor: isNearestReservation(reservation.id) 
+                    ? 'rgba(102, 126, 234, 0.1)' 
+                    : undefined
+                }}
                 className={expandedId === reservation.id ? 'table-active' : ''}
               >
                 <td>
@@ -74,8 +95,28 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                   </svg>
                 </td>
                 <td>
-                  <div className="fw-semibold">{reservation.guestName}</div>
-                  <div className="text-muted small">{reservation.unitName ?? '—'}</div>
+                  <div className="d-flex align-items-center gap-2">
+                    <div>
+                      <div className="fw-semibold">{reservation.guestName}</div>
+                      <div className="text-muted small">{reservation.unitName ?? '—'}</div>
+                    </div>
+                    {isNearestReservation(reservation.id) ? (
+                      <svg 
+                        xmlns="http://www.w3.org/2000/svg" 
+                        width="16" 
+                        height="16" 
+                        viewBox="0 0 24 24" 
+                        fill="#667eea" 
+                        stroke="#667eea" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        title="הזמנה קרובה"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ) : null}
+                  </div>
                 </td>
                 <td className="small">
                   {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}
