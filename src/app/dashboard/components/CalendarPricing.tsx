@@ -165,7 +165,7 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
   const [currentMonth, setCurrentMonth] = useState(() => startOfMonth(new Date()))
   const [selectedDates, setSelectedDates] = useState<Date[]>([])
   const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({})
-  const [priceInput, setPriceInput] = useState(DEFAULT_PRICE)
+  const [priceInput, setPriceInput] = useState('')
   const [minStayInput, setMinStayInput] = useState(1)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [saveSuccess, setSaveSuccess] = useState<string | null>(null)
@@ -229,6 +229,10 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
     if (!selectedDates.length) {
       return
     }
+    if (!priceInput.trim()) {
+      setSaveError('יש להזין מחיר ללילה.')
+      return
+    }
     if (saving) {
       return
     }
@@ -244,7 +248,7 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
           from: range.from,
           to: range.to,
           minStay: minStayInput,
-          price1: priceInput,
+          price1: Number(priceInput),
           numAvail: 1,
         })),
       },
@@ -268,7 +272,7 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
       setPriceOverrides((prev) => {
         const next = { ...prev }
         selectedDates.forEach((date) => {
-          next[toKey(date)] = priceInput
+          next[toKey(date)] = Number(priceInput)
         })
         return next
       })
@@ -312,17 +316,26 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
             </button>
           </div>
         </div>
-        <div className="border rounded-4 overflow-hidden bg-white">
-          <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
-            {['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'].map((day) => (
-              <div key={day} className="text-center py-2 border-bottom text-muted small fw-semibold">
-                {day}
-              </div>
-            ))}
-          </div>
-          <div className="position-relative">
-            <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '90px' }}>
-              {days.map((date) => {
+        <div
+          className="border rounded-4 bg-white"
+          style={{
+            overflowX: 'auto',
+            overflowY: 'hidden',
+            WebkitOverflowScrolling: 'touch',
+            touchAction: 'pan-x',
+          }}
+        >
+          <div style={{ minWidth: '520px', paddingBottom: '6px' }}>
+            <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', direction: 'rtl' }}>
+              {['א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ש׳'].map((day) => (
+                <div key={day} className="text-center py-2 border-bottom text-muted small fw-semibold">
+                  {day}
+                </div>
+              ))}
+            </div>
+            <div className="position-relative">
+              <div className="d-grid" style={{ gridTemplateColumns: 'repeat(7, 1fr)', gridAutoRows: '90px', direction: 'rtl' }}>
+                {days.map((date) => {
                 const isCurrentMonth = date.getMonth() === currentMonth.getMonth()
                 const key = toKey(date)
                 const isBooked = bookingMap.has(key)
@@ -372,44 +385,46 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
                     <div className="small text-muted mt-1">{formatCurrency(price)}</div>
                   </button>
                 )
-              })}
-            </div>
-            <div
-              className="position-absolute top-0 start-0 w-100 h-100"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(7, 1fr)',
-                gridTemplateRows: `repeat(${weeksCount}, 1fr)`,
-                gap: '6px',
-                padding: '8px',
-                pointerEvents: 'none',
-              }}
-            >
-              {bookingSegments.map((segment) => (
-                <div
-                  key={segment.id}
-                  style={{
-                    gridColumn: `${segment.startCol + 1} / ${segment.endCol + 2}`,
-                    gridRow: segment.row + 1,
-                    alignSelf: 'center',
-                    justifySelf: 'stretch',
-                    height: '20px',
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    borderRadius: '999px',
-                    padding: '0 10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    fontSize: '12px',
-                    color: '#991b1b',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    marginTop: '52px',
-                  }}
-                >
-                  {segment.label}
-                </div>
-              ))}
+                })}
+              </div>
+              <div
+                className="position-absolute top-0 start-0 w-100 h-100"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(7, 1fr)',
+                  gridTemplateRows: `repeat(${weeksCount}, 1fr)`,
+                  gap: '6px',
+                  padding: '8px',
+                  pointerEvents: 'none',
+                  direction: 'rtl',
+                }}
+              >
+                {bookingSegments.map((segment) => (
+                  <div
+                    key={segment.id}
+                    style={{
+                      gridColumn: `${segment.startCol + 1} / ${segment.endCol + 2}`,
+                      gridRow: segment.row + 1,
+                      alignSelf: 'center',
+                      justifySelf: 'stretch',
+                      height: '20px',
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      borderRadius: '999px',
+                      padding: '0 10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      fontSize: '12px',
+                      color: '#991b1b',
+                      overflow: 'hidden',
+                      whiteSpace: 'nowrap',
+                      textOverflow: 'ellipsis',
+                      marginTop: '52px',
+                    }}
+                  >
+                    {segment.label}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -421,13 +436,16 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
             <div className="small text-muted mb-3">
               בחר תאריכים בלוח משמאל, ועדכן מחיר ללילה.
             </div>
-            <label className="form-label small fw-semibold">מחיר ללילה (₪)</label>
+            <label className="form-label small fw-semibold">
+              מחיר ללילה (₪) <span className="text-danger">*</span>
+            </label>
             <input
               type="number"
               min={0}
               className="form-control mb-3"
               value={priceInput}
-              onChange={(event) => setPriceInput(Number(event.target.value))}
+              onChange={(event) => setPriceInput(event.target.value)}
+              required
             />
             <label className="form-label small fw-semibold">מינימום לילות</label>
             <input
@@ -451,7 +469,7 @@ const CalendarPricing = ({ reservations, prices, onPricesUpdated }: CalendarPric
               type="button"
               className="btn btn-success w-100"
               onClick={applyPrice}
-              disabled={!selectedDates.length || saving}
+              disabled={!selectedDates.length || !priceInput.trim() || saving}
             >
               {saving ? 'שומר מחיר...' : 'עדכן מחיר לתאריכים שנבחרו'}
             </button>
