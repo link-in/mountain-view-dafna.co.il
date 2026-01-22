@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/client'
+import { createServerClient } from '@/lib/supabase/server'
 import { sendWhatsAppMessage } from '@/lib/whatsapp'
-import fs from 'fs'
-import path from 'path'
-import type { User } from '@/lib/auth/types'
 
 // Force dynamic rendering for webhooks
 export const dynamic = 'force-dynamic'
@@ -18,53 +16,72 @@ interface Beds24WebhookPayload {
   [key: string]: any
 }
 
-const USERS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'users.json')
-
 interface OwnerInfo {
   phoneNumber: string | null
   roomName: string | null
 }
 
-function getOwnerInfo(payload: Beds24WebhookPayload): OwnerInfo {
+async function getOwnerInfo(payload: Beds24WebhookPayload): Promise<OwnerInfo> {
   try {
     // First priority: Try to find user by propertyId or roomId from payload
-    if (fs.existsSync(USERS_FILE_PATH)) {
-      const fileContent = fs.readFileSync(USERS_FILE_PATH, 'utf-8')
-      const users: User[] = JSON.parse(fileContent)
-
-      // Find user by propertyId or roomId
-      const user = users.find(
-        (u) =>
-          (payload.propertyId && u.propertyId === payload.propertyId) ||
-          (payload.roomId && u.roomId === payload.roomId)
-      )
-
-      if (user && user.phoneNumber && user.phoneNumber.trim()) {
-        console.log('✅ Found owner from user profile:', user.displayName)
+    const supabase = createServerClient()
+    
+    let query = supabase.from('users').select('display_name, phone_number')
+    
+    if (payload.propertyId) {
+      query = query.eq('property_id', payload.propertyId)
+    } else if (payload.roomId) {
+      query = query.eq('room_id', payload.roomId)
+    } else {
+      // No property or room ID provided, try env variable
+      const envPhone = process.env.OWNER_PHONE_NUMBER
+      if (envPhone && envPhone.trim()) {
+        console.log('✅ Using owner phone from env variable')
         return {
-          phoneNumber: user.phoneNumber,
-          roomName: user.displayName, // Use displayName as room name
+          phoneNumber: envPhone,
+          roomName: payload.roomName || null,
         }
       }
-    } else {
-      console.warn('⚠️  Users file not found')
+      
+      console.warn('⚠️  No propertyId or roomId in payload')
+      return { phoneNumber: null, roomName: null }
     }
 
-    // Fallback: Try environment variable (for single-tenant setup or backward compatibility)
-    const envPhone = process.env.OWNER_PHONE_NUMBER
-    if (envPhone && envPhone.trim()) {
-      console.log('✅ Using owner phone from env variable')
+    const { data, error } = await query.single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        console.warn('⚠️  No user found for property/room:', {
+          propertyId: payload.propertyId,
+          roomId: payload.roomId,
+        })
+      } else {
+        console.error('❌ Error querying users:', error)
+      }
+      
+      // Fallback: Try environment variable
+      const envPhone = process.env.OWNER_PHONE_NUMBER
+      if (envPhone && envPhone.trim()) {
+        console.log('✅ Using owner phone from env variable (fallback)')
+        return {
+          phoneNumber: envPhone,
+          roomName: payload.roomName || null,
+        }
+      }
+      
+      return { phoneNumber: null, roomName: null }
+    }
+
+    if (data && data.phone_number && data.phone_number.trim()) {
+      console.log('✅ Found owner from Supabase:', data.display_name)
       return {
-        phoneNumber: envPhone,
-        roomName: payload.roomName || null, // Use payload roomName as fallback
+        phoneNumber: data.phone_number,
+        roomName: data.display_name,
       }
     }
 
-    console.warn('⚠️  No phone number found for property/room:', {
-      propertyId: payload.propertyId,
-      roomId: payload.roomId,
-    })
-    return { phoneNumber: null, roomName: null }
+    console.warn('⚠️  User found but no phone number configured')
+    return { phoneNumber: null, roomName: data?.display_name || null }
   } catch (error) {
     console.error('❌ Error getting owner info:', error)
     return { phoneNumber: null, roomName: null }
@@ -115,7 +132,7 @@ export async function POST(request: NextRequest) {
     const recordId = data[0]?.id
 
     // Get owner info first (for both guest and owner messages)
-    const ownerInfo = getOwnerInfo(payload)
+    const ownerInfo = await getOwnerInfo(payload)
     
     // Send WhatsApp message to guest
     const propertyName = ownerInfo.roomName || 'Mountain View' // Fallback to default if not found

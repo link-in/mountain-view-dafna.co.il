@@ -1,28 +1,46 @@
 import bcrypt from 'bcryptjs'
 import type { User, AuthUser } from './types'
-import path from 'path'
-import fs from 'fs'
-
-const USERS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'users.json')
+import { createServerClient } from '@/lib/supabase/server'
 
 /**
- * Get user by email from users.json file
- * Future: Replace with Supabase query
+ * Get user by email from Supabase
  */
 export const getUserByEmail = async (email: string): Promise<User | null> => {
   try {
-    if (!fs.existsSync(USERS_FILE_PATH)) {
-      console.warn('users.json not found')
+    const supabase = createServerClient()
+    
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .ilike('email', email)
+      .single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned
+        return null
+      }
+      console.error('Failed to fetch user from Supabase:', error)
       return null
     }
 
-    const fileContent = fs.readFileSync(USERS_FILE_PATH, 'utf-8')
-    const users: User[] = JSON.parse(fileContent)
+    if (!data) {
+      return null
+    }
 
-    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase())
-    return user ?? null
+    // Map database columns to User interface
+    return {
+      id: data.id,
+      email: data.email,
+      passwordHash: data.password_hash,
+      displayName: data.display_name,
+      propertyId: data.property_id,
+      roomId: data.room_id,
+      landingPageUrl: data.landing_page_url || undefined,
+      phoneNumber: data.phone_number || undefined,
+    }
   } catch (error) {
-    console.error('Failed to read users file:', error)
+    console.error('Failed to fetch user:', error)
     return null
   }
 }
@@ -45,6 +63,89 @@ export const verifyPassword = async (plainPassword: string, passwordHash: string
 export const hashPassword = async (plainPassword: string): Promise<string> => {
   const saltRounds = 10
   return await bcrypt.hash(plainPassword, saltRounds)
+}
+
+/**
+ * Update user in Supabase
+ */
+export const updateUser = async (userId: string, updates: Partial<User>): Promise<User | null> => {
+  try {
+    const supabase = createServerClient()
+    
+    // Map User interface to database columns
+    const dbUpdates: Record<string, any> = {}
+    
+    if (updates.email !== undefined) dbUpdates.email = updates.email
+    if (updates.displayName !== undefined) dbUpdates.display_name = updates.displayName
+    if (updates.passwordHash !== undefined) dbUpdates.password_hash = updates.passwordHash
+    if (updates.landingPageUrl !== undefined) dbUpdates.landing_page_url = updates.landingPageUrl
+    if (updates.phoneNumber !== undefined) dbUpdates.phone_number = updates.phoneNumber
+
+    const { data, error } = await supabase
+      .from('users')
+      .update(dbUpdates)
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Failed to update user in Supabase:', error)
+      return null
+    }
+
+    if (!data) {
+      return null
+    }
+
+    // Map database columns back to User interface
+    return {
+      id: data.id,
+      email: data.email,
+      passwordHash: data.password_hash,
+      displayName: data.display_name,
+      propertyId: data.property_id,
+      roomId: data.room_id,
+      landingPageUrl: data.landing_page_url || undefined,
+      phoneNumber: data.phone_number || undefined,
+    }
+  } catch (error) {
+    console.error('Failed to update user:', error)
+    return null
+  }
+}
+
+/**
+ * Check if email exists (for another user)
+ */
+export const emailExists = async (email: string, excludeUserId?: string): Promise<boolean> => {
+  try {
+    const supabase = createServerClient()
+    
+    let query = supabase
+      .from('users')
+      .select('id')
+      .ilike('email', email)
+
+    if (excludeUserId) {
+      query = query.neq('id', excludeUserId)
+    }
+
+    const { data, error } = await query.single()
+
+    if (error) {
+      if (error.code === 'PGRST116') {
+        // No rows returned - email doesn't exist
+        return false
+      }
+      console.error('Failed to check email existence:', error)
+      return false
+    }
+
+    return data !== null
+  } catch (error) {
+    console.error('Failed to check email:', error)
+    return false
+  }
 }
 
 /**
