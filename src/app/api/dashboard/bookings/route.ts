@@ -3,8 +3,8 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
 
-export const dynamic = 'force-static'
-export const revalidate = false
+export const dynamic = 'force-dynamic'  // Allow POST requests for creating bookings
+export const revalidate = 0
 
 const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 
@@ -87,7 +87,9 @@ export async function POST(request: Request) {
       0
     const invoiceTotal = extractInvoiceTotal(invoiceItems)
     const price = explicitPrice || invoiceTotal
-    return {
+    
+    // Build booking object with all required fields
+    const booking: Record<string, unknown> = {
       propertyId: Number(propertyId),
       roomId: Number(roomId),
       arrival: item.arrival,
@@ -98,6 +100,20 @@ export async function POST(request: Request) {
       invoice: invoiceItems,
       ...(price ? { price } : {}),
     }
+    
+    // Add optional fields if provided
+    if (item.mobile) booking.mobile = item.mobile
+    if (item.phone) booking.phone = item.phone
+    if (item.email) booking.email = item.email
+    if (item.numAdult) booking.numAdult = item.numAdult
+    if (item.numChild) booking.numChild = item.numChild
+    if (item.notes) booking.notes = item.notes
+    if (item.address) booking.address = item.address
+    if (item.city) booking.city = item.city
+    if (item.postcode) booking.postcode = item.postcode
+    if (item.country) booking.country = item.country
+    
+    return booking
   }
 
   const normalizedPayload = Array.isArray(payload)

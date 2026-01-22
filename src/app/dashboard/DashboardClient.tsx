@@ -149,6 +149,10 @@ const DashboardClient = () => {
       return
     }
 
+    // Detect if contact is phone or email
+    const contact = newReservation.contact.trim()
+    const isPhone = /^[\d\s\-\+\(\)]+$/.test(contact)
+    
     const payload = [
       {
         arrival: newReservation.arrival,
@@ -157,6 +161,9 @@ const DashboardClient = () => {
         lastName: newReservation.lastName.trim(),
         status: 'confirmed',
         notes: newReservation.notes.trim() || undefined,
+        numAdult: newReservation.guests || 1,
+        // Add phone or email based on format
+        ...(isPhone ? { mobile: contact } : { email: contact }),
         invoice: [
           {
             description: 'Total Room Price',
