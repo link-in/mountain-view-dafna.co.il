@@ -265,6 +265,7 @@ const ProfileClient = () => {
                             setDisplayName(session?.user?.displayName ?? '')
                             setEmail(session?.user?.email ?? '')
                             setLandingPageUrl(session?.user?.landingPageUrl ?? '')
+                            setPhoneNumber(session?.user?.phoneNumber ?? '')
                             setCurrentPassword('')
                             setNewPassword('')
                             setConfirmPassword('')

@@ -57,6 +57,7 @@ export const authOptions: NextAuthOptions = {
         token.propertyId = user.propertyId
         token.roomId = user.roomId
         token.landingPageUrl = user.landingPageUrl
+        token.phoneNumber = user.phoneNumber
       }
       
       // Handle session updates (from update() call)
@@ -66,6 +67,9 @@ export const authOptions: NextAuthOptions = {
         }
         if (session.landingPageUrl !== undefined) {
           token.landingPageUrl = session.landingPageUrl
+        }
+        if (session.phoneNumber !== undefined) {
+          token.phoneNumber = session.phoneNumber
         }
       }
       
@@ -80,6 +84,7 @@ export const authOptions: NextAuthOptions = {
           propertyId: token.propertyId,
           roomId: token.roomId,
           landingPageUrl: token.landingPageUrl as string | undefined,
+          phoneNumber: token.phoneNumber as string | undefined,
         }
       }
       return session

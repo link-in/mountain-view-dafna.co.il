@@ -20,42 +20,54 @@ interface Beds24WebhookPayload {
 
 const USERS_FILE_PATH = path.join(process.cwd(), 'src', 'data', 'users.json')
 
-function getOwnerPhoneNumber(payload: Beds24WebhookPayload): string | null {
+interface OwnerInfo {
+  phoneNumber: string | null
+  roomName: string | null
+}
+
+function getOwnerInfo(payload: Beds24WebhookPayload): OwnerInfo {
   try {
-    // First, try environment variable (backward compatibility)
-    const envPhone = process.env.OWNER_PHONE_NUMBER
-    if (envPhone) {
-      return envPhone
-    }
+    // First priority: Try to find user by propertyId or roomId from payload
+    if (fs.existsSync(USERS_FILE_PATH)) {
+      const fileContent = fs.readFileSync(USERS_FILE_PATH, 'utf-8')
+      const users: User[] = JSON.parse(fileContent)
 
-    // Then, try to find user by propertyId or roomId from payload
-    if (!fs.existsSync(USERS_FILE_PATH)) {
+      // Find user by propertyId or roomId
+      const user = users.find(
+        (u) =>
+          (payload.propertyId && u.propertyId === payload.propertyId) ||
+          (payload.roomId && u.roomId === payload.roomId)
+      )
+
+      if (user && user.phoneNumber && user.phoneNumber.trim()) {
+        console.log('✅ Found owner from user profile:', user.displayName)
+        return {
+          phoneNumber: user.phoneNumber,
+          roomName: user.displayName, // Use displayName as room name
+        }
+      }
+    } else {
       console.warn('⚠️  Users file not found')
-      return null
     }
 
-    const fileContent = fs.readFileSync(USERS_FILE_PATH, 'utf-8')
-    const users: User[] = JSON.parse(fileContent)
-
-    // Find user by propertyId or roomId
-    const user = users.find(
-      (u) =>
-        (payload.propertyId && u.propertyId === payload.propertyId) ||
-        (payload.roomId && u.roomId === payload.roomId)
-    )
-
-    if (user && user.phoneNumber) {
-      return user.phoneNumber
+    // Fallback: Try environment variable (for single-tenant setup or backward compatibility)
+    const envPhone = process.env.OWNER_PHONE_NUMBER
+    if (envPhone && envPhone.trim()) {
+      console.log('✅ Using owner phone from env variable')
+      return {
+        phoneNumber: envPhone,
+        roomName: payload.roomName || null, // Use payload roomName as fallback
+      }
     }
 
     console.warn('⚠️  No phone number found for property/room:', {
       propertyId: payload.propertyId,
       roomId: payload.roomId,
     })
-    return null
+    return { phoneNumber: null, roomName: null }
   } catch (error) {
-    console.error('❌ Error getting owner phone:', error)
-    return null
+    console.error('❌ Error getting owner info:', error)
+    return { phoneNumber: null, roomName: null }
   }
 }
 
@@ -102,20 +114,23 @@ export async function POST(request: NextRequest) {
 
     const recordId = data[0]?.id
 
+    // Get owner info first (for both guest and owner messages)
+    const ownerInfo = getOwnerInfo(payload)
+    
     // Send WhatsApp message to guest
+    const propertyName = ownerInfo.roomName || 'Mountain View' // Fallback to default if not found
     const whatsappResult = await sendWhatsAppMessage({
       to: payload.phone,
-      message: `שלום ${payload.guestName}! 🏔️\n\nקיבלנו את הזמנתך ב-Mountain View.\n📅 תאריך כניסה: ${payload.checkInDate}\n\nנשמח לארח אותך! 🎉`,
+      message: `שלום ${payload.guestName}! 🏔️\n\nקיבלנו את הזמנתך ב-${propertyName}.\n📅 תאריך כניסה: ${payload.checkInDate}\n\nנשמח לארח אותך! 🎉`,
     })
 
     // Send notification to property owner
-    const ownerPhone = getOwnerPhoneNumber(payload)
     let ownerNotificationResult = null
     
-    if (ownerPhone) {
+    if (ownerInfo.phoneNumber) {
       ownerNotificationResult = await sendWhatsAppMessage({
-        to: ownerPhone,
-        message: `🔔 הזמנה חדשה!\n\n👤 אורח: ${payload.guestName}\n📱 טלפון: ${payload.phone}\n📅 כניסה: ${payload.checkInDate}${payload.checkOutDate ? `\n📅 יציאה: ${payload.checkOutDate}` : ''}${payload.roomName ? `\n🏠 יחידה: ${payload.roomName}` : ''}${payload.bookingId ? `\n🔖 מספר הזמנה: ${payload.bookingId}` : ''}`,
+        to: ownerInfo.phoneNumber,
+        message: `🔔 הזמנה חדשה!\n\n👤 אורח: ${payload.guestName}\n📱 טלפון: ${payload.phone}\n📅 כניסה: ${payload.checkInDate}${payload.checkOutDate ? `\n📅 יציאה: ${payload.checkOutDate}` : ''}${ownerInfo.roomName ? `\n🏠 יחידה: ${ownerInfo.roomName}` : ''}${payload.bookingId ? `\n🔖 מספר הזמנה: ${payload.bookingId}` : ''}`,
       })
       
       if (ownerNotificationResult.success) {
