@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 interface AdminUser {
   id: string
   email: string
+  firstName?: string
+  lastName?: string
   displayName: string
   propertyId: string
   roomId: string
@@ -20,6 +22,8 @@ interface AdminUser {
 interface UserFormData {
   email: string
   password: string
+  firstName: string
+  lastName: string
   displayName: string
   propertyId: string
   roomId: string
@@ -39,6 +43,8 @@ export default function AdminUsersPage() {
   const [formData, setFormData] = useState<UserFormData>({
     email: '',
     password: '',
+    firstName: '',
+    lastName: '',
     displayName: '',
     propertyId: '',
     roomId: '',
@@ -113,6 +119,8 @@ export default function AdminUsersPage() {
       setFormData({
         email: '',
         password: '',
+        firstName: '',
+        lastName: '',
         displayName: '',
         propertyId: '',
         roomId: '',
@@ -133,6 +141,8 @@ export default function AdminUsersPage() {
     setFormData({
       email: user.email,
       password: '', // Don't pre-fill password
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
       displayName: user.displayName,
       propertyId: user.propertyId,
       roomId: user.roomId,
@@ -170,6 +180,8 @@ export default function AdminUsersPage() {
     setFormData({
       email: '',
       password: '',
+      firstName: '',
+      lastName: '',
       displayName: '',
       propertyId: '',
       roomId: '',
@@ -258,6 +270,28 @@ export default function AdminUsersPage() {
                     </div>
 
                     <div className="col-md-6">
+                      <label className="form-label">שם פרטי *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.firstName}
+                        onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label">שם משפחה *</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.lastName}
+                        onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        required
+                      />
+                    </div>
+
+                    <div className="col-md-6">
                       <label className="form-label">שם תצוגה *</label>
                       <input
                         type="text"
@@ -265,6 +299,7 @@ export default function AdminUsersPage() {
                         value={formData.displayName}
                         onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
                         required
+                        placeholder="שם מלא לתצוגה"
                       />
                     </div>
 
@@ -349,7 +384,7 @@ export default function AdminUsersPage() {
             <table className="table table-hover">
               <thead className="table-light">
                 <tr>
-                  <th>שם תצוגה</th>
+                  <th>שם מלא</th>
                   <th>אימייל</th>
                   <th>טלפון</th>
                   <th>Property ID</th>
@@ -361,7 +396,16 @@ export default function AdminUsersPage() {
               <tbody>
                 {users.map((user) => (
                   <tr key={user.id}>
-                    <td>{user.displayName}</td>
+                    <td>
+                      <div className="fw-bold">
+                        {user.firstName && user.lastName 
+                          ? `${user.firstName} ${user.lastName}`
+                          : user.displayName}
+                      </div>
+                      {user.firstName && user.lastName && user.displayName && (
+                        <small className="text-muted">{user.displayName}</small>
+                      )}
+                    </td>
                     <td>{user.email}</td>
                     <td>{user.phoneNumber || '-'}</td>
                     <td><code>{user.propertyId}</code></td>

@@ -40,6 +40,8 @@ export async function GET() {
     const users = data.map((user) => ({
       id: user.id,
       email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
       displayName: user.display_name,
       propertyId: user.property_id,
       roomId: user.room_id,
@@ -78,7 +80,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { 
       email, 
-      password, 
+      password,
+      firstName,
+      lastName,
       displayName, 
       propertyId, 
       roomId, 
@@ -88,7 +92,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     // Validate required fields
-    if (!email || !password || !displayName || !propertyId || !roomId) {
+    if (!email || !password || !firstName || !lastName || !displayName || !propertyId || !roomId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -119,6 +123,8 @@ export async function POST(request: NextRequest) {
       .insert({
         email: email.toLowerCase(),
         password_hash: passwordHash,
+        first_name: firstName,
+        last_name: lastName,
         display_name: displayName,
         property_id: propertyId,
         room_id: roomId,
@@ -142,6 +148,8 @@ export async function POST(request: NextRequest) {
       user: {
         id: data.id,
         email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
         displayName: data.display_name,
         propertyId: data.property_id,
         roomId: data.room_id,

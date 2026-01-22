@@ -29,6 +29,8 @@ export async function PUT(
     const { 
       email, 
       password, // Optional - only if changing password
+      firstName,
+      lastName,
       displayName, 
       propertyId, 
       roomId, 
@@ -38,7 +40,7 @@ export async function PUT(
     } = body
 
     // Validate required fields
-    if (!email || !displayName || !propertyId || !roomId) {
+    if (!email || !firstName || !lastName || !displayName || !propertyId || !roomId) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -64,6 +66,8 @@ export async function PUT(
     // Build update object
     const updates: Record<string, any> = {
       email: email.toLowerCase(),
+      first_name: firstName,
+      last_name: lastName,
       display_name: displayName,
       property_id: propertyId,
       room_id: roomId,
@@ -98,6 +102,8 @@ export async function PUT(
       user: {
         id: data.id,
         email: data.email,
+        firstName: data.first_name,
+        lastName: data.last_name,
         displayName: data.display_name,
         propertyId: data.property_id,
         roomId: data.room_id,
