@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
+import { sendWhatsAppMessage } from '@/lib/whatsapp'
+import { createServerClient } from '@/lib/supabase/server'
+import { getUserByEmail } from '@/lib/auth/getUsersDb'
 
 export const dynamic = 'force-dynamic'  // Allow POST requests for creating bookings
 export const revalidate = 0
@@ -139,6 +142,119 @@ export async function POST(request: Request) {
   }
 
   const data = await response.json()
+  
+  // Send WhatsApp notifications for direct bookings
+  // (Beds24 doesn't send webhooks for API-created bookings)
+  try {
+    const firstBooking = normalizedPayload[0]
+    const guestName = `${firstBooking.firstName} ${firstBooking.lastName}`.trim()
+    const guestPhone = firstBooking.mobile || firstBooking.phone || ''
+    const checkInDate = firstBooking.arrival
+    const checkOutDate = firstBooking.departure
+    const numAdult = firstBooking.numAdult || 1
+    
+    // Get booking ID from Beds24 response
+    const bookingId = Array.isArray(data) && data[0]?.bookingId 
+      ? data[0].bookingId 
+      : 'N/A'
+    
+    // Save to Supabase notifications_log
+    const supabase = createServerClient()
+    const { data: logData, error: logError } = await supabase
+      .from('notifications_log')
+      .insert({
+        guest_name: guestName,
+        phone: guestPhone,
+        check_in_date: checkInDate,
+        raw_payload: {
+          source: 'dashboard',
+          booking: firstBooking,
+          beds24Response: data,
+        },
+        status: 'received',
+        created_at: new Date().toISOString(),
+      })
+      .select()
+    
+    if (logError) {
+      console.error('❌ Failed to save to notifications_log:', logError)
+    }
+    
+    const recordId = logData?.[0]?.id
+    
+    // Get owner info for room name and phone
+    const ownerEmail = session?.user?.email
+    let ownerInfo = { phoneNumber: null as string | null, roomName: null as string | null }
+    
+    if (ownerEmail) {
+      try {
+        const user = await getUserByEmail(ownerEmail)
+        if (user) {
+          ownerInfo = {
+            phoneNumber: user.phoneNumber || null,
+            roomName: user.displayName || null,
+          }
+        }
+      } catch (error) {
+        console.error('❌ Error getting owner info:', error)
+      }
+    }
+    
+    // Send WhatsApp to guest
+    let whatsappResult: { success: boolean; provider: string; error?: string } = {
+      success: false,
+      provider: 'none',
+      error: 'No phone number',
+    }
+    
+    if (guestPhone) {
+      const propertyName = ownerInfo.roomName || 'Mountain View'
+      whatsappResult = await sendWhatsAppMessage({
+        to: guestPhone,
+        message: `שלום ${guestName}! 🏔️\n\nקיבלנו את הזמנתך ב-${propertyName}.\n📅 תאריך כניסה: ${checkInDate}\n\nנשמח לארח אותך! 🎉`,
+      })
+      
+      console.log(`📱 Guest WhatsApp (${guestPhone}):`, whatsappResult.success ? '✅ Sent' : `❌ Failed - ${whatsappResult.error}`)
+    } else {
+      console.warn('⚠️  Skipping guest WhatsApp - no phone number')
+    }
+    
+    // Send WhatsApp to owner
+    let ownerNotificationResult = null
+    
+    if (ownerInfo.phoneNumber) {
+      ownerNotificationResult = await sendWhatsAppMessage({
+        to: ownerInfo.phoneNumber,
+        message: `🔔 הזמנה חדשה!\n\n👤 אורח: ${guestName}\n📱 טלפון: ${guestPhone || 'לא צוין'}\n📅 כניסה: ${checkInDate}${
+          checkOutDate ? `\n📅 יציאה: ${checkOutDate}` : ''
+        }${ownerInfo.roomName ? `\n🏠 יחידה: ${ownerInfo.roomName}` : ''}${
+          numAdult ? `\n👥 מספר אורחים: ${numAdult}` : ''
+        }\n🔖 מספר הזמנה: ${bookingId}`,
+      })
+      
+      console.log(`📱 Owner WhatsApp (${ownerInfo.phoneNumber}):`, ownerNotificationResult.success ? '✅ Sent' : `❌ Failed - ${ownerNotificationResult.error}`)
+    } else {
+      console.warn('⚠️  Skipping owner WhatsApp - phone not configured in profile')
+    }
+    
+    // Update database with WhatsApp status
+    if (recordId) {
+      const status = whatsappResult.success ? 'sent' : 'failed'
+      await supabase
+        .from('notifications_log')
+        .update({
+          status,
+          whatsapp_sent_at: whatsappResult.success ? new Date().toISOString() : null,
+          whatsapp_error: whatsappResult.error || null,
+        })
+        .eq('id', recordId)
+    }
+    
+  } catch (whatsappError) {
+    // Don't fail the booking creation if WhatsApp fails
+    console.error('❌ Error sending WhatsApp:', whatsappError)
+  }
+  
   if (process.env.NODE_ENV !== 'production') {
     return NextResponse.json({ data, debugPayload: normalizedPayload })
   }
