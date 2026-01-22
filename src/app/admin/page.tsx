@@ -70,20 +70,22 @@ export default function AdminDashboardPage() {
           </Link>
         </div>
 
-        {/* Notifications Log Card */}
+        {/* Subscriptions Card */}
         <div className="col-md-6">
-          <div className="card h-100 border-info shadow-sm" style={{ opacity: 0.7 }}>
-            <div className="card-body text-center p-4">
-              <div className="display-1 text-info mb-3">📱</div>
-              <h3 className="card-title">לוג הודעות</h3>
-              <p className="card-text text-muted">
-                צפייה בהודעות WhatsApp שנשלחו
-              </p>
-              <button className="btn btn-outline-info mt-3" disabled>
-                בקרוב...
-              </button>
+          <Link href="/admin/subscriptions" className="text-decoration-none">
+            <div className="card h-100 border-success shadow-sm hover-shadow" style={{ cursor: 'pointer', transition: 'all 0.3s' }}>
+              <div className="card-body text-center p-4">
+                <div className="display-1 text-success mb-3">💰</div>
+                <h3 className="card-title">ניהול מנויים</h3>
+                <p className="card-text text-muted">
+                  צפייה ב מנויים, תשלומים ושימוש
+                </p>
+                <button className="btn btn-success mt-3">
+                  עבור למנויים →
+                </button>
+              </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* System Settings Card */}

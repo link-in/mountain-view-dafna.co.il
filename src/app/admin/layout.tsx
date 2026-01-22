@@ -1,9 +1,6 @@
-import type { Metadata } from 'next'
+'use client'
 
-export const metadata: Metadata = {
-  title: 'HOSTLY Admin',
-  description: 'Admin panel for HOSTLY platform',
-}
+import { SessionProvider } from 'next-auth/react'
 
 export default function AdminLayout({
   children,
@@ -11,8 +8,10 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-vh-100 bg-light">
-      {children}
-    </div>
+    <SessionProvider>
+      <div className="min-vh-100 bg-light">
+        {children}
+      </div>
+    </SessionProvider>
   )
 }
