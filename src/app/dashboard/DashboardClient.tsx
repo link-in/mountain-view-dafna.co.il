@@ -384,7 +384,7 @@ const DashboardClient = () => {
               ) : null}
             </div>
           </div>
-          <div className="d-flex align-items-center gap-2 position-relative">
+          <div className="d-flex align-items-center gap-2 position-relative justify-content-center justify-content-lg-start">
             {session?.user?.landingPageUrl ? (
               <button
                 type="button"
@@ -535,7 +535,7 @@ const DashboardClient = () => {
               background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
             }}
           >
-            <div className="d-flex flex-column flex-md-row align-items-md-center justify-content-between mb-3 gap-2">
+            <div className="d-flex flex-row align-items-center justify-content-between mb-3 gap-2">
               <div className="d-flex align-items-center gap-2">
                 <h2 
                   className="h5 fw-bold mb-0"
@@ -572,22 +572,6 @@ const DashboardClient = () => {
                   }}
                   onClick={() => setShowNewReservation((prev) => !prev)}
                 >
-                  {!showNewReservation && (
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      width="16" 
-                      height="16" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="currentColor" 
-                      strokeWidth="2" 
-                      strokeLinecap="round" 
-                      strokeLinejoin="round"
-                    >
-                      <line x1="12" y1="5" x2="12" y2="19" />
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                  )}
                   {showNewReservation ? 'סגור טופס' : 'הזמנה חדשה'}
                 </button>
               </div>
