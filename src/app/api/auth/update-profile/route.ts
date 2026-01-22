@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     displayName?: string
     email?: string
     landingPageUrl?: string
+    phoneNumber?: string
     currentPassword?: string
     newPassword?: string
   }
@@ -77,6 +78,14 @@ export async function POST(request: Request) {
       currentUser.landingPageUrl = payload.landingPageUrl
     }
 
+    if (payload.phoneNumber !== undefined) {
+      // Validate phone number format (optional)
+      if (payload.phoneNumber && !payload.phoneNumber.match(/^\+?\d{10,15}$/)) {
+        return NextResponse.json({ error: 'פורמט מספר טלפון לא תקין. השתמש בפורמט: +972501234567' }, { status: 400 })
+      }
+      currentUser.phoneNumber = payload.phoneNumber
+    }
+
     // Save back to file
     users[userIndex] = currentUser
     fs.writeFileSync(USERS_FILE_PATH, JSON.stringify(users, null, 2), 'utf-8')
@@ -90,6 +99,7 @@ export async function POST(request: Request) {
         propertyId: currentUser.propertyId,
         roomId: currentUser.roomId,
         landingPageUrl: currentUser.landingPageUrl,
+        phoneNumber: currentUser.phoneNumber,
       },
     })
   } catch (error) {

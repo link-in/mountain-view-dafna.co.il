@@ -6,6 +6,7 @@ export interface User {
   propertyId: string
   roomId: string
   landingPageUrl?: string
+  phoneNumber?: string
 }
 
 export interface AuthUser {
@@ -15,6 +16,7 @@ export interface AuthUser {
   propertyId: string
   roomId: string
   landingPageUrl?: string
+  phoneNumber?: string
 }
 
 export interface UserCredentials {

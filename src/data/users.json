@@ -6,7 +6,8 @@
     "displayName": "נוף הרים בדפנה",
     "propertyId": "306559",
     "roomId": "638851",
-    "landingPageUrl": "https://mountain-view-dafna.co.il"
+    "landingPageUrl": "https://mountain-view-dafna.co.il",
+    "phoneNumber": ""
   },
   {
     "id": "user_2",
@@ -15,7 +16,8 @@
     "displayName": "יחידה 2",
     "propertyId": "123456",
     "roomId": "789012",
-    "landingPageUrl": ""
+    "landingPageUrl": "",
+    "phoneNumber": ""
   },
   {
     "id": "user_3",
@@ -24,6 +26,7 @@
     "displayName": "יחידה 3",
     "propertyId": "111111",
     "roomId": "222222",
-    "landingPageUrl": ""
+    "landingPageUrl": "",
+    "phoneNumber": ""
   }
 ]

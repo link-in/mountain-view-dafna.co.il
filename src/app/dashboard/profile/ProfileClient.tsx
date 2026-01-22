@@ -10,6 +10,7 @@ const ProfileClient = () => {
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [landingPageUrl, setLandingPageUrl] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -23,6 +24,7 @@ const ProfileClient = () => {
       setDisplayName(session.user.displayName ?? '')
       setEmail(session.user.email ?? '')
       setLandingPageUrl(session.user.landingPageUrl ?? '')
+      setPhoneNumber(session.user.phoneNumber ?? '')
     }
   }, [session])
 
@@ -55,6 +57,7 @@ const ProfileClient = () => {
           displayName: displayName.trim(),
           email: email.trim(),
           landingPageUrl: landingPageUrl.trim(),
+          phoneNumber: phoneNumber.trim(),
           ...(newPassword ? { currentPassword, newPassword } : {}),
         }),
       })
@@ -69,7 +72,8 @@ const ProfileClient = () => {
       // Update session with new data
       await update({ 
         displayName: displayName.trim(),
-        landingPageUrl: landingPageUrl.trim()
+        landingPageUrl: landingPageUrl.trim(),
+        phoneNumber: phoneNumber.trim()
       })
       
       setSuccess('הפרטים עודכנו בהצלחה')
@@ -122,7 +126,7 @@ const ProfileClient = () => {
                 ) : null}
 
                 <div className="row g-3">
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <label className="form-label small fw-semibold">שם תצוגה</label>
                     <input
                       type="text"
@@ -133,7 +137,7 @@ const ProfileClient = () => {
                     />
                   </div>
 
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <label className="form-label small fw-semibold">אימייל</label>
                     <input
                       type="email"
@@ -144,7 +148,7 @@ const ProfileClient = () => {
                     />
                   </div>
 
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <label className="form-label small fw-semibold">כתובת דף נחיתה</label>
                     <input
                       type="url"
@@ -157,7 +161,26 @@ const ProfileClient = () => {
                     <small className="text-muted">כתובת URL של דף הנחיתה של היחידה</small>
                   </div>
 
-                  <div className="col-12">
+                  <div className="col-md-6">
+                    <label className="form-label small fw-semibold">
+                      מספר WhatsApp לקבלת התראות 
+                      <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      disabled={!editing}
+                      placeholder="+972501234567"
+                      dir="ltr"
+                    />
+                    <small className="text-muted">
+                      📱 מספר טלפון עם קידומת מדינה (לדוגמה: +972501234567) לקבלת התראות על הזמנות חדשות ב-WhatsApp
+                    </small>
+                  </div>
+
+                  <div className="col-md-6">
                     <label className="form-label small text-muted">Property ID</label>
                     <input
                       type="text"
@@ -169,7 +192,7 @@ const ProfileClient = () => {
                     <small className="text-muted">לא ניתן לעריכה - קשור ל-Beds24</small>
                   </div>
 
-                  <div className="col-12">
+                  <div className="col-md-6">
                     <label className="form-label small text-muted">Room ID</label>
                     <input
                       type="text"
