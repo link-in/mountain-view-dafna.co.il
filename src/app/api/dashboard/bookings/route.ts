@@ -151,17 +151,17 @@ export async function POST(request: Request) {
     console.log('📝 Starting WhatsApp/Supabase process...')
     
     const firstBooking = normalizedPayload[0]
-    const guestName = `${firstBooking.firstName} ${firstBooking.lastName}`.trim()
-    const guestPhone = firstBooking.mobile || firstBooking.phone || ''
-    const checkInDate = firstBooking.arrival
-    const checkOutDate = firstBooking.departure
-    const numAdult = firstBooking.numAdult || 1
+    const guestName = `${String(firstBooking.firstName || '')} ${String(firstBooking.lastName || '')}`.trim()
+    const guestPhone = String(firstBooking.mobile || firstBooking.phone || '')
+    const checkInDate = String(firstBooking.arrival || '')
+    const checkOutDate = String(firstBooking.departure || '')
+    const numAdult = Number(firstBooking.numAdult) || 1
     
     console.log(`👤 Guest: ${guestName}, Phone: ${guestPhone}`)
     
     // Get booking ID from Beds24 response
     const bookingId = Array.isArray(data) && data[0]?.bookingId 
-      ? data[0].bookingId 
+      ? String(data[0].bookingId)
       : 'N/A'
     
     console.log(`🔖 Booking ID: ${bookingId}`)
