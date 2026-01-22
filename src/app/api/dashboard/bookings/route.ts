@@ -160,9 +160,9 @@ export async function POST(request: Request) {
     console.log(`👤 Guest: ${guestName}, Phone: ${guestPhone}`)
     
     // Get booking ID from Beds24 response
-    const bookingId = Array.isArray(data) && data[0]?.bookingId 
-      ? String(data[0].bookingId)
-      : 'N/A'
+    const bookingId = Array.isArray(data) && data[0]?.new?.id 
+      ? String(data[0].new.id)
+      : (Array.isArray(data) && data[0]?.bookingId ? String(data[0].bookingId) : 'N/A')
     
     console.log(`🔖 Booking ID: ${bookingId}`)
     
