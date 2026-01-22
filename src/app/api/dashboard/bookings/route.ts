@@ -143,9 +143,13 @@ export async function POST(request: Request) {
 
   const data = await response.json()
   
+  console.log('✅ Beds24 response:', JSON.stringify(data, null, 2))
+  
   // Send WhatsApp notifications for direct bookings
   // (Beds24 doesn't send webhooks for API-created bookings)
   try {
+    console.log('📝 Starting WhatsApp/Supabase process...')
+    
     const firstBooking = normalizedPayload[0]
     const guestName = `${firstBooking.firstName} ${firstBooking.lastName}`.trim()
     const guestPhone = firstBooking.mobile || firstBooking.phone || ''
@@ -153,12 +157,17 @@ export async function POST(request: Request) {
     const checkOutDate = firstBooking.departure
     const numAdult = firstBooking.numAdult || 1
     
+    console.log(`👤 Guest: ${guestName}, Phone: ${guestPhone}`)
+    
     // Get booking ID from Beds24 response
     const bookingId = Array.isArray(data) && data[0]?.bookingId 
       ? data[0].bookingId 
       : 'N/A'
     
+    console.log(`🔖 Booking ID: ${bookingId}`)
+    
     // Save to Supabase notifications_log
+    console.log('💾 Attempting to save to Supabase...')
     const supabase = createServerClient()
     const { data: logData, error: logError } = await supabase
       .from('notifications_log')
@@ -177,13 +186,17 @@ export async function POST(request: Request) {
       .select()
     
     if (logError) {
+      console.log('❌ SUPABASE ERROR:', JSON.stringify(logError, null, 2))
       console.error('❌ Failed to save to notifications_log:', logError)
+    } else {
+      console.log('✅ Saved to Supabase! Record ID:', logData?.[0]?.id)
     }
     
     const recordId = logData?.[0]?.id
     
     // Get owner info for room name and phone
     const ownerEmail = session?.user?.email
+    console.log(`👤 Owner email: ${ownerEmail}`)
     let ownerInfo = { phoneNumber: null as string | null, roomName: null as string | null }
     
     if (ownerEmail) {
@@ -194,10 +207,16 @@ export async function POST(request: Request) {
             phoneNumber: user.phoneNumber || null,
             roomName: user.displayName || null,
           }
+          console.log(`📞 Owner info: phone=${ownerInfo.phoneNumber}, name=${ownerInfo.roomName}`)
+        } else {
+          console.log('⚠️  Owner user not found')
         }
       } catch (error) {
+        console.log('❌ ERROR getting owner info:', error)
         console.error('❌ Error getting owner info:', error)
       }
+    } else {
+      console.log('⚠️  No owner email in session')
     }
     
     // Send WhatsApp to guest
@@ -252,8 +271,11 @@ export async function POST(request: Request) {
     
   } catch (whatsappError) {
     // Don't fail the booking creation if WhatsApp fails
+    console.log('❌ CAUGHT ERROR in WhatsApp/Supabase block:', whatsappError)
     console.error('❌ Error sending WhatsApp:', whatsappError)
   }
+  
+  console.log('🏁 Finished booking creation process')
   
   if (process.env.NODE_ENV !== 'production') {
     return NextResponse.json({ data, debugPayload: normalizedPayload })
