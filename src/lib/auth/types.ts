@@ -1,3 +1,5 @@
+export type UserRole = 'admin' | 'owner'
+
 export interface User {
   id: string
   email: string
@@ -7,6 +9,7 @@ export interface User {
   roomId: string
   landingPageUrl?: string
   phoneNumber?: string
+  role: UserRole
 }
 
 export interface AuthUser {
@@ -17,6 +20,7 @@ export interface AuthUser {
   roomId: string
   landingPageUrl?: string
   phoneNumber?: string
+  role: UserRole
 }
 
 export interface UserCredentials {

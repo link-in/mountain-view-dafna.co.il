@@ -38,6 +38,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
       roomId: data.room_id,
       landingPageUrl: data.landing_page_url || undefined,
       phoneNumber: data.phone_number || undefined,
+      role: data.role || 'owner',
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
@@ -78,8 +79,11 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
     if (updates.email !== undefined) dbUpdates.email = updates.email
     if (updates.displayName !== undefined) dbUpdates.display_name = updates.displayName
     if (updates.passwordHash !== undefined) dbUpdates.password_hash = updates.passwordHash
+    if (updates.propertyId !== undefined) dbUpdates.property_id = updates.propertyId
+    if (updates.roomId !== undefined) dbUpdates.room_id = updates.roomId
     if (updates.landingPageUrl !== undefined) dbUpdates.landing_page_url = updates.landingPageUrl
     if (updates.phoneNumber !== undefined) dbUpdates.phone_number = updates.phoneNumber
+    if (updates.role !== undefined) dbUpdates.role = updates.role
 
     const { data, error } = await supabase
       .from('users')
@@ -107,6 +111,7 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
       roomId: data.room_id,
       landingPageUrl: data.landing_page_url || undefined,
       phoneNumber: data.phone_number || undefined,
+      role: data.role || 'owner',
     }
   } catch (error) {
     console.error('Failed to update user:', error)
@@ -160,5 +165,6 @@ export const toAuthUser = (user: User): AuthUser => {
     roomId: user.roomId,
     landingPageUrl: user.landingPageUrl,
     phoneNumber: user.phoneNumber,
+    role: user.role,
   }
 }

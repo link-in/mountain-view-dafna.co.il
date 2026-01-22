@@ -58,6 +58,7 @@ export const authOptions: NextAuthOptions = {
         token.roomId = user.roomId
         token.landingPageUrl = user.landingPageUrl
         token.phoneNumber = user.phoneNumber
+        token.role = user.role
       }
       
       // Handle session updates (from update() call)
@@ -71,12 +72,15 @@ export const authOptions: NextAuthOptions = {
         if (session.phoneNumber !== undefined) {
           token.phoneNumber = session.phoneNumber
         }
+        if (session.role !== undefined) {
+          token.role = session.role
+        }
       }
       
       return token
     },
     async session({ session, token }) {
-      if (token && token.id && token.email && token.displayName && token.propertyId && token.roomId) {
+      if (token && token.id && token.email && token.displayName && token.propertyId && token.roomId && token.role) {
         session.user = {
           id: token.id,
           email: token.email,
@@ -85,6 +89,7 @@ export const authOptions: NextAuthOptions = {
           roomId: token.roomId,
           landingPageUrl: token.landingPageUrl as string | undefined,
           phoneNumber: token.phoneNumber as string | undefined,
+          role: token.role as 'admin' | 'owner',
         }
       }
       return session
