@@ -117,10 +117,14 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password)
 
+    // Generate unique ID
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`
+
     // Create user
     const { data, error } = await supabase
       .from('users')
       .insert({
+        id: userId,
         email: email.toLowerCase(),
         password_hash: passwordHash,
         first_name: firstName,
