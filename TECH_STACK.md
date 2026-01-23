@@ -20,6 +20,7 @@
 - **Vercel** - Hosting & deployment
 - **Node.js** - Runtime environment
 
+
 ### External APIs & Services
 - **Beds24 API** - מערכת ניהול הזמנות
   - Booking creation
@@ -35,22 +36,45 @@
 
 ## 📦 מבנה המערכת
 
-### 1. **Authentication System**
+### 1. **Public Pages (Landing Site)**
+```
+/                  → דף הבית (Homepage)
+/about             → אודות
+/contact           → יצירת קשר
+/service           → שירותים
+/shop              → חנות (אם קיימת)
+```
+
+### 2. **Authentication System**
 - NextAuth.js עם Credentials provider
 - JWT tokens
 - Session management
 - Role-based access (Admin/Owner)
 
-### 2. **Dashboard System**
+### 3. **Dashboard System**
 ```
-/dashboard         → בעלי יחידות
-/dashboard/login   → התחברות
-/admin             → מערכת אדמין
-/admin/users       → ניהול משתמשים
-/admin/subscriptions → ניהול מנויים
+/dashboard         → לוח בקרה לבעלי יחידות
+/dashboard/login   → התחברות למערכת
+/dashboard/bookings → יצירת הזמנות
+/dashboard/logs    → צפייה בהיסטוריית התראות
 ```
 
-### 3. **Booking Flow**
+### 4. **Admin System**
+```
+/admin                  → לוח בקרה אדמין
+/admin/users            → ניהול משתמשים (CRUD)
+/admin/subscriptions    → ניהול מנויים וחיובים
+/admin/settings         → הגדרות (תכנון עתידי)
+/admin/analytics        → דוחות וסטטיסטיקות (תכנון עתידי)
+```
+
+### 5. **Special Routes**
+```
+/api/ical          → iCal feed לסנכרון לוח שנה
+/api/webhook       → Beds24 webhooks endpoint
+```
+
+### 6. **Booking Flow**
 ```
 1. Dashboard → Create Booking
 2. Beds24 API → Save booking
@@ -58,7 +82,7 @@
 4. Supabase → Log notification
 ```
 
-### 4. **Webhook System**
+### 7. **Webhook System**
 ```
 Beds24 Webhook → /api/webhook
   ↓
@@ -136,31 +160,38 @@ Log to notifications_log
 
 ## 🔌 API Routes
 
-### Public APIs
+### 🌐 Public APIs (No auth required)
 ```
-POST /api/webhook              → Beds24 webhooks
+POST /api/webhook              → Beds24 webhooks receiver
+GET  /api/ical                 → iCal calendar feed
 ```
 
-### Protected APIs (Admin only)
+### 👤 Protected APIs - Owner Role
 ```
-GET    /api/admin/users        → רשימת משתמשים
-POST   /api/admin/users        → יצירת משתמש
-PUT    /api/admin/users/[id]   → עדכון משתמש
+GET  /api/dashboard/info       → פרטי בעל יחידה (property_id, room_id, etc.)
+POST /api/dashboard/bookings   → יצירת הזמנה חדשה ב-Beds24
+GET  /api/dashboard/logs       → היסטוריית התראות והודעות
+```
+
+### 🔧 Protected APIs - Admin Role Only
+```
+# User Management
+GET    /api/admin/users        → רשימת כל המשתמשים
+POST   /api/admin/users        → יצירת משתמש חדש
+PUT    /api/admin/users/[id]   → עדכון פרטי משתמש
 DELETE /api/admin/users/[id]   → מחיקת משתמש
-GET    /api/admin/subscriptions → נתוני מנויים
+
+# Subscription Management
+GET    /api/admin/subscriptions → נתוני מנויים, שימוש, סטטיסטיקות
 ```
 
-### Protected APIs (Owner)
+### 🔐 Auth APIs (NextAuth.js)
 ```
-GET  /api/dashboard/info       → פרטי בעל יחידה
-POST /api/dashboard/bookings   → יצירת הזמנה
-GET  /api/dashboard/logs       → היסטוריית התראות
-```
-
-### Auth APIs
-```
-POST /api/auth/signin          → התחברות
-GET  /api/auth/session         → פרטי session
+POST /api/auth/signin          → התחברות למערכת
+POST /api/auth/signout         → יציאה מהמערכת
+GET  /api/auth/session         → קבלת פרטי session נוכחי
+GET  /api/auth/csrf            → CSRF token
+GET  /api/auth/providers       → רשימת providers
 ```
 
 ---
