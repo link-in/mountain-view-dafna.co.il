@@ -216,7 +216,22 @@ export default function AdminUsersPage() {
             <h3 className="mb-0">ניהול משתמשים - HOSTLY</h3>
             <button
               className="btn btn-light"
-              onClick={() => setShowForm(true)}
+              onClick={() => {
+                setEditingUser(null)
+                setFormData({
+                  email: '',
+                  password: '',
+                  firstName: '',
+                  lastName: '',
+                  displayName: '',
+                  propertyId: '',
+                  roomId: '',
+                  landingPageUrl: '',
+                  phoneNumber: '',
+                  role: 'owner',
+                })
+                setShowForm(true)
+              }}
               disabled={showForm}
             >
               + הוסף משתמש
