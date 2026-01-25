@@ -7,6 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/assets/scss/style.scss'
 import GoogleTagManager from './components/GoogleTagManager'
 import GoogleAnalytics from './components/GoogleAnalytics'
+import PWAInstallPrompt from './components/PWAInstallPrompt'
 
 const openSans = Open_Sans({
   display: 'swap',
@@ -78,6 +79,7 @@ export default function RootLayout({
       <body className={`${openSans.className} ${poppins.variable} ${rubik.variable}`}>
         <GoogleTagManager gtmId={gtmId} />
         <GoogleAnalytics measurementId={gaId} />
+        <PWAInstallPrompt />
         {children}
       </body>
     </html>
