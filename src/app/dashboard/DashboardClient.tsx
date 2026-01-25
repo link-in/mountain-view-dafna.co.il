@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import type { Reservation, RoomPrice } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
@@ -30,7 +31,8 @@ const addDays = (value: Date, days: number) => {
 }
 
 const DashboardClient = () => {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
+  const router = useRouter()
   const [{ provider }] = useState(() => getDashboardProvider())
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
@@ -55,6 +57,7 @@ const DashboardClient = () => {
     total: '',
     notes: '',
   })
+  const [sendWhatsApp, setSendWhatsApp] = useState(true) // Default: send WhatsApp
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
 
@@ -86,6 +89,7 @@ const DashboardClient = () => {
       total: '',
       notes: '',
     })
+    setSendWhatsApp(true) // Reset to default: send WhatsApp
   }
 
   const refreshRoomPrices = async () => {
@@ -196,7 +200,10 @@ const DashboardClient = () => {
       const response = await fetch('/api/dashboard/bookings', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ 
+          bookings: payload,
+          sendWhatsApp: sendWhatsApp 
+        }),
       })
       console.log('Dashboard create booking response', response.status)
       if (!response.ok) {
@@ -213,6 +220,14 @@ const DashboardClient = () => {
       setSavingReservation(false)
     }
   }
+
+  // Check authentication - redirect to login if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      console.log('🔒 User not authenticated, redirecting to login')
+      router.push('/dashboard/login')
+    }
+  }, [status, router])
 
   useEffect(() => {
     let isActive = true
@@ -396,6 +411,33 @@ const DashboardClient = () => {
       monthRevenue,
     }
   }, [reservations, monthRange])
+
+  // Show loading while checking authentication
+  if (status === 'loading') {
+    return (
+      <div 
+        style={{ 
+          minHeight: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <div className="text-center text-white">
+          <div className="spinner-border mb-3" role="status">
+            <span className="visually-hidden">טוען...</span>
+          </div>
+          <p>טוען נתונים...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render dashboard if not authenticated (will redirect via useEffect)
+  if (status === 'unauthenticated') {
+    return null
+  }
 
   return (
     <main 
@@ -625,8 +667,9 @@ const DashboardClient = () => {
                     height: '31px',
                     border: '1px solid #667eea',
                     color: '#667eea',
-                    padding: '0.25rem 1.5rem 0.25rem 0.4rem',
+                    padding: '0.25rem 2rem 0.25rem 0.5rem',
                     fontSize: '0.875rem',
+                    direction: 'rtl',
                   }}
                   value={selectedMonth}
                   onChange={(e) => setSelectedMonth(e.target.value)}
@@ -653,8 +696,9 @@ const DashboardClient = () => {
                     height: '31px',
                     border: '1px solid #764ba2',
                     color: '#764ba2',
-                    padding: '0.25rem 1.5rem 0.25rem 0.4rem',
+                    padding: '0.25rem 2rem 0.25rem 0.5rem',
                     fontSize: '0.875rem',
+                    direction: 'rtl',
                   }}
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
@@ -799,6 +843,25 @@ const DashboardClient = () => {
                       value={newReservation.notes}
                       onChange={(event) => updateReservationField('notes', event.target.value)}
                     ></textarea>
+                  </div>
+                  <div className="col-12">
+                    <div className="form-check d-flex align-items-center" dir="rtl">
+                      <input
+                        className="form-check-input ms-0 me-2"
+                        type="checkbox"
+                        id="sendWhatsAppCheckbox"
+                        checked={sendWhatsApp}
+                        onChange={(e) => setSendWhatsApp(e.target.checked)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                      <label 
+                        className="form-check-label small mb-0" 
+                        htmlFor="sendWhatsAppCheckbox"
+                        style={{ cursor: 'pointer' }}
+                      >
+                        שלח הודעת WhatsApp לאורח ולבעל הנכס על ההזמנה החדשה
+                      </label>
+                    </div>
                   </div>
                   {saveReservationError ? (
                     <div className="col-12">

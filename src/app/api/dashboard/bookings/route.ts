@@ -52,11 +52,25 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let payload: unknown
+  let requestBody: unknown
   try {
-    payload = await request.json()
+    requestBody = await request.json()
   } catch (error) {
     return NextResponse.json({ error: 'Invalid JSON payload' }, { status: 400 })
+  }
+
+  // Extract payload and sendWhatsApp flag
+  let payload: unknown
+  let sendWhatsApp = true // Default: send WhatsApp
+  
+  if (requestBody && typeof requestBody === 'object' && 'bookings' in requestBody) {
+    // New format: { bookings: [...], sendWhatsApp: true/false }
+    payload = (requestBody as { bookings: unknown }).bookings
+    sendWhatsApp = (requestBody as { sendWhatsApp?: boolean }).sendWhatsApp ?? true
+    console.log('📧 sendWhatsApp flag:', sendWhatsApp)
+  } else {
+    // Old format: direct array or object (for backwards compatibility)
+    payload = requestBody
   }
 
   const session = await getServerSession(authOptions)
@@ -147,6 +161,11 @@ export async function POST(request: Request) {
   
   // Send WhatsApp notifications for direct bookings
   // (Beds24 doesn't send webhooks for API-created bookings)
+  if (!sendWhatsApp) {
+    console.log('⏭️  Skipping WhatsApp - disabled by user')
+    return NextResponse.json(data)
+  }
+  
   try {
     console.log('📝 Starting WhatsApp/Supabase process...')
     
