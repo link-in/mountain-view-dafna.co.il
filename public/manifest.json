@@ -2,7 +2,7 @@
   "name": "Hostly",
   "short_name": "Hostly",
   "description": "Hostly - מערכת ניהול אירוח חכמה",
-  "start_url": "/",
+  "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#667eea",
