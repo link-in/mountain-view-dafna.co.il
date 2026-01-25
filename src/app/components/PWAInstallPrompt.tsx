@@ -20,10 +20,10 @@ export default function PWAInstallPrompt() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('Service Worker registered:', registration)
+          console.log('✅ PWA: Service Worker registered:', registration)
         })
         .catch((error) => {
-          console.log('Service Worker registration failed:', error)
+          console.log('❌ PWA: Service Worker registration failed:', error)
         })
     }
 
@@ -32,10 +32,14 @@ export default function PWAInstallPrompt() {
       (window.navigator as any).standalone === true
 
     setIsStandalone(isInStandaloneMode)
+    console.log('📱 PWA: Standalone mode:', isInStandaloneMode)
+    console.log('📍 PWA: Current path:', pathname)
 
     // Check if iOS
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
     setIsIOS(iOS)
+    console.log('🍎 PWA: Is iOS:', iOS)
+    console.log('🎯 PWA: In dashboard:', pathname?.startsWith('/dashboard'))
 
     // Listen for beforeinstallprompt event (Android/Chrome)
     const handleBeforeInstallPrompt = (e: any) => {
@@ -72,8 +76,8 @@ export default function PWAInstallPrompt() {
 
   return (
     <>
-      {/* Install Button */}
-      {(showInstallButton || isIOS) && (
+      {/* Install Button - show for iOS always (unless standalone), or when Android prompt is ready */}
+      {(showInstallButton || (isIOS && !isStandalone)) && (
         <button
           onClick={handleInstallClick}
           className="btn btn-sm d-flex align-items-center gap-2"
