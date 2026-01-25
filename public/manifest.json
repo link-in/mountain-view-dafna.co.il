@@ -1,7 +1,7 @@
 {
-  "name": "Mountain View",
-  "short_name": "MV",
-  "description": "נוף הרים בדפנה - מערכת ניהול אירוח",
+  "name": "Hostly",
+  "short_name": "Hostly",
+  "description": "Hostly - מערכת ניהול אירוח חכמה",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
