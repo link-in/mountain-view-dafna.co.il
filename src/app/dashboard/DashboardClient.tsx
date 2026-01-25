@@ -504,7 +504,11 @@ const DashboardClient = () => {
                 e.currentTarget.style.backgroundColor = 'transparent'
                 e.currentTarget.style.color = '#764ba2'
               }}
-              onClick={() => signOut({ callbackUrl: '/dashboard/login' })}
+              onClick={async () => {
+                await signOut({ redirect: false })
+                // Clear any cached data
+                window.location.href = '/dashboard/login'
+              }}
               title="התנתק"
               aria-label="התנתק"
             >

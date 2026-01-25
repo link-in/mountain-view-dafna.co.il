@@ -43,9 +43,17 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: '/dashboard/login',
+    signOut: '/dashboard/login',
   },
   session: {
     strategy: 'jwt',
+    maxAge: 24 * 60 * 60, // 24 hours
+  },
+  events: {
+    async signOut({ token }) {
+      // Clear token on signout
+      console.log('User signed out:', token?.email)
+    },
   },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
@@ -59,6 +67,7 @@ export const authOptions: NextAuthOptions = {
         token.landingPageUrl = user.landingPageUrl
         token.phoneNumber = user.phoneNumber
         token.role = user.role
+        token.issuedAt = Date.now()
       }
       
       // Handle session updates (from update() call)
