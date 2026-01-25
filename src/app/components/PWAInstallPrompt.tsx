@@ -53,7 +53,7 @@ export default function PWAInstallPrompt() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt)
     }
-  }, [])
+  }, [pathname])
 
   const handleInstallClick = async () => {
     if (deferredPrompt) {
@@ -71,8 +71,19 @@ export default function PWAInstallPrompt() {
 
   // Don't show anything if already installed or not in dashboard
   if (isStandalone || !isInDashboard) {
+    console.log('🚫 PWA: Not showing button - isStandalone:', isStandalone, 'isInDashboard:', isInDashboard)
     return null
   }
+
+  // Debug: Show button state
+  const shouldShowButton = showInstallButton || (isIOS && !isStandalone)
+  console.log('🔘 PWA: Button render check:', {
+    showInstallButton,
+    isIOS,
+    isStandalone,
+    isInDashboard,
+    shouldShowButton
+  })
 
   return (
     <>
