@@ -1,13 +1,18 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function PWAInstallPrompt() {
+  const pathname = usePathname()
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null)
   const [showInstallButton, setShowInstallButton] = useState(false)
   const [showInstructions, setShowInstructions] = useState(false)
   const [isIOS, setIsIOS] = useState(false)
   const [isStandalone, setIsStandalone] = useState(false)
+
+  // Show ONLY in dashboard area
+  const isInDashboard = pathname?.startsWith('/dashboard')
 
   useEffect(() => {
     // Register Service Worker
@@ -60,8 +65,8 @@ export default function PWAInstallPrompt() {
     }
   }
 
-  // Don't show anything if already installed
-  if (isStandalone) {
+  // Don't show anything if already installed or not in dashboard
+  if (isStandalone || !isInDashboard) {
     return null
   }
 
