@@ -62,6 +62,8 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.email = user.email
         token.displayName = user.displayName
+        token.firstName = user.firstName
+        token.lastName = user.lastName
         token.propertyId = user.propertyId
         token.roomId = user.roomId
         token.landingPageUrl = user.landingPageUrl
@@ -74,6 +76,12 @@ export const authOptions: NextAuthOptions = {
       if (trigger === 'update' && session) {
         if (session.displayName) {
           token.displayName = session.displayName
+        }
+        if (session.firstName !== undefined) {
+          token.firstName = session.firstName
+        }
+        if (session.lastName !== undefined) {
+          token.lastName = session.lastName
         }
         if (session.landingPageUrl !== undefined) {
           token.landingPageUrl = session.landingPageUrl
@@ -94,6 +102,8 @@ export const authOptions: NextAuthOptions = {
           id: token.id,
           email: token.email,
           displayName: token.displayName,
+          firstName: token.firstName as string | undefined,
+          lastName: token.lastName as string | undefined,
           propertyId: token.propertyId,
           roomId: token.roomId,
           landingPageUrl: token.landingPageUrl as string | undefined,

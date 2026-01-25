@@ -162,43 +162,56 @@ export default function AdminDashboardPage() {
 
         {/* System Settings Card */}
         <div className="col-md-6">
-          <div 
-            className="card h-100 border-0 shadow-sm" 
-            style={{ 
-              opacity: 0.7,
-              borderRadius: '12px',
-              background: 'white'
-            }}
+          <Link 
+            href="/admin/settings"
+            className="text-decoration-none"
           >
-            <div className="card-body text-center p-4">
-              <div 
-                className="display-1 mb-3"
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #f093fb 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                }}
-              >
-                ⚙️
+            <div 
+              className="card h-100 border-0 shadow-sm" 
+              style={{ 
+                borderRadius: '12px',
+                background: 'white',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-5px)'
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(102, 126, 234, 0.3)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <div className="card-body text-center p-4">
+                <div 
+                  className="display-1 mb-3"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #f093fb 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
+                >
+                  ⚙️
+                </div>
+                <h3 className="card-title">הגדרות מערכת</h3>
+                <p className="card-text text-muted">
+                  ניהול עמלות ופלטפורמות
+                </p>
+                <span 
+                  className="btn mt-3"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    border: 'none',
+                  }}
+                >
+                  כניסה להגדרות
+                </span>
               </div>
-              <h3 className="card-title">הגדרות מערכת</h3>
-              <p className="card-text text-muted">
-                ניהול הגדרות כלליות של המערכת
-              </p>
-              <button 
-                className="btn mt-3"
-                style={{
-                  border: '1px solid #cbd5e1',
-                  color: '#64748b',
-                  backgroundColor: 'transparent',
-                }}
-                disabled
-              >
-                בקרוב...
-              </button>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Analytics Card */}

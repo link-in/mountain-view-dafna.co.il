@@ -60,6 +60,10 @@ const DashboardClient = () => {
   const [sendWhatsApp, setSendWhatsApp] = useState(true) // Default: send WhatsApp
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
+  const [commissionRates, setCommissionRates] = useState<Record<string, number>>({
+    booking: 0.15, // Default fallback
+    airbnb: 0.16,  // Default fallback
+  })
 
   const updateReservationField = (field: keyof typeof newReservation, value: string | number) => {
     setNewReservation((prev) => {
@@ -233,9 +237,10 @@ const DashboardClient = () => {
     let isActive = true
 
     const load = async () => {
-      const [reservationsResult, roomPricesResult] = await Promise.allSettled([
+      const [reservationsResult, roomPricesResult, commissionRatesResult] = await Promise.allSettled([
         provider.getReservations(),
         provider.getRoomPrices(),
+        fetch('/api/commission-rates').then(res => res.json()),
       ])
 
       if (!isActive) {
@@ -258,6 +263,13 @@ const DashboardClient = () => {
         setRoomPricesError(
           roomPricesResult.reason instanceof Error ? roomPricesResult.reason.message : 'טעינת מחירי לילה נכשלה'
         )
+      }
+
+      if (commissionRatesResult.status === 'fulfilled') {
+        const data = commissionRatesResult.value
+        if (data.rates) {
+          setCommissionRates(data.rates)
+        }
       }
 
       setLoadingReservations(false)
@@ -308,7 +320,29 @@ const DashboardClient = () => {
   }, [reservations, selectedMonth, sortOrder])
 
   const stats = useMemo(() => {
-    const totalRevenue = reservations.reduce((sum, reservation) => sum + reservation.total, 0)
+    let totalRevenue = 0
+    let totalCommission = 0
+
+    reservations.forEach((reservation) => {
+      totalRevenue += reservation.total
+      
+      // חישוב עמלה לפי מקור ההזמנה מההגדרות הדינמיות
+      const source = reservation.source?.toLowerCase() || ''
+      let commissionRate = 0
+      
+      // חיפוש העמלה המתאימה בהגדרות
+      if (source.includes('booking') && commissionRates.booking) {
+        commissionRate = commissionRates.booking
+      } else if (source.includes('airbnb') && commissionRates.airbnb) {
+        commissionRate = commissionRates.airbnb
+      } else if (source.includes('direct') && commissionRates.direct) {
+        commissionRate = commissionRates.direct
+      }
+      
+      totalCommission += reservation.total * commissionRate
+    })
+
+    const netRevenue = totalRevenue - totalCommission
     const confirmedCount = reservations.filter((reservation) => reservation.status === 'confirmed').length
     const upcomingCount = reservations.filter((reservation) => {
       const checkIn = new Date(reservation.checkIn)
@@ -320,10 +354,12 @@ const DashboardClient = () => {
 
     return {
       totalRevenue,
+      totalCommission,
+      netRevenue,
       confirmedCount,
       upcomingCount,
     }
-  }, [reservations])
+  }, [reservations, commissionRates])
 
   const monthRange = useMemo(() => {
     const now = new Date()
@@ -377,6 +413,7 @@ const DashboardClient = () => {
 
     const bookedDates = new Set<string>()
     let monthRevenue = 0
+    let monthCommission = 0
 
     reservations.forEach((reservation) => {
       if (!reservation.checkIn || !reservation.checkOut) {
@@ -390,6 +427,21 @@ const DashboardClient = () => {
       const checkInKey = toLocalKey(checkIn)
       if (checkInKey >= monthRange.startKey && checkInKey <= monthRange.endKey) {
         monthRevenue += reservation.total
+        
+        // חישוב עמלה לפי מקור ההזמנה מההגדרות הדינמיות
+        const source = reservation.source?.toLowerCase() || ''
+        let commissionRate = 0
+        
+        // חיפוש העמלה המתאימה בהגדרות
+        if (source.includes('booking') && commissionRates.booking) {
+          commissionRate = commissionRates.booking
+        } else if (source.includes('airbnb') && commissionRates.airbnb) {
+          commissionRate = commissionRates.airbnb
+        } else if (source.includes('direct') && commissionRates.direct) {
+          commissionRate = commissionRates.direct
+        }
+        
+        monthCommission += reservation.total * commissionRate
       }
 
       let cursor = checkIn
@@ -404,13 +456,16 @@ const DashboardClient = () => {
 
     const bookedDays = bookedDates.size
     const availableDays = Math.max(0, monthRange.daysInMonth - bookedDays)
+    const netRevenue = monthRevenue - monthCommission
 
     return {
       bookedDays,
       availableDays,
       monthRevenue,
+      monthCommission,
+      netRevenue,
     }
-  }, [reservations, monthRange])
+  }, [reservations, monthRange, commissionRates])
 
   // Show loading while checking authentication
   if (status === 'loading') {
@@ -480,8 +535,10 @@ const DashboardClient = () => {
               >
                 {session?.user?.displayName ?? 'נוף הרים בדפנה'}
               </h1>
-              {session?.user?.email ? (
-                <p className="text-muted small mb-0">{session.user.email}</p>
+              {session?.user?.firstName && session?.user?.lastName ? (
+                <p className="small mb-0" style={{ color: '#667eea', fontWeight: '500' }}>
+                  שלום {session.user.firstName} {session.user.lastName}
+                </p>
               ) : null}
             </div>
           </div>
@@ -622,14 +679,26 @@ const DashboardClient = () => {
         ) : null}
 
         <div className="row g-3 mb-4">
-          <div className="col-4">
-            <StatCard title="סה״כ הכנסות" value={formatCurrency(stats.totalRevenue)} helper="מתוך ההזמנות במערכת" />
+          <div className="col-md-4">
+            <StatCard 
+              title="שנה נוכחית" 
+              value={new Date().getFullYear().toString()} 
+              helper="נתוני ההזמנות בשנה זו"
+            />
           </div>
-          <div className="col-4">
-            <StatCard title="הזמנות מאושרות" value={`${stats.confirmedCount}`} helper="כולל הזמנות עתידיות" />
+          <div className="col-md-4">
+            <StatCard 
+              title="הכנסות ברוטו" 
+              value={formatCurrency(stats.totalRevenue)} 
+              helper="סה״כ כל ההזמנות בשנה" 
+            />
           </div>
-          <div className="col-4">
-            <StatCard title="הזמנות קרובות" value={`${stats.upcomingCount}`} helper="כניסות קרובות" />
+          <div className="col-md-4">
+            <StatCard 
+              title="תשלום צפוי" 
+              value={formatCurrency(stats.netRevenue)} 
+              helper="סה״כ כל ההזמנות בשנה (אחרי עמלות)" 
+            />
           </div>
         </div>
 
@@ -972,7 +1041,11 @@ const DashboardClient = () => {
                   />
                 </div>
                 <div className="col-md-4">
-                  <StatCard title="ימים עם הזמנה" value={`${bookingSummary?.bookedDays ?? 0}`} helper="במהלך החודש" />
+                  <StatCard 
+                    title="הכנסות נטו" 
+                    value={formatCurrency(stats.netRevenue)} 
+                    helper="אחרי ניכוי עמלות"
+                  />
                 </div>
                 <div className="col-md-4">
                   <StatCard title="ימים פנויים" value={`${bookingSummary?.availableDays ?? 0}`} helper="ללא הזמנה" />
@@ -981,7 +1054,11 @@ const DashboardClient = () => {
                   <StatCard title="מחיר מינימום" value={formatCurrency(priceSummary.minPrice)} />
                 </div>
                 <div className="col-md-4">
-                  <StatCard title="מחיר ממוצע" value={formatCurrency(priceSummary.avgPrice)} />
+                  <StatCard 
+                    title="הכנסות חודשיות" 
+                    value={formatCurrency(bookingSummary?.monthRevenue ?? 0)} 
+                    helper="סה״כ החודש"
+                  />
                 </div>
                 <div className="col-md-4">
                   <StatCard title="מחיר מקסימום" value={formatCurrency(priceSummary.maxPrice)} />
@@ -992,6 +1069,7 @@ const DashboardClient = () => {
             )}
           </div>
         </div>
+
       </div>
     </main>
   )

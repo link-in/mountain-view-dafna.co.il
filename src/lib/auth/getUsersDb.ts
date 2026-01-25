@@ -34,6 +34,8 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
       email: data.email,
       passwordHash: data.password_hash,
       displayName: data.display_name,
+      firstName: data.first_name || undefined,
+      lastName: data.last_name || undefined,
       propertyId: data.property_id,
       roomId: data.room_id,
       landingPageUrl: data.landing_page_url || undefined,
@@ -78,6 +80,8 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
     
     if (updates.email !== undefined) dbUpdates.email = updates.email
     if (updates.displayName !== undefined) dbUpdates.display_name = updates.displayName
+    if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName
+    if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName
     if (updates.passwordHash !== undefined) dbUpdates.password_hash = updates.passwordHash
     if (updates.propertyId !== undefined) dbUpdates.property_id = updates.propertyId
     if (updates.roomId !== undefined) dbUpdates.room_id = updates.roomId
@@ -107,6 +111,8 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
       email: data.email,
       passwordHash: data.password_hash,
       displayName: data.display_name,
+      firstName: data.first_name || undefined,
+      lastName: data.last_name || undefined,
       propertyId: data.property_id,
       roomId: data.room_id,
       landingPageUrl: data.landing_page_url || undefined,
@@ -161,6 +167,8 @@ export const toAuthUser = (user: User): AuthUser => {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
+    firstName: user.firstName,
+    lastName: user.lastName,
     propertyId: user.propertyId,
     roomId: user.roomId,
     landingPageUrl: user.landingPageUrl,
