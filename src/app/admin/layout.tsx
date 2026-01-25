@@ -9,7 +9,12 @@ export default function AdminLayout({
 }) {
   return (
     <SessionProvider>
-      <div className="min-vh-100 bg-light">
+      <div 
+        className="min-vh-100"
+        style={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+        }}
+      >
         {children}
       </div>
     </SessionProvider>

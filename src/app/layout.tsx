@@ -34,8 +34,25 @@ const rubik = Rubik({
 
 export const metadata: Metadata = {
   title: 'נוף הרים בדפנה',
+  description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
+  manifest: '/manifest.json',
   icons: {
     icon: logo.src,
+    apple: [
+      { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Mountain View',
+  },
+  themeColor: '#667eea',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
   },
 }
 
@@ -51,6 +68,13 @@ export default function RootLayout({
   
   return (
     <html lang="he">
+      <head>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Mountain View" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+      </head>
       <body className={`${openSans.className} ${poppins.variable} ${rubik.variable}`}>
         <GoogleTagManager gtmId={gtmId} />
         <GoogleAnalytics measurementId={gaId} />

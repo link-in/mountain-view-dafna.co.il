@@ -76,15 +76,15 @@ export default function AdminSubscriptionsPage() {
   }
 
   const getStatusBadge = (status: string) => {
-    const badges: Record<string, { text: string; class: string }> = {
-      active: { text: 'פעיל', class: 'bg-success' },
-      trial: { text: 'ניסיון', class: 'bg-info' },
-      expired: { text: 'פג תוקף', class: 'bg-danger' },
-      cancelled: { text: 'בוטל', class: 'bg-secondary' },
-      suspended: { text: 'מושעה', class: 'bg-warning' },
+    const badges: Record<string, { text: string; gradient: string }> = {
+      active: { text: 'פעיל', gradient: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+      trial: { text: 'ניסיון', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+      expired: { text: 'פג תוקף', gradient: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)' },
+      cancelled: { text: 'בוטל', gradient: 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)' },
+      suspended: { text: 'מושעה', gradient: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)' },
     }
-    const badge = badges[status] || { text: status, class: 'bg-secondary' }
-    return <span className={`badge ${badge.class}`}>{badge.text}</span>
+    const badge = badges[status] || { text: status, gradient: 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)' }
+    return <span className="badge" style={{ background: badge.gradient, color: 'white' }}>{badge.text}</span>
   }
 
   if (status === 'loading' || loading) {
@@ -104,37 +104,125 @@ export default function AdminSubscriptionsPage() {
   }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '1400px', direction: 'rtl' }}>
+    <div className="container py-5" style={{ maxWidth: '1400px', direction: 'rtl' }}>
+      {/* Header with Logo */}
+      <div 
+        className="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4 p-4"
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        <div className="d-flex align-items-center gap-3 mb-3 mb-md-0">
+          <img
+            src="/photos/hostly-logo.png"
+            alt="Hostly"
+            style={{ height: '48px', objectFit: 'contain' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+          <h3 
+            className="mb-0"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontWeight: 'bold',
+            }}
+          >
+            💰 ניהול מנויים
+          </h3>
+        </div>
+        <button 
+          className="btn"
+          style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            border: 'none',
+            color: 'white',
+          }}
+          onClick={fetchSubscriptions}
+        >
+          🔄 רענן
+        </button>
+      </div>
+
       {/* Stats Cards */}
-      <div className="row mb-4">
+      <div className="row g-3 mb-4">
         <div className="col-md-3">
-          <div className="card border-primary shadow-sm">
+          <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', background: 'white' }}>
             <div className="card-body text-center">
-              <div className="display-6 text-primary mb-2">₪{stats.totalRevenue.toLocaleString()}</div>
+              <div 
+                className="display-6 mb-2"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontWeight: 'bold',
+                }}
+              >
+                ₪{stats.totalRevenue.toLocaleString()}
+              </div>
               <div className="text-muted">הכנסות חודשיות</div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card border-success shadow-sm">
+          <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', background: 'white' }}>
             <div className="card-body text-center">
-              <div className="display-6 text-success mb-2">{stats.activeSubscriptions}</div>
+              <div 
+                className="display-6 mb-2"
+                style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontWeight: 'bold',
+                }}
+              >
+                {stats.activeSubscriptions}
+              </div>
               <div className="text-muted">מנויים פעילים</div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card border-info shadow-sm">
+          <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', background: 'white' }}>
             <div className="card-body text-center">
-              <div className="display-6 text-info mb-2">{stats.trialSubscriptions}</div>
+              <div 
+                className="display-6 mb-2"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #f093fb 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontWeight: 'bold',
+                }}
+              >
+                {stats.trialSubscriptions}
+              </div>
               <div className="text-muted">תקופות ניסיון</div>
             </div>
           </div>
         </div>
         <div className="col-md-3">
-          <div className="card border-danger shadow-sm">
+          <div className="card border-0 shadow-sm" style={{ borderRadius: '12px', background: 'white' }}>
             <div className="card-body text-center">
-              <div className="display-6 text-danger mb-2">{stats.expiredSubscriptions}</div>
+              <div 
+                className="display-6 mb-2"
+                style={{
+                  background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  fontWeight: 'bold',
+                }}
+              >
+                {stats.expiredSubscriptions}
+              </div>
               <div className="text-muted">פגי תוקף</div>
             </div>
           </div>
@@ -142,17 +230,13 @@ export default function AdminSubscriptionsPage() {
       </div>
 
       {/* Main Card */}
-      <div className="card shadow">
-        <div className="card-header bg-primary text-white">
-          <div className="d-flex justify-content-between align-items-center">
-            <h3 className="mb-0">💰 ניהול מנויים</h3>
-            <button className="btn btn-light btn-sm" onClick={fetchSubscriptions}>
-              🔄 רענן
-            </button>
-          </div>
-        </div>
-
-        <div className="card-body">
+      <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+        <div 
+          className="card-body"
+          style={{
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
+          }}
+        >
           {error && (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
               {error}
@@ -164,18 +248,22 @@ export default function AdminSubscriptionsPage() {
             </div>
           )}
 
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th>משתמש</th>
-                  <th>תוכנית</th>
-                  <th>סטטוס</th>
-                  <th>מחזור</th>
-                  <th>מחיר</th>
-                  <th>שימוש WhatsApp</th>
-                  <th>תוקף עד</th>
-                  <th>חידוש אוטומטי</th>
+          <div className="table-responsive bg-white rounded-3">
+            <table className="table table-hover mb-0">
+              <thead>
+                <tr 
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(249, 147, 251, 0.1) 100%)',
+                  }}
+                >
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>משתמש</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>תוכנית</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>סטטוס</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>מחזור</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>מחיר</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>שימוש WhatsApp</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>תוקף עד</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>חידוש אוטומטי</th>
                 </tr>
               </thead>
               <tbody>
@@ -186,7 +274,15 @@ export default function AdminSubscriptionsPage() {
                       <small className="text-muted">{sub.user.email}</small>
                     </td>
                     <td>
-                      <span className="badge bg-primary">{sub.plan.displayName}</span>
+                      <span 
+                        className="badge"
+                        style={{
+                          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white',
+                        }}
+                      >
+                        {sub.plan.displayName}
+                      </span>
                     </td>
                     <td>{getStatusBadge(sub.status)}</td>
                     <td>
@@ -234,6 +330,23 @@ export default function AdminSubscriptionsPage() {
               אין מנויים במערכת
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Back to Admin Dashboard */}
+      <div className="row mt-4">
+        <div className="col-12 text-center">
+          <a 
+            href="/admin" 
+            className="btn"
+            style={{
+              border: '1px solid white',
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            ← חזור ללוח בקרה אדמין
+          </a>
         </div>
       </div>
     </div>

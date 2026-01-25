@@ -1,0 +1,11 @@
+# robots.txt for Mountain View
+User-agent: *
+Allow: /
+
+# Disallow admin and dashboard areas
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /api
+
+# Sitemap
+Sitemap: https://yourdomain.com/sitemap.xml

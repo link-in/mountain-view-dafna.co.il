@@ -209,37 +209,77 @@ export default function AdminUsersPage() {
   }
 
   return (
-    <div className="container mt-5" style={{ maxWidth: '1400px', direction: 'rtl' }}>
-      <div className="card shadow">
-        <div className="card-header bg-primary text-white">
-          <div className="d-flex justify-content-between align-items-center">
-            <h3 className="mb-0">ניהול משתמשים - HOSTLY</h3>
-            <button
-              className="btn btn-light"
-              onClick={() => {
-                setEditingUser(null)
-                setFormData({
-                  email: '',
-                  password: '',
-                  firstName: '',
-                  lastName: '',
-                  displayName: '',
-                  propertyId: '',
-                  roomId: '',
-                  landingPageUrl: '',
-                  phoneNumber: '',
-                  role: 'owner',
-                })
-                setShowForm(true)
-              }}
-              disabled={showForm}
-            >
-              + הוסף משתמש
-            </button>
-          </div>
+    <div className="container py-5" style={{ maxWidth: '1400px', direction: 'rtl' }}>
+      {/* Header with Logo */}
+      <div 
+        className="d-flex flex-column flex-md-row align-items-center justify-content-between mb-4 p-4"
+        style={{
+          backgroundColor: 'white',
+          borderRadius: '12px',
+          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+        }}
+      >
+        <div className="d-flex align-items-center gap-3 mb-3 mb-md-0">
+          <img
+            src="/photos/hostly-logo.png"
+            alt="Hostly"
+            style={{ height: '48px', objectFit: 'contain' }}
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+          <h3 
+            className="mb-0"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              fontWeight: 'bold',
+            }}
+          >
+            ניהול משתמשים - HOSTLY
+          </h3>
         </div>
+        <div className="d-flex gap-2">
+          <button
+            className="btn"
+            style={{
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              border: 'none',
+              color: 'white',
+            }}
+            onClick={() => {
+              setEditingUser(null)
+              setFormData({
+                email: '',
+                password: '',
+                firstName: '',
+                lastName: '',
+                displayName: '',
+                propertyId: '',
+                roomId: '',
+                landingPageUrl: '',
+                phoneNumber: '',
+                role: 'owner',
+              })
+              setShowForm(true)
+            }}
+            disabled={showForm}
+          >
+            + הוסף משתמש
+          </button>
+        </div>
+      </div>
 
-        <div className="card-body">
+      <div className="card border-0 shadow-sm" style={{ borderRadius: '12px' }}>
+        <div 
+          className="card-body"
+          style={{
+            background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
+          }}
+        >
+
           {error && (
             <div className="alert alert-danger alert-dismissible fade show" role="alert">
               {error}
@@ -252,9 +292,26 @@ export default function AdminUsersPage() {
           )}
 
           {showForm && (
-            <div className="card mb-4 border-primary">
-              <div className="card-header bg-light">
-                <h5 className="mb-0">{editingUser ? 'ערוך משתמש' : 'משתמש חדש'}</h5>
+            <div className="card mb-4 border-0 bg-white" style={{ borderRadius: '12px' }}>
+              <div 
+                className="card-header"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(249, 147, 251, 0.1) 100%)',
+                  borderRadius: '12px 12px 0 0',
+                }}
+              >
+                <h5 
+                  className="mb-0"
+                  style={{
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                    fontWeight: 'bold',
+                  }}
+                >
+                  {editingUser ? 'ערוך משתמש' : 'משתמש חדש'}
+                </h5>
               </div>
               <div className="card-body">
                 <form onSubmit={handleSubmit}>
@@ -376,14 +433,24 @@ export default function AdminUsersPage() {
                   <div className="mt-3 d-flex gap-2">
                     <button 
                       type="submit" 
-                      className="btn btn-primary"
+                      className="btn"
+                      style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        border: 'none',
+                        color: 'white',
+                      }}
                       disabled={submitting}
                     >
                       {submitting ? 'שומר...' : (editingUser ? 'עדכן' : 'צור משתמש')}
                     </button>
                     <button 
                       type="button" 
-                      className="btn btn-secondary"
+                      className="btn"
+                      style={{
+                        border: '1px solid #cbd5e1',
+                        color: '#64748b',
+                        backgroundColor: 'transparent',
+                      }}
                       onClick={handleCancel}
                       disabled={submitting}
                     >
@@ -395,17 +462,21 @@ export default function AdminUsersPage() {
             </div>
           )}
 
-          <div className="table-responsive">
-            <table className="table table-hover">
-              <thead className="table-light">
-                <tr>
-                  <th>שם מלא</th>
-                  <th>אימייל</th>
-                  <th>טלפון</th>
-                  <th>Property ID</th>
-                  <th>Room ID</th>
-                  <th>תפקיד</th>
-                  <th>פעולות</th>
+          <div className="table-responsive bg-white rounded-3">
+            <table className="table table-hover mb-0">
+              <thead>
+                <tr 
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(249, 147, 251, 0.1) 100%)',
+                  }}
+                >
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>שם מלא</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>אימייל</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>טלפון</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>Property ID</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>Room ID</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>תפקיד</th>
+                  <th style={{ fontWeight: 'bold', color: '#667eea' }}>פעולות</th>
                 </tr>
               </thead>
               <tbody>
@@ -426,19 +497,53 @@ export default function AdminUsersPage() {
                     <td><code>{user.propertyId}</code></td>
                     <td><code>{user.roomId}</code></td>
                     <td>
-                      <span className={`badge ${user.role === 'admin' ? 'bg-danger' : 'bg-primary'}`}>
+                      <span 
+                        className="badge"
+                        style={{
+                          background: user.role === 'admin' 
+                            ? 'linear-gradient(135deg, #764ba2 0%, #f093fb 100%)'
+                            : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                          color: 'white',
+                        }}
+                      >
                         {user.role === 'admin' ? 'אדמין' : 'בעל יחידה'}
                       </span>
                     </td>
                     <td>
                       <button 
-                        className="btn btn-sm btn-outline-primary me-2"
+                        className="btn btn-sm me-2"
+                        style={{
+                          border: '1px solid #667eea',
+                          color: '#667eea',
+                          backgroundColor: 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#667eea'
+                          e.currentTarget.style.color = 'white'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.color = '#667eea'
+                        }}
                         onClick={() => handleEdit(user)}
                       >
                         ערוך
                       </button>
                       <button 
-                        className="btn btn-sm btn-outline-danger"
+                        className="btn btn-sm"
+                        style={{
+                          border: '1px solid #dc3545',
+                          color: '#dc3545',
+                          backgroundColor: 'transparent',
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = '#dc3545'
+                          e.currentTarget.style.color = 'white'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = 'transparent'
+                          e.currentTarget.style.color = '#dc3545'
+                        }}
                         onClick={() => handleDelete(user.id, user.email)}
                         disabled={user.id === session?.user?.id}
                       >
@@ -456,6 +561,23 @@ export default function AdminUsersPage() {
               אין משתמשים במערכת
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Back to Admin Dashboard */}
+      <div className="row mt-4">
+        <div className="col-12 text-center">
+          <a 
+            href="/admin" 
+            className="btn"
+            style={{
+              border: '1px solid white',
+              color: 'white',
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            }}
+          >
+            ← חזור ללוח בקרה אדמין
+          </a>
         </div>
       </div>
     </div>

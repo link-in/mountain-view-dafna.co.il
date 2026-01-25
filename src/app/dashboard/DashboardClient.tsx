@@ -55,9 +55,24 @@ const DashboardClient = () => {
     total: '',
     notes: '',
   })
+  const [selectedMonth, setSelectedMonth] = useState<string>('all')
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
 
   const updateReservationField = (field: keyof typeof newReservation, value: string | number) => {
-    setNewReservation((prev) => ({ ...prev, [field]: value }))
+    setNewReservation((prev) => {
+      const updated = { ...prev, [field]: value }
+      
+      // אם מעדכנים את תאריך הכניסה ותאריך היציאה כבר לא תקין, נאפס אותו
+      if (field === 'arrival' && typeof value === 'string' && prev.departure) {
+        const newArrival = new Date(value)
+        const currentDeparture = new Date(prev.departure)
+        if (currentDeparture <= newArrival) {
+          updated.departure = ''
+        }
+      }
+      
+      return updated
+    })
   }
 
   const resetReservationForm = () => {
@@ -239,6 +254,43 @@ const DashboardClient = () => {
       isActive = false
     }
   }, [provider])
+
+  const availableMonths = useMemo(() => {
+    const monthsSet = new Set<string>()
+    reservations.forEach((reservation) => {
+      if (!reservation.checkIn) return
+      const checkInDate = new Date(reservation.checkIn)
+      if (Number.isNaN(checkInDate.getTime())) return
+      const year = checkInDate.getFullYear()
+      const month = checkInDate.getMonth() + 1
+      monthsSet.add(`${year}-${month.toString().padStart(2, '0')}`)
+    })
+    return Array.from(monthsSet).sort().reverse()
+  }, [reservations])
+
+  const filteredReservations = useMemo(() => {
+    let filtered = reservations
+    
+    // סינון לפי חודש
+    if (selectedMonth !== 'all') {
+      const [year, month] = selectedMonth.split('-').map(Number)
+      filtered = filtered.filter((reservation) => {
+        if (!reservation.checkIn) return false
+        const checkInDate = new Date(reservation.checkIn)
+        if (Number.isNaN(checkInDate.getTime())) return false
+        return checkInDate.getFullYear() === year && checkInDate.getMonth() + 1 === month
+      })
+    }
+    
+    // מיון לפי תאריך
+    const sorted = [...filtered].sort((a, b) => {
+      const dateA = new Date(a.checkIn || 0).getTime()
+      const dateB = new Date(b.checkIn || 0).getTime()
+      return sortOrder === 'newest' ? dateB - dateA : dateA - dateB
+    })
+    
+    return sorted
+  }, [reservations, selectedMonth, sortOrder])
 
   const stats = useMemo(() => {
     const totalRevenue = reservations.reduce((sum, reservation) => sum + reservation.total, 0)
@@ -542,7 +594,7 @@ const DashboardClient = () => {
               background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(249, 147, 251, 0.05) 100%)',
             }}
           >
-            <div className="d-flex flex-row align-items-center justify-content-between mb-3 gap-2">
+            <div className="d-flex flex-column flex-md-row align-items-center align-items-md-center justify-content-between mb-3 gap-3">
               <div className="d-flex align-items-center gap-2">
                 <h2 
                   className="h5 fw-bold mb-0"
@@ -559,15 +611,67 @@ const DashboardClient = () => {
                   <span className="text-muted small">מרענן...</span>
                 ) : null}
               </div>
-              <div className="d-flex align-items-center gap-2">
+              <div className="d-flex align-items-center justify-content-center gap-1 gap-md-2">
+                <select
+                  className="form-select form-select-sm"
+                  style={{
+                    width: 'auto',
+                    minWidth: '95px',
+                    maxWidth: '140px',
+                    height: '31px',
+                    border: '1px solid #667eea',
+                    color: '#667eea',
+                    padding: '0.25rem 1.5rem 0.25rem 0.4rem',
+                    fontSize: '0.875rem',
+                  }}
+                  value={selectedMonth}
+                  onChange={(e) => setSelectedMonth(e.target.value)}
+                >
+                  <option value="all">כל החודשים</option>
+                  {availableMonths.map((monthKey) => {
+                    const [year, month] = monthKey.split('-')
+                    const monthName = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(
+                      new Date(parseInt(year), parseInt(month) - 1)
+                    )
+                    return (
+                      <option key={monthKey} value={monthKey}>
+                        {monthName}
+                      </option>
+                    )
+                  })}
+                </select>
+                <select
+                  className="form-select form-select-sm"
+                  style={{
+                    width: 'auto',
+                    minWidth: '95px',
+                    maxWidth: '140px',
+                    height: '31px',
+                    border: '1px solid #764ba2',
+                    color: '#764ba2',
+                    padding: '0.25rem 1.5rem 0.25rem 0.4rem',
+                    fontSize: '0.875rem',
+                  }}
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
+                >
+                  <option value="newest">מהחדש לישן</option>
+                  <option value="oldest">מהישן לחדש</option>
+                </select>
                 <button
                   type="button"
-                  className="btn btn-sm d-flex align-items-center gap-2"
+                  className="btn btn-sm d-flex align-items-center justify-content-center"
                   style={{ 
                     backgroundColor: 'transparent',
                     border: '1px solid #764ba2',
                     color: '#764ba2',
-                    padding: '0.375rem 0.75rem',
+                    padding: '0.25rem 0.5rem',
+                    height: '31px',
+                    lineHeight: '1.5',
+                    fontSize: '0.875rem',
+                    whiteSpace: 'nowrap',
+                    flex: '1 0 auto',
+                    minWidth: '90px',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = '#764ba2'
@@ -637,6 +741,7 @@ const DashboardClient = () => {
                       type="date"
                       className="form-control"
                       value={newReservation.arrival}
+                      min={new Date().toISOString().split('T')[0]}
                       onChange={(event) => updateReservationField('arrival', event.target.value)}
                       required
                     />
@@ -649,6 +754,7 @@ const DashboardClient = () => {
                       type="date"
                       className="form-control"
                       value={newReservation.departure}
+                      min={newReservation.arrival ? new Date(new Date(newReservation.arrival).getTime() + 86400000).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]}
                       onChange={(event) => updateReservationField('departure', event.target.value)}
                       required
                     />
@@ -739,8 +845,12 @@ const DashboardClient = () => {
             ) : null}
             {loadingReservations && !reservations.length ? (
               <div className="text-muted">טוען נתונים...</div>
+            ) : filteredReservations.length > 0 ? (
+              <ReservationsTable reservations={filteredReservations} />
             ) : (
-              <ReservationsTable reservations={reservations} />
+              <div className="text-muted text-center py-4">
+                {selectedMonth === 'all' ? 'אין הזמנות להצגה' : 'אין הזמנות בחודש זה'}
+              </div>
             )}
           </div>
         </div>
