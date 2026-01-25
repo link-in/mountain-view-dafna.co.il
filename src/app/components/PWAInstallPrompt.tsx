@@ -56,15 +56,19 @@ export default function PWAInstallPrompt() {
   }, [pathname])
 
   const handleInstallClick = async () => {
+    console.log('🔘 PWA: Install button clicked!', { deferredPrompt, isIOS })
+    
     if (deferredPrompt) {
       // Android/Chrome
+      console.log('📱 PWA: Showing Android install prompt')
       deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
       console.log(`User response: ${outcome}`)
       setDeferredPrompt(null)
       setShowInstallButton(false)
-    } else if (isIOS) {
-      // iOS - show instructions
+    } else {
+      // iOS or no prompt available - show instructions
+      console.log('🍎 PWA: Showing iOS instructions modal')
       setShowInstructions(true)
     }
   }
@@ -133,18 +137,27 @@ export default function PWAInstallPrompt() {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            zIndex: 2000,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '20px',
+            animation: 'fadeIn 0.2s ease-in',
           }}
-          onClick={() => setShowInstructions(false)}
+          onClick={() => {
+            console.log('🚫 PWA: Closing instructions modal')
+            setShowInstructions(false)
+          }}
         >
           <div
             className="bg-white p-4 rounded-3"
-            style={{ maxWidth: '400px', width: '100%' }}
+            style={{ 
+              maxWidth: '400px', 
+              width: '100%',
+              boxShadow: '0 10px 40px rgba(0, 0, 0, 0.3)',
+              animation: 'slideUp 0.3s ease-out'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -175,58 +188,62 @@ export default function PWAInstallPrompt() {
             </div>
 
             <div className="text-end" dir="rtl">
-              {isIOS ? (
-                <>
-                  <p className="mb-3">כדי להוסיף את האתר למסך הבית ב-iPhone:</p>
-                  <ol className="text-end pe-3">
-                    <li className="mb-2">
-                      לחץ על כפתור <strong>השיתוף</strong> 
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        style={{ display: 'inline', marginRight: '5px' }}
-                      >
-                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-                        <polyline points="16 6 12 2 8 6" />
-                        <line x1="12" y1="2" x2="12" y2="15" />
-                      </svg>
-                    </li>
-                    <li className="mb-2">גלול למטה ובחר <strong>"הוסף למסך הבית"</strong></li>
-                    <li className="mb-2">לחץ על <strong>"הוסף"</strong></li>
-                  </ol>
-                  <p className="text-muted small mt-3">
-                    האפליקציה תופיע במסך הבית שלך!
-                  </p>
-                </>
-              ) : (
-                <>
-                  <p className="mb-3">כדי להוסיף את האתר למסך הבית באנדרואיד:</p>
-                  <ol className="text-end pe-3">
-                    <li className="mb-2">לחץ על <strong>תפריט</strong> (3 נקודות)</li>
-                    <li className="mb-2">בחר <strong>"התקן אפליקציה"</strong> או <strong>"הוסף למסך הבית"</strong></li>
-                    <li className="mb-2">לחץ על <strong>"התקן"</strong></li>
-                  </ol>
-                  <p className="text-muted small mt-3">
-                    האפליקציה תופיע במסך הבית שלך!
-                  </p>
-                </>
-              )}
+              <div className="mb-4 p-3 rounded" style={{ backgroundColor: '#f8f9fa', border: '2px solid #667eea' }}>
+                <div className="d-flex align-items-center justify-content-center mb-2">
+                  <svg
+                    width="48"
+                    height="48"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#667eea"
+                    strokeWidth="2"
+                  >
+                    <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+                    <polyline points="16 6 12 2 8 6" />
+                    <line x1="12" y1="2" x2="12" y2="15" />
+                  </svg>
+                </div>
+                <p className="mb-0 text-center fw-bold" style={{ color: '#667eea' }}>
+                  לחץ על כפתור השיתוף
+                </p>
+              </div>
+
+              <div className="mb-3">
+                <p className="mb-2 fw-bold">📱 כדי להוסיף למסך הבית:</p>
+                <ol className="text-end pe-3" style={{ fontSize: '15px', lineHeight: '1.8' }}>
+                  <li className="mb-2">
+                    לחץ על כפתור <strong style={{ color: '#667eea' }}>השיתוף ↑</strong> בתחתית המסך
+                  </li>
+                  <li className="mb-2">
+                    גלול למטה ובחר <strong style={{ color: '#667eea' }}>"הוסף למסך הבית"</strong>
+                  </li>
+                  <li className="mb-2">
+                    לחץ על <strong style={{ color: '#667eea' }}>"הוסף"</strong>
+                  </li>
+                </ol>
+              </div>
+
+              <div className="alert alert-success mb-0" style={{ fontSize: '14px' }}>
+                ✅ האפליקציה עם לוגו HOSTLY תופיע במסך הבית!
+              </div>
             </div>
 
             <button
-              onClick={() => setShowInstructions(false)}
+              onClick={() => {
+                console.log('✅ PWA: User closed instructions')
+                setShowInstructions(false)
+              }}
               className="btn w-100 mt-3"
               style={{
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 border: 'none',
                 color: 'white',
+                padding: '12px',
+                fontSize: '16px',
+                fontWeight: '600',
               }}
             >
-              הבנתי
+              הבנתי 👍
             </button>
           </div>
         </div>
