@@ -1,9 +1,9 @@
-// Service Worker for Mountain View PWA
+// Service Worker for Hostly PWA
 // This enables the "Add to Home Screen" prompt
 
-const CACHE_NAME = 'mountain-view-v1';
+const CACHE_NAME = 'hostly-v2';
 const urlsToCache = [
-  '/',
+  '/dashboard',
   '/manifest.json',
 ];
 

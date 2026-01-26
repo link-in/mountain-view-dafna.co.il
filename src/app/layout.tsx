@@ -36,7 +36,7 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: 'נוף הרים בדפנה',
   description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
-  manifest: '/manifest.json',
+  manifest: '/manifest.json?v=2',
   icons: {
     icon: logo.src,
     apple: [
