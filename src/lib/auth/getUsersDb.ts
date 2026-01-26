@@ -162,6 +162,89 @@ export const emailExists = async (email: string, excludeUserId?: string): Promis
 }
 
 /**
+ * Create a new user in Supabase
+ */
+export const createUser = async (userData: {
+  email: string
+  password: string
+  displayName: string
+  firstName?: string
+  lastName?: string
+  propertyId: string
+  roomId: string
+  landingPageUrl?: string
+  phoneNumber?: string
+  role?: 'owner' | 'admin'
+}): Promise<User | null> => {
+  try {
+    const supabase = createServerClient()
+    
+    // Check if email already exists
+    const exists = await emailExists(userData.email)
+    if (exists) {
+      console.error('Email already exists:', userData.email)
+      return null
+    }
+    
+    // Hash the password
+    const passwordHash = await hashPassword(userData.password)
+    
+    // Generate unique ID
+    const userId = `user_${Date.now()}_${Math.random().toString(36).substring(7)}`
+    
+    // Prepare data for database
+    const dbData = {
+      id: userId,
+      email: userData.email.toLowerCase(),
+      password_hash: passwordHash,
+      display_name: userData.displayName,
+      first_name: userData.firstName || null,
+      last_name: userData.lastName || null,
+      property_id: userData.propertyId,
+      room_id: userData.roomId,
+      landing_page_url: userData.landingPageUrl || null,
+      phone_number: userData.phoneNumber || null,
+      role: userData.role || 'owner',
+      is_demo: false,
+    }
+    
+    const { data, error } = await supabase
+      .from('users')
+      .insert(dbData)
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Failed to create user in Supabase:', error)
+      return null
+    }
+    
+    if (!data) {
+      return null
+    }
+    
+    // Map database columns to User interface
+    return {
+      id: data.id,
+      email: data.email,
+      passwordHash: data.password_hash,
+      displayName: data.display_name,
+      firstName: data.first_name || undefined,
+      lastName: data.last_name || undefined,
+      propertyId: data.property_id,
+      roomId: data.room_id,
+      landingPageUrl: data.landing_page_url || undefined,
+      phoneNumber: data.phone_number || undefined,
+      role: data.role || 'owner',
+      isDemo: data.is_demo || false,
+    }
+  } catch (error) {
+    console.error('Failed to create user:', error)
+    return null
+  }
+}
+
+/**
  * Convert full User to AuthUser (without password hash)
  */
 export const toAuthUser = (user: User): AuthUser => {

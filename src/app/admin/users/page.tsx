@@ -249,25 +249,9 @@ export default function AdminUsersPage() {
               border: 'none',
               color: 'white',
             }}
-            onClick={() => {
-              setEditingUser(null)
-              setFormData({
-                email: '',
-                password: '',
-                firstName: '',
-                lastName: '',
-                displayName: '',
-                propertyId: '',
-                roomId: '',
-                landingPageUrl: '',
-                phoneNumber: '',
-                role: 'owner',
-              })
-              setShowForm(true)
-            }}
-            disabled={showForm}
+            onClick={() => router.push('/admin/users/create')}
           >
-            + הוסף משתמש
+            + הוסף לקוח חדש
           </button>
         </div>
       </div>
