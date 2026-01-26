@@ -68,7 +68,7 @@ const LoginForm = () => {
               <div className="card-body p-4 p-md-5">
                 <div className="text-center mb-4">
                   <div className="mb-3">
-                    <Image
+                    <img
                       src="/photos/hostly-logo.png"
                       alt="Hostly Logo"
                       width={80}
