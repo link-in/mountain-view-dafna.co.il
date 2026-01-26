@@ -192,22 +192,6 @@ const LoginForm = () => {
                     {loading ? 'מתחבר...' : 'התחבר'}
                   </button>
                 </form>
-
-                <div className="text-center mt-4">
-                  <a 
-                    href="/dashboard" 
-                    className="small text-decoration-none"
-                    style={{ 
-                      color: '#764ba2',
-                      fontWeight: '500',
-                      transition: 'color 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#667eea'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#764ba2'}
-                  >
-                    ← חזרה לדשבורד
-                  </a>
-                </div>
               </div>
             </div>
           </div>
