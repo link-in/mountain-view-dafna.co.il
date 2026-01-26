@@ -8,12 +8,44 @@ import type { Reservation } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
 
-// Mark reservations created in the last 7 days as "new"
+// LocalStorage key for viewed reservations
+const VIEWED_RESERVATIONS_KEY = 'hostly_viewed_reservations'
+
+// Get list of viewed reservation IDs
+const getViewedReservations = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set()
+  try {
+    const stored = localStorage.getItem(VIEWED_RESERVATIONS_KEY)
+    return stored ? new Set(JSON.parse(stored)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+// Mark reservation as viewed
+const markReservationAsViewed = (reservationId: string) => {
+  if (typeof window === 'undefined') return
+  try {
+    const viewed = getViewedReservations()
+    viewed.add(reservationId)
+    localStorage.setItem(VIEWED_RESERVATIONS_KEY, JSON.stringify([...viewed]))
+  } catch (error) {
+    console.error('Failed to mark reservation as viewed:', error)
+  }
+}
+
+// Mark reservations created in the last 3 days as "new" (unless already viewed)
 const markNewReservations = (reservations: Reservation[]): Reservation[] => {
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const threeDaysAgo = new Date()
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  const viewedIds = getViewedReservations()
   
   return reservations.map(reservation => {
+    // Skip if already viewed
+    if (viewedIds.has(reservation.id)) {
+      return reservation
+    }
+    
     if (reservation.isNew) {
       // Already marked (e.g., demo reservations)
       return reservation
@@ -21,7 +53,7 @@ const markNewReservations = (reservations: Reservation[]): Reservation[] => {
     
     if (reservation.createdAt) {
       const createdDate = new Date(reservation.createdAt)
-      if (!Number.isNaN(createdDate.getTime()) && createdDate >= sevenDaysAgo) {
+      if (!Number.isNaN(createdDate.getTime()) && createdDate >= threeDaysAgo) {
         return { ...reservation, isNew: true }
       }
     }
@@ -49,8 +81,16 @@ export default function ReservationsClient() {
   const [logoSrc, setLogoSrc] = useState('/photos/hostly-logo.png')
   const [logoVisible, setLogoVisible] = useState(true)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [viewedReservations, setViewedReservations] = useState<Set<string>>(new Set())
 
   const { provider, meta } = useMemo(() => getDashboardProvider(session?.user), [session?.user])
+  
+  const handleReservationViewed = (reservationId: string) => {
+    markReservationAsViewed(reservationId)
+    setViewedReservations(prev => new Set([...prev, reservationId]))
+  }
+  
+  const isReservationViewed = (id: string) => viewedReservations.has(id)
 
   // Authentication guard
   useEffect(() => {
@@ -797,14 +837,22 @@ export default function ReservationsClient() {
                             : 0
 
                           return (
-                            <tr key={reservation.id}>
+                            <tr 
+                              key={reservation.id}
+                              onClick={() => {
+                                if (reservation.isNew && !isReservationViewed(reservation.id)) {
+                                  handleReservationViewed(reservation.id)
+                                }
+                              }}
+                              style={{ cursor: reservation.isNew ? 'pointer' : 'default' }}
+                            >
                               <td className="p-3">
                                 <small className="text-muted">{reservation.id}</small>
                               </td>
                               <td className="p-3">
                                 <div className="d-flex align-items-center gap-2">
                                   <span className="fw-semibold">{reservation.guestName || 'N/A'}</span>
-                                  {reservation.isNew && (
+                                  {reservation.isNew && !isReservationViewed(reservation.id) && (
                                     <span 
                                       className="badge" 
                                       style={{

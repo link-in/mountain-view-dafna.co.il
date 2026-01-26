@@ -63,10 +63,12 @@ const getStatusClass = (status: Reservation['status']) => {
 
 type ReservationsTableProps = {
   reservations: Reservation[]
+  onReservationViewed?: (reservationId: string) => void
 }
 
-const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
+const ReservationsTable = ({ reservations, onReservationViewed }: ReservationsTableProps) => {
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [viewedReservations, setViewedReservations] = useState<Set<string>>(new Set())
 
   if (!reservations.length) {
     return <div className="text-muted">אין הזמנות להצגה כרגע.</div>
@@ -86,11 +88,22 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
   
   const nearestReservationId = upcomingReservations.length > 0 ? upcomingReservations[0].id : null
 
-  const toggleExpanded = (id: string) => {
+  const toggleExpanded = (id: string, isNew?: boolean) => {
     setExpandedId((prev) => (prev === id ? null : id))
+    
+    // Mark as viewed if it's a new reservation
+    if (isNew && !viewedReservations.has(id)) {
+      setViewedReservations(prev => new Set([...prev, id]))
+      // Call parent callback if provided
+      if (onReservationViewed) {
+        onReservationViewed(id)
+      }
+    }
   }
 
   const isNearestReservation = (id: string) => id === nearestReservationId
+  
+  const isReservationViewed = (id: string) => viewedReservations.has(id)
 
   return (
     <div className="table-responsive dashboard-table-scroll-container">
@@ -111,7 +124,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
           {reservations.map((reservation) => (
             <React.Fragment key={reservation.id}>
               <tr 
-                onClick={() => toggleExpanded(reservation.id)}
+                onClick={() => toggleExpanded(reservation.id, reservation.isNew)}
                 style={{ cursor: 'pointer' }}
                 className={`${expandedId === reservation.id ? 'table-active' : ''} ${isNearestReservation(reservation.id) ? 'nearest-reservation' : ''}`}
               >
@@ -137,7 +150,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                 <td>
                   <div className="d-flex align-items-center gap-2">
                     <span className="fw-semibold">{reservation.guestName}</span>
-                    {reservation.isNew && (
+                    {reservation.isNew && !isReservationViewed(reservation.id) && (
                       <span 
                         className="badge" 
                         style={{

@@ -33,12 +33,44 @@ const addDays = (value: Date, days: number) => {
 // Session Storage helpers for demo mode reservations
 const DEMO_RESERVATIONS_KEY = 'hostly_demo_reservations'
 
-// Mark reservations created in the last 7 days as "new"
+// LocalStorage key for viewed reservations
+const VIEWED_RESERVATIONS_KEY = 'hostly_viewed_reservations'
+
+// Get list of viewed reservation IDs
+const getViewedReservations = (): Set<string> => {
+  if (typeof window === 'undefined') return new Set()
+  try {
+    const stored = localStorage.getItem(VIEWED_RESERVATIONS_KEY)
+    return stored ? new Set(JSON.parse(stored)) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+// Mark reservation as viewed
+const markReservationAsViewed = (reservationId: string) => {
+  if (typeof window === 'undefined') return
+  try {
+    const viewed = getViewedReservations()
+    viewed.add(reservationId)
+    localStorage.setItem(VIEWED_RESERVATIONS_KEY, JSON.stringify([...viewed]))
+  } catch (error) {
+    console.error('Failed to mark reservation as viewed:', error)
+  }
+}
+
+// Mark reservations created in the last 3 days as "new" (unless already viewed)
 const markNewReservations = (reservations: Reservation[]): Reservation[] => {
-  const sevenDaysAgo = new Date()
-  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  const threeDaysAgo = new Date()
+  threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+  const viewedIds = getViewedReservations()
   
   return reservations.map(reservation => {
+    // Skip if already viewed
+    if (viewedIds.has(reservation.id)) {
+      return reservation
+    }
+    
     if (reservation.isNew) {
       // Already marked (e.g., demo reservations)
       return reservation
@@ -46,7 +78,7 @@ const markNewReservations = (reservations: Reservation[]): Reservation[] => {
     
     if (reservation.createdAt) {
       const createdDate = new Date(reservation.createdAt)
-      if (!Number.isNaN(createdDate.getTime()) && createdDate >= sevenDaysAgo) {
+      if (!Number.isNaN(createdDate.getTime()) && createdDate >= threeDaysAgo) {
         return { ...reservation, isNew: true }
       }
     }
@@ -1173,7 +1205,10 @@ const DashboardClient = () => {
               <div className="text-muted">טוען נתונים...</div>
             ) : filteredReservations.length > 0 ? (
               <>
-                <ReservationsTable reservations={filteredReservations} />
+                <ReservationsTable 
+                  reservations={filteredReservations} 
+                  onReservationViewed={markReservationAsViewed}
+                />
                 <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid rgba(102, 126, 234, 0.15)' }}>
                   <Link href="/dashboard/reservations">
                     <button
