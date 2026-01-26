@@ -41,6 +41,7 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
       landingPageUrl: data.landing_page_url || undefined,
       phoneNumber: data.phone_number || undefined,
       role: data.role || 'owner',
+      isDemo: data.is_demo || false,
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
@@ -118,6 +119,7 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
       landingPageUrl: data.landing_page_url || undefined,
       phoneNumber: data.phone_number || undefined,
       role: data.role || 'owner',
+      isDemo: data.is_demo || false,
     }
   } catch (error) {
     console.error('Failed to update user:', error)
@@ -174,5 +176,6 @@ export const toAuthUser = (user: User): AuthUser => {
     landingPageUrl: user.landingPageUrl,
     phoneNumber: user.phoneNumber,
     role: user.role,
+    isDemo: user.isDemo,
   }
 }

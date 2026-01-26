@@ -74,6 +74,22 @@ export async function POST(request: Request) {
   }
 
   const session = await getServerSession(authOptions)
+  
+  // 🎭 Demo Mode Protection: Block real actions for demo users
+  if (session?.user?.isDemo) {
+    console.log('🎭 Demo user attempted to create booking - returning fake success')
+    return NextResponse.json({
+      success: true,
+      message: 'Demo Mode: הזמנה נוצרה בהצלחה (סימולציה בלבד)',
+      demo: true,
+      booking: {
+        id: `demo_${Date.now()}`,
+        status: 'confirmed',
+        message: 'במצב דמו, הזמנות לא נשמרות בפועל ולא נשלחות הודעות WhatsApp'
+      }
+    })
+  }
+  
   const propertyId = session?.user?.propertyId ?? process.env.BEDS24_PROPERTY_ID
   const roomId = session?.user?.roomId ?? process.env.BEDS24_ROOM_ID
 

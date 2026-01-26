@@ -12,6 +12,7 @@ export interface User {
   landingPageUrl?: string
   phoneNumber?: string
   role: UserRole
+  isDemo?: boolean
 }
 
 export interface AuthUser {
@@ -25,6 +26,7 @@ export interface AuthUser {
   landingPageUrl?: string
   phoneNumber?: string
   role: UserRole
+  isDemo?: boolean
 }
 
 export interface UserCredentials {

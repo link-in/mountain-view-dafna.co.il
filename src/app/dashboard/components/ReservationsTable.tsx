@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import type { Reservation } from '@/lib/dashboard/types'
 import { formatCurrency, formatDate, formatStatus } from '@/lib/dashboard/utils'
 
-// Add styles for nearest reservation
+// Add styles for nearest reservation and table scrolling
 const styles = `
   .nearest-reservation {
     background-color: #e3f2fd !important;
@@ -13,6 +13,38 @@ const styles = `
   .nearest-reservation td {
     background-color: #e3f2fd !important;
     font-weight: 500 !important;
+  }
+  .dashboard-table-scroll-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+  @media (max-width: 768px) {
+    .dashboard-table-scroll-container {
+      max-height: 50vh !important;
+    }
+  }
+  .dashboard-table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .dashboard-table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+  }
+  .dashboard-table-scroll-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+  }
+  .dashboard-table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  }
+  .dashboard-table-scroll-container thead {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
 `
 
@@ -61,7 +93,7 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
   const isNearestReservation = (id: string) => id === nearestReservationId
 
   return (
-    <div className="table-responsive">
+    <div className="table-responsive dashboard-table-scroll-container">
       <style>{styles}</style>
       <table className="table align-middle">
         <thead>
@@ -104,7 +136,6 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                 </td>
                 <td>
                   <div className="fw-semibold">{reservation.guestName}</div>
-                  <div className="text-muted small">{reservation.unitName ?? '—'}</div>
                 </td>
                 <td className="small">
                   {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}

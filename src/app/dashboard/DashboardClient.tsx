@@ -33,7 +33,10 @@ const addDays = (value: Date, days: number) => {
 const DashboardClient = () => {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const [{ provider }] = useState(() => getDashboardProvider())
+  
+  // Get provider based on user (demo users get mock data)
+  const { provider, meta } = useMemo(() => getDashboardProvider(session?.user), [session?.user])
+  
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [roomPrices, setRoomPrices] = useState<RoomPrice[]>([])
   const [loadingReservations, setLoadingReservations] = useState(true)
@@ -59,7 +62,7 @@ const DashboardClient = () => {
   })
   const [sendWhatsApp, setSendWhatsApp] = useState(true) // Default: send WhatsApp
   const [selectedMonth, setSelectedMonth] = useState<string>('all')
-  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest')
+  const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('oldest') // מיון לפי הקרוב ביותר
   const [commissionRates, setCommissionRates] = useState<Record<string, number>>({
     booking: 0.15, // Default fallback
     airbnb: 0.16,  // Default fallback
@@ -214,7 +217,15 @@ const DashboardClient = () => {
         const details = await response.text()
         throw new Error(details || 'Failed to create reservation')
       }
-      setSaveReservationSuccess('ההזמנה נשמרה בהצלחה.')
+      
+      // Check if this is demo mode
+      const result = await response.json()
+      if (result.demo) {
+        setSaveReservationSuccess('🎭 מצב דמו: ההזמנה נוצרה בסימולציה בלבד. לא נשמרה בפועל ולא נשלחה הודעת WhatsApp.')
+      } else {
+        setSaveReservationSuccess('ההזמנה נשמרה בהצלחה.')
+      }
+      
       await refreshReservations()
       resetReservationForm()
       setShowNewReservation(false)
@@ -296,7 +307,16 @@ const DashboardClient = () => {
   }, [reservations])
 
   const filteredReservations = useMemo(() => {
-    let filtered = reservations
+    // סינון: הצג רק הזמנות עתידיות או נוכחיות (לא עברו)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    
+    let filtered = reservations.filter((reservation) => {
+      if (!reservation.checkOut) return true // אם אין תאריך יציאה, הצג
+      const checkOutDate = new Date(reservation.checkOut)
+      if (Number.isNaN(checkOutDate.getTime())) return true
+      return checkOutDate >= today // הצג רק אם תאריך היציאה היום או בעתיד
+    })
     
     // סינון לפי חודש
     if (selectedMonth !== 'all') {
@@ -672,6 +692,41 @@ const DashboardClient = () => {
           </div>
         </div>
 
+        {/* Demo Mode Banner */}
+        {meta.isMock && session?.user?.isDemo ? (
+          <div 
+            className="alert mb-4 d-flex align-items-center justify-content-between"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 152, 0, 0.15) 100%)',
+              border: '2px solid #ffc107',
+              borderRadius: '12px',
+              padding: '1rem 1.5rem',
+            }}
+            role="alert"
+          >
+            <div className="d-flex align-items-center gap-3">
+              <span style={{ fontSize: '2rem' }}>🎭</span>
+              <div>
+                <h5 className="mb-1 fw-bold" style={{ color: '#ff8f00' }}>
+                  מצב דמו (Demo Mode)
+                </h5>
+                <p className="mb-0" style={{ color: '#666', fontSize: '0.9rem' }}>
+                  אתה רואה נתונים מדומים לצורך הדגמה. הנתונים אינם אמיתיים ולא נשמרים.
+                </p>
+              </div>
+            </div>
+            <div className="badge" style={{
+              background: 'linear-gradient(135deg, #ffc107 0%, #ff9800 100%)',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              fontSize: '0.9rem',
+              fontWeight: '600',
+            }}>
+              40 הזמנות מדומות
+            </div>
+          </div>
+        ) : null}
+
         {reservationsError ? (
           <div className="alert alert-danger" role="alert">
             {reservationsError}
@@ -772,8 +827,8 @@ const DashboardClient = () => {
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value as 'newest' | 'oldest')}
                 >
-                  <option value="newest">מהחדש לישן</option>
-                  <option value="oldest">מהישן לחדש</option>
+                  <option value="oldest">הזמנות קרובות תחילה ⏰</option>
+                  <option value="newest">הזמנות רחוקות תחילה 📅</option>
                 </select>
                 <button
                   type="button"
@@ -982,7 +1037,36 @@ const DashboardClient = () => {
             {loadingReservations && !reservations.length ? (
               <div className="text-muted">טוען נתונים...</div>
             ) : filteredReservations.length > 0 ? (
-              <ReservationsTable reservations={filteredReservations} />
+              <>
+                <ReservationsTable reservations={filteredReservations} />
+                <div className="text-center mt-4 pt-3" style={{ borderTop: '1px solid rgba(102, 126, 234, 0.15)' }}>
+                  <Link href="/dashboard/reservations">
+                    <button
+                      type="button"
+                      className="btn btn-lg"
+                      style={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '0.75rem 2rem',
+                        fontWeight: '500',
+                        transition: 'transform 0.2s, box-shadow 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-2px)'
+                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.4)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)'
+                        e.currentTarget.style.boxShadow = 'none'
+                      }}
+                    >
+                      📊 צפייה בכל ההזמנות + סטטיסטיקות מתקדמות
+                    </button>
+                  </Link>
+                </div>
+              </>
             ) : (
               <div className="text-muted text-center py-4">
                 {selectedMonth === 'all' ? 'אין הזמנות להצגה' : 'אין הזמנות בחודש זה'}

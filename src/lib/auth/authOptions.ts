@@ -69,6 +69,7 @@ export const authOptions: NextAuthOptions = {
         token.landingPageUrl = user.landingPageUrl
         token.phoneNumber = user.phoneNumber
         token.role = user.role
+        token.isDemo = user.isDemo
         token.issuedAt = Date.now()
       }
       
@@ -109,6 +110,7 @@ export const authOptions: NextAuthOptions = {
           landingPageUrl: token.landingPageUrl as string | undefined,
           phoneNumber: token.phoneNumber as string | undefined,
           role: token.role as 'admin' | 'owner',
+          isDemo: token.isDemo as boolean | undefined,
         }
       }
       return session
