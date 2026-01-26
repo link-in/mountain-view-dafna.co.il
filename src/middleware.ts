@@ -67,6 +67,11 @@ function extractSubdomain(hostname: string): string | null {
     return null
   }
   
+  // Vercel deployment URLs - לא subdomain
+  if (host.endsWith('.vercel.app')) {
+    return null
+  }
+  
   // Extract subdomain ONLY from hostly.co.il
   // dalit.hostly.co.il -> dalit
   // hostly.co.il -> null
