@@ -36,7 +36,9 @@ export async function PUT(
       roomId, 
       landingPageUrl,
       phoneNumber,
-      role 
+      role,
+      beds24Token,
+      beds24RefreshToken
     } = body
 
     // Validate required fields
@@ -81,6 +83,15 @@ export async function PUT(
       updates.password_hash = await hashPassword(password)
     }
 
+    // Update Beds24 tokens if provided (optional)
+    // Only update if explicitly set (allow clearing by passing empty string)
+    if (beds24Token !== undefined) {
+      updates.beds24_token = beds24Token || null
+    }
+    if (beds24RefreshToken !== undefined) {
+      updates.beds24_refresh_token = beds24RefreshToken || null
+    }
+
     // Update user
     const { data, error } = await supabase
       .from('users')
@@ -110,6 +121,8 @@ export async function PUT(
         landingPageUrl: data.landing_page_url,
         phoneNumber: data.phone_number,
         role: data.role,
+        beds24Token: data.beds24_token,
+        beds24RefreshToken: data.beds24_refresh_token,
       }
     })
   } catch (error) {

@@ -42,6 +42,8 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
       phoneNumber: data.phone_number || undefined,
       role: data.role || 'owner',
       isDemo: data.is_demo || false,
+      beds24Token: data.beds24_token || undefined,
+      beds24RefreshToken: data.beds24_refresh_token || undefined,
     }
   } catch (error) {
     console.error('Failed to fetch user:', error)
@@ -89,6 +91,8 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
     if (updates.landingPageUrl !== undefined) dbUpdates.landing_page_url = updates.landingPageUrl
     if (updates.phoneNumber !== undefined) dbUpdates.phone_number = updates.phoneNumber
     if (updates.role !== undefined) dbUpdates.role = updates.role
+    if (updates.beds24Token !== undefined) dbUpdates.beds24_token = updates.beds24Token
+    if (updates.beds24RefreshToken !== undefined) dbUpdates.beds24_refresh_token = updates.beds24RefreshToken
 
     const { data, error } = await supabase
       .from('users')
@@ -120,6 +124,8 @@ export const updateUser = async (userId: string, updates: Partial<User>): Promis
       phoneNumber: data.phone_number || undefined,
       role: data.role || 'owner',
       isDemo: data.is_demo || false,
+      beds24Token: data.beds24_token || undefined,
+      beds24RefreshToken: data.beds24_refresh_token || undefined,
     }
   } catch (error) {
     console.error('Failed to update user:', error)
@@ -175,6 +181,8 @@ export const createUser = async (userData: {
   landingPageUrl?: string
   phoneNumber?: string
   role?: 'owner' | 'admin'
+  beds24Token?: string
+  beds24RefreshToken?: string
 }): Promise<User | null> => {
   try {
     const supabase = createServerClient()
@@ -206,6 +214,8 @@ export const createUser = async (userData: {
       phone_number: userData.phoneNumber || null,
       role: userData.role || 'owner',
       is_demo: false,
+      beds24_token: userData.beds24Token || null,
+      beds24_refresh_token: userData.beds24RefreshToken || null,
     }
     
     const { data, error } = await supabase
@@ -237,6 +247,8 @@ export const createUser = async (userData: {
       phoneNumber: data.phone_number || undefined,
       role: data.role || 'owner',
       isDemo: data.is_demo || false,
+      beds24Token: data.beds24_token || undefined,
+      beds24RefreshToken: data.beds24_refresh_token || undefined,
     }
   } catch (error) {
     console.error('Failed to create user:', error)
@@ -260,5 +272,7 @@ export const toAuthUser = (user: User): AuthUser => {
     phoneNumber: user.phoneNumber,
     role: user.role,
     isDemo: user.isDemo,
+    beds24Token: user.beds24Token,
+    beds24RefreshToken: user.beds24RefreshToken,
   }
 }

@@ -13,6 +13,8 @@ export interface User {
   phoneNumber?: string
   role: UserRole
   isDemo?: boolean
+  beds24Token?: string
+  beds24RefreshToken?: string
 }
 
 export interface AuthUser {
@@ -27,6 +29,8 @@ export interface AuthUser {
   phoneNumber?: string
   role: UserRole
   isDemo?: boolean
+  beds24Token?: string
+  beds24RefreshToken?: string
 }
 
 export interface UserCredentials {

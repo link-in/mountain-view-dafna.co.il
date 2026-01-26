@@ -16,6 +16,8 @@ export default function CreateUserPage() {
     roomId: '',
     landingPageUrl: '',
     phoneNumber: '',
+    beds24Token: '',
+    beds24RefreshToken: '',
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -52,6 +54,8 @@ export default function CreateUserPage() {
         roomId: '',
         landingPageUrl: '',
         phoneNumber: '',
+        beds24Token: '',
+        beds24RefreshToken: '',
       })
 
       // Redirect after 2 seconds
@@ -223,6 +227,42 @@ export default function CreateUserPage() {
                         placeholder="638851"
                       />
                       <small className="text-muted">מ-Beds24: Settings → Rooms</small>
+                    </div>
+
+                    <div className="col-12">
+                      <h5 className="text-muted mb-3 mt-3">🔑 Beds24 API Tokens</h5>
+                      <div className="alert alert-warning">
+                        <strong>⚠️ חשוב:</strong> אם יש ללקוח חשבון Beds24 נפרד, הכנס את ה-Tokens שלו כאן.<br/>
+                        אם הלקוח משתמש באותו חשבון Beds24 שלך - השאר ריק.
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-semibold">
+                        Beds24 Access Token
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.beds24Token}
+                        onChange={(e) => handleChange('beds24Token', e.target.value)}
+                        placeholder="אופציונלי - רק אם חשבון נפרד"
+                      />
+                      <small className="text-muted">מ-Beds24 API Keys</small>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label fw-semibold">
+                        Beds24 Refresh Token
+                      </label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.beds24RefreshToken}
+                        onChange={(e) => handleChange('beds24RefreshToken', e.target.value)}
+                        placeholder="אופציונלי - רק אם חשבון נפרד"
+                      />
+                      <small className="text-muted">מ-Beds24 API Keys</small>
                     </div>
 
                     <div className="col-12">

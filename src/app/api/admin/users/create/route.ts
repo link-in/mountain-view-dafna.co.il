@@ -57,6 +57,8 @@ export async function POST(request: Request) {
       landingPageUrl: body.landingPageUrl,
       phoneNumber: body.phoneNumber,
       role: body.role || 'owner',
+      beds24Token: body.beds24Token,
+      beds24RefreshToken: body.beds24RefreshToken,
     })
     
     if (!newUser) {

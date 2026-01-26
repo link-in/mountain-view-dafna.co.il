@@ -70,6 +70,8 @@ export const authOptions: NextAuthOptions = {
         token.phoneNumber = user.phoneNumber
         token.role = user.role
         token.isDemo = user.isDemo
+        token.beds24Token = user.beds24Token
+        token.beds24RefreshToken = user.beds24RefreshToken
         token.issuedAt = Date.now()
       }
       
@@ -111,6 +113,8 @@ export const authOptions: NextAuthOptions = {
           phoneNumber: token.phoneNumber as string | undefined,
           role: token.role as 'admin' | 'owner',
           isDemo: token.isDemo as boolean | undefined,
+          beds24Token: token.beds24Token as string | undefined,
+          beds24RefreshToken: token.beds24RefreshToken as string | undefined,
         }
       }
       return session

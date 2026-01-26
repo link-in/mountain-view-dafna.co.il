@@ -162,13 +162,32 @@ export const tokenManager = new Beds24TokenManager()
 
 /**
  * Fetch with automatic token refresh on 401/502 errors
+ * @param url - The URL to fetch
+ * @param options - Fetch options
+ * @param userTokens - Optional user-specific tokens (if not provided, uses global tokens)
  */
 export async function fetchWithTokenRefresh(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  userTokens?: {
+    accessToken?: string
+    refreshToken?: string
+  }
 ): Promise<Response> {
-  // Get current access token
-  const token = await tokenManager.getAccessToken()
+  // Determine which tokens to use
+  const useUserTokens = userTokens?.accessToken && userTokens?.refreshToken
+  
+  // Get access token (user-specific or global)
+  let token: string
+  if (useUserTokens) {
+    // Use user-specific token
+    token = userTokens.accessToken!
+    console.log('[Beds24] Using user-specific token')
+  } else {
+    // Use global token from environment
+    token = await tokenManager.getAccessToken()
+    console.log('[Beds24] Using global token')
+  }
 
   // Add token to headers
   const headers = new Headers(options.headers)
@@ -185,8 +204,15 @@ export async function fetchWithTokenRefresh(
   if (response.status === 401 || response.status === 502) {
     console.log(`[Beds24] Got ${response.status}, refreshing token...`)
     
-    // Force refresh the token
-    const newToken = await tokenManager.forceRefresh()
+    let newToken: string
+    if (useUserTokens) {
+      // Refresh user-specific token
+      console.log('[Beds24] Refreshing user-specific token...')
+      newToken = await refreshUserToken(userTokens.refreshToken!)
+    } else {
+      // Force refresh the global token
+      newToken = await tokenManager.forceRefresh()
+    }
 
     // Retry with new token
     headers.set('token', newToken)
@@ -197,4 +223,40 @@ export async function fetchWithTokenRefresh(
   }
 
   return response
+}
+
+/**
+ * Refresh a user-specific token
+ */
+async function refreshUserToken(refreshToken: string): Promise<string> {
+  const baseUrl = process.env.BEDS24_API_BASE_URL ?? 'https://api.beds24.com/v2'
+  
+  try {
+    const response = await fetch(`${baseUrl}/authentication/token`, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+        refreshToken: refreshToken,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to refresh user token: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json() as {
+      token: string
+      expiresIn: number
+    }
+
+    console.log('[Beds24] User-specific token refreshed successfully')
+    
+    // TODO: Update the user's token in the database
+    // This would require access to the database and user ID
+    
+    return data.token
+  } catch (error) {
+    console.error('[Beds24] User token refresh failed:', error)
+    throw error
+  }
 }

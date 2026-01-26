@@ -14,7 +14,21 @@ const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 const getBaseUrl = () => process.env.BEDS24_API_BASE_URL ?? DEFAULT_BASE_URL
 
 export async function GET() {
+  // Get session to identify which property/room to fetch
+  const session = await getServerSession(authOptions)
+  
+  const propertyId = session?.user?.propertyId ?? process.env.BEDS24_PROPERTY_ID
+  const roomId = session?.user?.roomId ?? process.env.BEDS24_ROOM_ID
+
+  if (!propertyId || !roomId) {
+    return NextResponse.json(
+      { error: 'Missing BEDS24_PROPERTY_ID or BEDS24_ROOM_ID in session or environment' },
+      { status: 500 }
+    )
+  }
+
   const url = new URL(`${getBaseUrl()}/bookings`)
+  
   const query = process.env.BEDS24_BOOKINGS_QUERY
   if (query) {
     const params = new URLSearchParams(query)
@@ -25,9 +39,29 @@ export async function GET() {
     url.searchParams.set('arrivalFrom', '2024-01-01')
     url.searchParams.set('includeInvoice', 'true')
   }
+  
+  // Add property and room filters to ensure we only get bookings for this specific unit
+  url.searchParams.set('propertyId', propertyId)
+  url.searchParams.set('roomId', roomId)
+
+  console.log(`🔍 Fetching bookings for Property: ${propertyId}, Room: ${roomId}`)
+
+  // Prepare user-specific tokens if available
+  const userTokens = session?.user?.beds24Token && session?.user?.beds24RefreshToken
+    ? {
+        accessToken: session.user.beds24Token,
+        refreshToken: session.user.beds24RefreshToken,
+      }
+    : undefined
+
+  if (userTokens) {
+    console.log('🔑 Using user-specific Beds24 tokens')
+  } else {
+    console.log('🌍 Using global Beds24 tokens')
+  }
 
   try {
-    const response = await fetchWithTokenRefresh(url.toString())
+    const response = await fetchWithTokenRefresh(url.toString(), {}, userTokens)
 
     if (!response.ok) {
       const details = await response.text()
@@ -38,6 +72,7 @@ export async function GET() {
     }
 
     const data = await response.json()
+    console.log(`✅ Fetched ${Array.isArray(data) ? data.length : 'unknown'} bookings`)
     return NextResponse.json(data)
   } catch (error) {
     return NextResponse.json(
@@ -155,13 +190,21 @@ export async function POST(request: Request) {
 
   console.log('Beds24 booking payload', normalizedPayload)
 
+  // Prepare user-specific tokens if available
+  const userTokens = session?.user?.beds24Token && session?.user?.beds24RefreshToken
+    ? {
+        accessToken: session.user.beds24Token,
+        refreshToken: session.user.beds24RefreshToken,
+      }
+    : undefined
+
   const response = await fetchWithTokenRefresh(`${getBaseUrl()}/bookings`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
     },
     body: JSON.stringify(normalizedPayload),
-  })
+  }, userTokens)
 
   if (!response.ok) {
     const details = await response.text()

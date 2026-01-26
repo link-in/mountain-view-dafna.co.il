@@ -15,6 +15,8 @@ interface AdminUser {
   landingPageUrl?: string
   phoneNumber?: string
   role: 'admin' | 'owner'
+  beds24Token?: string
+  beds24RefreshToken?: string
   createdAt: string
   updatedAt: string
 }
@@ -30,6 +32,8 @@ interface UserFormData {
   landingPageUrl?: string
   phoneNumber?: string
   role: 'admin' | 'owner'
+  beds24Token?: string
+  beds24RefreshToken?: string
 }
 
 export default function AdminUsersPage() {
@@ -51,6 +55,8 @@ export default function AdminUsersPage() {
     landingPageUrl: '',
     phoneNumber: '',
     role: 'owner',
+    beds24Token: '',
+    beds24RefreshToken: '',
   })
   const [submitting, setSubmitting] = useState(false)
 
@@ -126,6 +132,8 @@ export default function AdminUsersPage() {
         roomId: '',
         landingPageUrl: '',
         phoneNumber: '',
+        beds24Token: '',
+        beds24RefreshToken: '',
         role: 'owner',
       })
       fetchUsers()
@@ -148,6 +156,8 @@ export default function AdminUsersPage() {
       roomId: user.roomId,
       landingPageUrl: user.landingPageUrl || '',
       phoneNumber: user.phoneNumber || '',
+      beds24Token: user.beds24Token || '',
+      beds24RefreshToken: user.beds24RefreshToken || '',
       role: user.role,
     })
     setShowForm(true)
@@ -187,6 +197,8 @@ export default function AdminUsersPage() {
       roomId: '',
       landingPageUrl: '',
       phoneNumber: '',
+      beds24Token: '',
+      beds24RefreshToken: '',
       role: 'owner',
     })
     setError(null)
@@ -411,6 +423,38 @@ export default function AdminUsersPage() {
                         <option value="owner">בעל יחידה (Owner)</option>
                         <option value="admin">אדמין (Admin)</option>
                       </select>
+                    </div>
+
+                    <div className="col-12">
+                      <hr className="my-3" />
+                      <h6 className="text-muted mb-3">🔑 Beds24 API Tokens (אופציונלי)</h6>
+                      <div className="alert alert-info small">
+                        <strong>💡 טיפ:</strong> אם ללקוח יש חשבון Beds24 נפרד, הכנס את הטוקנים שלו כאן. אחרת, השאר ריק והמערכת תשתמש בטוקן הגלובלי.
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label">Beds24 Access Token</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.beds24Token || ''}
+                        onChange={(e) => setFormData({ ...formData, beds24Token: e.target.value })}
+                        placeholder="אופציונלי - רק אם חשבון נפרד"
+                      />
+                      <small className="text-muted">השאר ריק לשמור קיים או להשתמש בגלובלי</small>
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label">Beds24 Refresh Token</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        value={formData.beds24RefreshToken || ''}
+                        onChange={(e) => setFormData({ ...formData, beds24RefreshToken: e.target.value })}
+                        placeholder="אופציונלי - רק אם חשבון נפרד"
+                      />
+                      <small className="text-muted">השאר ריק לשמור קיים או להשתמש בגלובלי</small>
                     </div>
                   </div>
 

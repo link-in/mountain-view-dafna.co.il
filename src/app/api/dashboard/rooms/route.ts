@@ -3,8 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth/authOptions'
 import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
 
-export const dynamic = 'force-static'
-export const revalidate = false
+export const dynamic = 'force-dynamic'
 
 const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 
@@ -156,12 +155,20 @@ export async function GET() {
     }
   }
 
+  // Prepare user-specific tokens if available
+  const userTokens = session?.user?.beds24Token && session?.user?.beds24RefreshToken
+    ? {
+        accessToken: session.user.beds24Token,
+        refreshToken: session.user.beds24RefreshToken,
+      }
+    : undefined
+
   try {
     const response = await fetchWithTokenRefresh(url.toString(), {
       headers: {
         'content-type': 'application/json',
       },
-    })
+    }, userTokens)
 
     if (!response.ok) {
       const details = await response.text()
@@ -280,6 +287,14 @@ export async function POST(request: Request) {
 
   console.log('Beds24 rooms calendar payload', normalizedPayload)
 
+  // Prepare user-specific tokens if available
+  const userTokens = session?.user?.beds24Token && session?.user?.beds24RefreshToken
+    ? {
+        accessToken: session.user.beds24Token,
+        refreshToken: session.user.beds24RefreshToken,
+      }
+    : undefined
+
   try {
     const response = await fetchWithTokenRefresh(url.toString(), {
       method: 'POST',
@@ -287,7 +302,7 @@ export async function POST(request: Request) {
         'content-type': 'application/json',
       },
       body: JSON.stringify(normalizedPayload),
-    })
+    }, userTokens)
 
     if (!response.ok) {
       const details = await response.text()

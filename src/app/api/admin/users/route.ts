@@ -48,6 +48,8 @@ export async function GET() {
       landingPageUrl: user.landing_page_url,
       phoneNumber: user.phone_number,
       role: user.role,
+      beds24Token: user.beds24_token,
+      beds24RefreshToken: user.beds24_refresh_token,
       createdAt: user.created_at,
       updatedAt: user.updated_at,
     }))
