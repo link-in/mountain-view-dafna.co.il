@@ -8,6 +8,28 @@ import type { Reservation } from '@/lib/dashboard/types'
 import { formatCurrency } from '@/lib/dashboard/utils'
 import { getDashboardProvider } from '@/lib/dashboard/getDashboardProvider'
 
+// Mark reservations created in the last 7 days as "new"
+const markNewReservations = (reservations: Reservation[]): Reservation[] => {
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  
+  return reservations.map(reservation => {
+    if (reservation.isNew) {
+      // Already marked (e.g., demo reservations)
+      return reservation
+    }
+    
+    if (reservation.createdAt) {
+      const createdDate = new Date(reservation.createdAt)
+      if (!Number.isNaN(createdDate.getTime()) && createdDate >= sevenDaysAgo) {
+        return { ...reservation, isNew: true }
+      }
+    }
+    
+    return reservation
+  })
+}
+
 export default function ReservationsClient() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -49,7 +71,8 @@ export default function ReservationsClient() {
         ])
 
         if (isActive) {
-          setReservations(reservationsData)
+          // Mark new reservations (created in last 7 days)
+          setReservations(markNewReservations(reservationsData))
           if (commissionRatesData.rates) {
             setCommissionRates(commissionRatesData.rates)
           }
@@ -778,7 +801,24 @@ export default function ReservationsClient() {
                               <td className="p-3">
                                 <small className="text-muted">{reservation.id}</small>
                               </td>
-                              <td className="p-3 fw-semibold">{reservation.guestName || 'N/A'}</td>
+                              <td className="p-3">
+                                <div className="d-flex align-items-center gap-2">
+                                  <span className="fw-semibold">{reservation.guestName || 'N/A'}</span>
+                                  {reservation.isNew && (
+                                    <span 
+                                      className="badge" 
+                                      style={{
+                                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                        color: 'white',
+                                        fontSize: '0.7rem',
+                                        padding: '2px 6px',
+                                      }}
+                                    >
+                                      חדש ✨
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
                               <td className="p-3">
                                 {reservation.checkIn
                                   ? new Date(reservation.checkIn).toLocaleDateString('he-IL')

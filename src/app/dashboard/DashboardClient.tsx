@@ -33,6 +33,28 @@ const addDays = (value: Date, days: number) => {
 // Session Storage helpers for demo mode reservations
 const DEMO_RESERVATIONS_KEY = 'hostly_demo_reservations'
 
+// Mark reservations created in the last 7 days as "new"
+const markNewReservations = (reservations: Reservation[]): Reservation[] => {
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  
+  return reservations.map(reservation => {
+    if (reservation.isNew) {
+      // Already marked (e.g., demo reservations)
+      return reservation
+    }
+    
+    if (reservation.createdAt) {
+      const createdDate = new Date(reservation.createdAt)
+      if (!Number.isNaN(createdDate.getTime()) && createdDate >= sevenDaysAgo) {
+        return { ...reservation, isNew: true }
+      }
+    }
+    
+    return reservation
+  })
+}
+
 const saveDemoReservation = (reservation: Reservation) => {
   if (typeof window === 'undefined') return
   
@@ -161,9 +183,10 @@ const DashboardClient = () => {
         const demoReservations = loadDemoReservations()
         const combined = [...demoReservations, ...reservationsResult]
         console.log(`🎭 Demo mode: ${demoReservations.length} new + ${reservationsResult.length} mock = ${combined.length} total`)
-        setReservations(combined)
+        setReservations(markNewReservations(combined))
       } else {
-        setReservations(reservationsResult)
+        // Mark new reservations (created in last 7 days)
+        setReservations(markNewReservations(reservationsResult))
       }
       
       setReservationsError(null)
@@ -332,9 +355,10 @@ const DashboardClient = () => {
           const demoReservations = loadDemoReservations()
           const combined = [...demoReservations, ...reservationsResult.value]
           console.log(`🎭 Initial load: ${demoReservations.length} new + ${reservationsResult.value.length} mock = ${combined.length} total`)
-          setReservations(combined)
+          setReservations(markNewReservations(combined))
         } else {
-          setReservations(reservationsResult.value)
+          // Mark new reservations (created in last 7 days)
+          setReservations(markNewReservations(reservationsResult.value))
         }
         setReservationsError(null)
       } else {
