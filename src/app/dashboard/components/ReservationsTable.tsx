@@ -135,7 +135,22 @@ const ReservationsTable = ({ reservations }: ReservationsTableProps) => {
                   </svg>
                 </td>
                 <td>
-                  <div className="fw-semibold">{reservation.guestName}</div>
+                  <div className="d-flex align-items-center gap-2">
+                    <span className="fw-semibold">{reservation.guestName}</span>
+                    {reservation.isNew && (
+                      <span 
+                        className="badge" 
+                        style={{
+                          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                          color: 'white',
+                          fontSize: '0.7rem',
+                          padding: '2px 6px',
+                        }}
+                      >
+                        חדש ✨
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="small">
                   {formatDate(reservation.checkIn)} - {formatDate(reservation.checkOut)}

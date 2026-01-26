@@ -30,6 +30,45 @@ const addDays = (value: Date, days: number) => {
   return next
 }
 
+// Session Storage helpers for demo mode reservations
+const DEMO_RESERVATIONS_KEY = 'hostly_demo_reservations'
+
+const saveDemoReservation = (reservation: Reservation) => {
+  if (typeof window === 'undefined') return
+  
+  try {
+    const existing = sessionStorage.getItem(DEMO_RESERVATIONS_KEY)
+    const reservations: Reservation[] = existing ? JSON.parse(existing) : []
+    reservations.push(reservation)
+    sessionStorage.setItem(DEMO_RESERVATIONS_KEY, JSON.stringify(reservations))
+    console.log('💾 Demo reservation saved to session storage', reservation)
+  } catch (error) {
+    console.error('Failed to save demo reservation:', error)
+  }
+}
+
+const loadDemoReservations = (): Reservation[] => {
+  if (typeof window === 'undefined') return []
+  
+  try {
+    const stored = sessionStorage.getItem(DEMO_RESERVATIONS_KEY)
+    if (stored) {
+      const reservations = JSON.parse(stored) as Reservation[]
+      console.log(`📥 Loaded ${reservations.length} demo reservations from session storage`)
+      return reservations
+    }
+  } catch (error) {
+    console.error('Failed to load demo reservations:', error)
+  }
+  return []
+}
+
+const clearDemoReservations = () => {
+  if (typeof window === 'undefined') return
+  sessionStorage.removeItem(DEMO_RESERVATIONS_KEY)
+  console.log('🗑️ Demo reservations cleared')
+}
+
 const DashboardClient = () => {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -116,7 +155,17 @@ const DashboardClient = () => {
     setLoadingReservations(true)
     try {
       const reservationsResult = await provider.getReservations()
-      setReservations(reservationsResult)
+      
+      // If demo mode, merge with session storage reservations
+      if (meta.isMock && session?.user?.isDemo) {
+        const demoReservations = loadDemoReservations()
+        const combined = [...demoReservations, ...reservationsResult]
+        console.log(`🎭 Demo mode: ${demoReservations.length} new + ${reservationsResult.length} mock = ${combined.length} total`)
+        setReservations(combined)
+      } else {
+        setReservations(reservationsResult)
+      }
+      
       setReservationsError(null)
     } catch (error) {
       setReservationsError(error instanceof Error ? error.message : 'טעינת הזמנות נכשלה')
@@ -221,7 +270,26 @@ const DashboardClient = () => {
       // Check if this is demo mode
       const result = await response.json()
       if (result.demo) {
-        setSaveReservationSuccess('🎭 מצב דמו: ההזמנה נוצרה בסימולציה בלבד. לא נשמרה בפועל ולא נשלחה הודעת WhatsApp.')
+        // Save to session storage for demo mode
+        const demoReservation: Reservation = {
+          id: result.booking.id,
+          guestName: `${newReservation.firstName} ${newReservation.lastName}`,
+          checkIn: newReservation.arrival,
+          checkOut: newReservation.departure,
+          nights: Math.round(
+            (departureDate.getTime() - arrivalDate.getTime()) / (1000 * 60 * 60 * 24)
+          ),
+          guests: newReservation.guests,
+          total: Number(newReservation.total),
+          status: 'confirmed',
+          source: 'Demo (הזמנה ידנית)',
+          phone: isPhone ? contact : undefined,
+          email: isPhone ? undefined : contact,
+          notes: newReservation.notes.trim() || undefined,
+          isNew: true, // Flag for visual indication
+        }
+        saveDemoReservation(demoReservation)
+        setSaveReservationSuccess('🎭 מצב דמו: ההזמנה נשמרה בהצלחה! (שמורה רק בסשן הנוכחי)')
       } else {
         setSaveReservationSuccess('ההזמנה נשמרה בהצלחה.')
       }
@@ -259,7 +327,15 @@ const DashboardClient = () => {
       }
 
       if (reservationsResult.status === 'fulfilled') {
-        setReservations(reservationsResult.value)
+        // If demo mode, merge with session storage reservations
+        if (meta.isMock && session?.user?.isDemo) {
+          const demoReservations = loadDemoReservations()
+          const combined = [...demoReservations, ...reservationsResult.value]
+          console.log(`🎭 Initial load: ${demoReservations.length} new + ${reservationsResult.value.length} mock = ${combined.length} total`)
+          setReservations(combined)
+        } else {
+          setReservations(reservationsResult.value)
+        }
         setReservationsError(null)
       } else {
         setReservationsError(
@@ -857,6 +933,41 @@ const DashboardClient = () => {
                 >
                   {showNewReservation ? 'סגור טופס' : 'הזמנה חדשה'}
                 </button>
+                {meta.isMock && session?.user?.isDemo && (
+                  <button
+                    type="button"
+                    className="btn btn-sm d-flex align-items-center justify-content-center"
+                    style={{ 
+                      backgroundColor: 'transparent',
+                      border: '1px solid #dc3545',
+                      color: '#dc3545',
+                      padding: '0.25rem 0.5rem',
+                      height: '31px',
+                      lineHeight: '1.5',
+                      fontSize: '0.875rem',
+                      whiteSpace: 'nowrap',
+                      flex: '1 0 auto',
+                      minWidth: '80px',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#dc3545'
+                      e.currentTarget.style.color = 'white'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                      e.currentTarget.style.color = '#dc3545'
+                    }}
+                    onClick={() => {
+                      if (confirm('האם למחוק את כל ההזמנות החדשות שהוספת? (הזמנות המקוריות של הדמו לא ימחקו)')) {
+                        clearDemoReservations()
+                        refreshReservations()
+                      }
+                    }}
+                    title="מחיקת כל ההזמנות החדשות שהוספת במצב דמו"
+                  >
+                    🗑️ איפוס
+                  </button>
+                )}
               </div>
             </div>
             {showNewReservation ? (

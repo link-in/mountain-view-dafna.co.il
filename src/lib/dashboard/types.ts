@@ -17,6 +17,7 @@ export interface Reservation {
   adults?: number
   children?: number
   notes?: string
+  isNew?: boolean // Flag for new demo reservations
 }
 
 export interface PriceRule {
