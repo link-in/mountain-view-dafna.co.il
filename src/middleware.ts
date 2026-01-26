@@ -67,15 +67,19 @@ function extractSubdomain(hostname: string): string | null {
     return null
   }
   
-  // Extract subdomain
+  // Extract subdomain ONLY from hostly.co.il
   // dalit.hostly.co.il -> dalit
   // hostly.co.il -> null
-  const parts = host.split('.')
+  // mountain-view-dafna.co.il -> null (זה דומיין מלא, לא subdomain)
   
-  if (parts.length >= 3) {
-    return parts[0]
+  // בדוק אם זה hostly.co.il או subdomain שלו
+  if (host.endsWith('.hostly.co.il')) {
+    // dalit.hostly.co.il -> dalit
+    const subdomain = host.replace('.hostly.co.il', '')
+    return subdomain
   }
   
+  // אם זה hostly.co.il עצמו או דומיין אחר - אין subdomain
   return null
 }
 
