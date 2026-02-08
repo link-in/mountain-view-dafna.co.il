@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { Container } from 'react-bootstrap'
 import { Icon } from '@iconify/react'
-import { reviews } from '@/data/reviews'
+import { reviews as staticReviews, Review } from '@/data/reviews'
 
 const AirbnbLogo = () => (
   <img
@@ -23,6 +23,18 @@ const BookingLogo = () => (
   />
 )
 
+const GoogleLogo = () => (
+  <span
+    style={{
+      fontSize: '14px',
+      fontWeight: '600',
+      color: '#4285F4',
+    }}
+  >
+    Google
+  </span>
+)
+
 const SourceLogo = ({ source }: { source: string }) => {
   const normalizedSource = source.toLowerCase()
 
@@ -32,6 +44,10 @@ const SourceLogo = ({ source }: { source: string }) => {
 
   if (normalizedSource === 'airbnb') {
     return <AirbnbLogo />
+  }
+
+  if (normalizedSource === 'google') {
+    return <GoogleLogo />
   }
 
   return null
@@ -58,6 +74,40 @@ const ReviewAvatar = ({ name, image }: { name: string; image: string }) => {
 
 const ReviewsCarousel = () => {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const [reviews, setReviews] = useState<Review[]>(staticReviews)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+
+  // Fetch reviews from API
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await fetch('/api/reviews')
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch reviews')
+        }
+
+        const data = await response.json()
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setReviews(data)
+          setError(false)
+        } else {
+          // If no reviews in DB, keep static reviews
+          console.log('No reviews in database, using static reviews')
+        }
+      } catch (err) {
+        console.error('Error loading reviews:', err)
+        setError(true)
+        // Keep static reviews as fallback
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -75,6 +125,12 @@ const ReviewsCarousel = () => {
         style={{ fontSize: '18px', color: '#f59e0b' }}
       />
     ))
+  }
+
+  // Show loading skeleton or static reviews while loading
+  if (loading) {
+    // Show static reviews immediately for better UX
+    // The component will update when API data loads
   }
 
   return (
