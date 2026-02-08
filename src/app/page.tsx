@@ -38,10 +38,10 @@ const Page = () => {
       <Hero />
       <Features />
       <Portfolio />
+      <ReviewsCarousel />
       <Attractions />
       <Restaurants />
       <SecretTrails />
-      <ReviewsCarousel />
       <Contact />
       <Footer />
       <FloatingAvailability />
