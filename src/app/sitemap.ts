@@ -1,21 +1,18 @@
 import { MetadataRoute } from 'next'
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com'
-
   return [
     {
-      url: baseUrl,
+      url: 'https://mountain-view-dafna.co.il',
       lastModified: new Date(),
-      changeFrequency: 'monthly',
+      changeFrequency: 'daily',
       priority: 1,
     },
     {
-      url: `${baseUrl}/about`,
+      url: 'https://mountain-view-dafna.co.il/api/hotel-feed',
       lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
+      changeFrequency: 'hourly',
+      priority: 0.9,
     },
-    // Add more routes as needed
   ]
 }

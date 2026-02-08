@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Icon } from '@iconify/react'
+import BookingCalendar from './BookingCalendar'
 
 const FloatingAvailabilityContent = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -214,23 +215,16 @@ const FloatingAvailabilityContent = () => {
               </button>
             </div>
             
-            {/* תוכן Iframe */}
+            {/* תוכן לוח שנה מותאם אישית */}
             <div style={{ 
               flex: 1, 
               width: '100%',
               position: 'relative',
-              overflow: 'hidden',
+              overflow: 'auto',
+              padding: '20px',
+              background: '#f9f9f9',
             }}>
-              <iframe 
-                src={getBeds24Url()}
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  border: 'none',
-                }}
-                title="Beds24 Booking"
-                allow="payment"
-              />
+              <BookingCalendar onClose={() => setIsOpen(false)} />
             </div>
           </div>
         </>

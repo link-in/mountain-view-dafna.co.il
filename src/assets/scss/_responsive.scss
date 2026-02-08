@@ -347,7 +347,7 @@
             }
         }
     }
-    // התאמת כפתורים צפים במובייל - גודל אחיד ומיקום אחיד
+    // התאמת כפתורים צפים במובייל - גודל אחיד, מיקום אחיד, תמיד מעל כל התוכן (כולל iPhone XR 414px)
     .floating-availability-button,
     .whatsapp-floating-button,
     .waze-floating-button {
@@ -355,18 +355,24 @@
         height: 56px !important;
         left: 20px !important;
         display: flex !important;
-        z-index: 1000 !important;
+        z-index: 10000 !important;
         visibility: visible !important;
         opacity: 1 !important;
+        position: fixed !important;
     }
     .floating-availability-button {
-        bottom: 20px !important;
+        bottom: max(20px, env(safe-area-inset-bottom)) !important;
     }
     .whatsapp-floating-button {
-        bottom: 80px !important;
+        bottom: max(80px, calc(60px + env(safe-area-inset-bottom))) !important;
     }
     .waze-floating-button {
-        bottom: 150px !important;
+        bottom: max(150px, calc(130px + env(safe-area-inset-bottom))) !important;
+    }
+    .floating-availability-button,
+    .whatsapp-floating-button,
+    .waze-floating-button {
+        left: max(20px, env(safe-area-inset-left)) !important;
     }
     // הקטנת מרווח עליון/תחתון בין איקונים במובייל
     .features-icons-list {

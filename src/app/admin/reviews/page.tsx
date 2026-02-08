@@ -263,7 +263,6 @@ export default function ReviewsManagementPage() {
               
               <Button
                 variant="outline-primary"
-                size="md"
                 onClick={() => router.push('/admin/reviews/update-names')}
                 className="w-100 mt-3"
                 style={{

@@ -11,10 +11,12 @@ import SecretTrails from './components/SecretTrails'
 import ReviewsCarousel from './components/ReviewsCarousel'
 import WhatsAppButton from './components/WhatsAppButton'
 import WazeButton from './components/WazeButton'
+import HotelStructuredData from './components/HotelStructuredData'
 
 const Page = () => {
   return (
     <>
+      <HotelStructuredData />
       <div className="header-mobile-only">
         <Header />
       </div>
