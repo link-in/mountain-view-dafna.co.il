@@ -1,7 +1,12 @@
 /**
  * Google My Business Reviews Service
- * Fetches reviews from Google My Business using OAuth 2.0
- * Requires: googleapis package and OAuth 2.0 credentials
+ * 
+ * NOTE: Google My Business API has been deprecated and replaced with Google Business Profile API
+ * This service is kept for legacy support but currently returns empty array
+ * 
+ * For active review fetching, use Google Places API instead (google-places-service.ts)
+ * 
+ * @deprecated Use google-places-service.ts instead
  */
 
 export interface GoogleBusinessReview {
@@ -39,8 +44,10 @@ function generateGoogleAvatar(name: string): string {
 }
 
 /**
- * Fetch reviews from Google My Business using OAuth 2.0
- * This requires proper OAuth setup in Google Cloud Console
+ * Fetch reviews from Google My Business
+ * 
+ * @deprecated Google My Business API is deprecated. Returns empty array.
+ * Use fetchGooglePlacesReviews() from google-places-service.ts instead
  */
 export async function fetchGoogleBusinessReviews(): Promise<GoogleBusinessReview[]> {
   // Check if credentials are configured
@@ -60,6 +67,16 @@ export async function fetchGoogleBusinessReviews(): Promise<GoogleBusinessReview
     return []
   }
 
+  // Google My Business API is deprecated
+  console.warn('Google My Business API is deprecated. Use Google Places API instead.')
+  console.warn('To use Google reviews, configure GOOGLE_PLACES_API_KEY and GOOGLE_PLACE_ID')
+  
+  return []
+
+  /* 
+   * Legacy code - Google My Business API deprecated
+   * Keeping for reference only
+   * 
   try {
     console.log('Fetching Google My Business reviews...')
 
@@ -115,4 +132,5 @@ export async function fetchGoogleBusinessReviews(): Promise<GoogleBusinessReview
 
     return []
   }
+  */
 }
