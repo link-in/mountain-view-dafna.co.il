@@ -118,7 +118,12 @@ export async function syncAllReviews(): Promise<SyncStats> {
 
 /**
  * Save reviews to Supabase database
- * Uses upsert to avoid duplicates based on external_id
+ * Uses smart upsert to preserve manually updated names
+ * 
+ * Logic:
+ * - New reviews: Insert with fetched name
+ * - Existing reviews with "Airbnb Guest": Update name from fetch
+ * - Existing reviews with real names: Keep the existing name (manual override)
  */
 async function saveReviews(reviews: any[]): Promise<number> {
   if (reviews.length === 0) {
@@ -127,37 +132,69 @@ async function saveReviews(reviews: any[]): Promise<number> {
 
   try {
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    
+    let savedCount = 0
 
-    // Prepare data for insert
-    const reviewsData = reviews.map((review) => ({
-      external_id: review.external_id,
-      user_name: review.user_name,
-      user_image: review.user_image,
-      location: review.location,
-      rating: review.rating,
-      review_date: review.review_date.toISOString(),
-      comment: review.comment,
-      source: review.source,
-      host_response: review.host_response || null,
-      raw_data: review.raw_data,
-      is_active: true,
-    }))
+    // Process each review individually to preserve manual name updates
+    for (const review of reviews) {
+      try {
+        // Check if review already exists
+        const { data: existing } = await supabase
+          .from('reviews')
+          .select('id, user_name')
+          .eq('external_id', review.external_id)
+          .single()
 
-    // Upsert to database (insert or update if exists)
-    const { data, error } = await supabase
-      .from('reviews')
-      .upsert(reviewsData, {
-        onConflict: 'external_id',
-        ignoreDuplicates: false,
-      })
-      .select()
+        const reviewData: any = {
+          external_id: review.external_id,
+          user_image: review.user_image,
+          location: review.location,
+          rating: review.rating,
+          review_date: review.review_date.toISOString(),
+          comment: review.comment,
+          source: review.source,
+          host_response: review.host_response || null,
+          raw_data: review.raw_data,
+          is_active: true,
+        }
 
-    if (error) {
-      console.error('Error saving reviews to database:', error)
-      return 0
+        // Preserve manually updated names
+        if (existing) {
+          // If existing name is NOT "Airbnb Guest XXXX", keep it (manual override)
+          const hasManualName = existing.user_name && !existing.user_name.startsWith('Airbnb Guest')
+          
+          if (hasManualName) {
+            // Keep the existing manual name
+            reviewData.user_name = existing.user_name
+            console.log(`🔒 Preserving manual name: ${existing.user_name} for ${review.external_id}`)
+          } else {
+            // Update with fetched name (it might have improved)
+            reviewData.user_name = review.user_name
+          }
+        } else {
+          // New review - use fetched name
+          reviewData.user_name = review.user_name
+        }
+
+        // Upsert
+        const { error } = await supabase
+          .from('reviews')
+          .upsert(reviewData, {
+            onConflict: 'external_id',
+            ignoreDuplicates: false,
+          })
+
+        if (error) {
+          console.error(`Error saving review ${review.external_id}:`, error.message)
+        } else {
+          savedCount++
+        }
+      } catch (err) {
+        console.error(`Error processing review:`, err)
+      }
     }
 
-    return data?.length || 0
+    return savedCount
   } catch (error) {
     console.error('Error in saveReviews:', error)
     return 0
