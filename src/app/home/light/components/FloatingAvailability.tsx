@@ -70,23 +70,6 @@ const FloatingAvailabilityContent = () => {
     }
   }, [searchParams])
 
-  // בניית ה-URL עבור ה-Iframe
-  const getBeds24Url = () => {
-    const propid = "306559"
-    const checkin = searchParams.get('checkin') || ''
-    const checkout = searchParams.get('checkout') || ''
-    const numadult = searchParams.get('numadult') || searchParams.get('guests') || '2'
-    
-    // בניית הכתובת עם הפרמטרים
-    let url = `https://beds24.com/booking2.php?propid=${propid}&layout=1&lang=he`
-    
-    if (checkin && checkout) {
-      url += `&checkin=${checkin}&checkout=${checkout}&numadult=${numadult}`
-    }
-    
-    return url
-  }
-
   return (
     <>
       {/* כפתור צף מודרני */}
@@ -120,7 +103,7 @@ const FloatingAvailabilityContent = () => {
         )}
       </button>
 
-      {/* חלון ה-Iframe מודרני */}
+      {/* חלון הזמנות מודרני */}
       {isOpen && (
         <>
           {/* רקע מעומעם עם אנימציה */}

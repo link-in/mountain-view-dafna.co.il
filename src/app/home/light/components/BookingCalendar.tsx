@@ -360,6 +360,29 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const { nights } = calculateTotal()
   const total = calculatedPrice !== null ? calculatedPrice : 0
 
+  // Check if we can go back to previous month (can't go before current month)
+  const canGoBackward = () => {
+    const currentMonthStart = startOfMonth(new Date())
+    return currentMonth > currentMonthStart
+  }
+
+  // Scroll to booking button when dates are selected
+  useEffect(() => {
+    if (checkInDate && checkOutDate) {
+      // Wait for animation to start, then scroll
+      setTimeout(() => {
+        const summaryElement = document.querySelector('.selection-summary')
+        if (summaryElement) {
+          summaryElement.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'end',
+            inline: 'nearest'
+          })
+        }
+      }, 350)
+    }
+  }, [checkInDate, checkOutDate])
+
   if (bookingSuccess) {
     return (
       <div className="booking-success">
@@ -682,14 +705,15 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           onClick={() => setCurrentMonth(addMonths(currentMonth, 1))}
           title="חודש קדימה"
         >
-          → קדימה
+          ← קדימה
         </button>
         <h3>{monthLabel}</h3>
         <button 
-          onClick={() => setCurrentMonth(addMonths(currentMonth, -1))}
-          title="חודש אחורה"
+          onClick={() => canGoBackward() && setCurrentMonth(addMonths(currentMonth, -1))}
+          title={canGoBackward() ? "חודש אחורה" : "לא ניתן לחזור לתאריכים שעברו"}
+          disabled={!canGoBackward()}
         >
-          אחורה ←
+          אחורה →
         </button>
       </div>
 
@@ -780,10 +804,12 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
 
         .calendar-header {
           display: flex;
+          flex-direction: row;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 20px;
           padding: 0 10px;
+          direction: ltr;
         }
 
         .calendar-header h3 {
@@ -805,12 +831,18 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           align-items: center;
           justify-content: center;
           gap: 5px;
-          transition: transform 0.2s;
+          transition: all 0.2s;
           white-space: nowrap;
         }
 
-        .calendar-header button:hover {
+        .calendar-header button:hover:not(:disabled) {
           transform: scale(1.1);
+        }
+        
+        .calendar-header button:disabled {
+          background: linear-gradient(135deg, #ccc 0%, #aaa 100%);
+          cursor: not-allowed;
+          opacity: 0.5;
         }
 
         .calendar-loading {
@@ -956,6 +988,31 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           padding: 20px;
           border-radius: 12px;
           margin-top: 20px;
+          position: sticky;
+          bottom: 0;
+          z-index: 10;
+          box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.15);
+          animation: slideInUp 0.3s ease-out;
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes gentlePulse {
+          0%, 100% {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          }
+          50% {
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+          }
         }
 
         .summary-content {
@@ -994,11 +1051,40 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           font-size: 1.1rem;
           font-weight: 600;
           cursor: pointer;
-          transition: transform 0.2s;
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          position: relative;
+          overflow: hidden;
+          animation: gentlePulse 2s ease-in-out infinite;
+        }
+        
+        .book-now-button::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          background: rgba(102, 126, 234, 0.1);
+          transform: translate(-50%, -50%);
+          transition: width 0.6s, height 0.6s;
+        }
+        
+        .book-now-button:hover::before {
+          width: 300px;
+          height: 300px;
         }
 
         .book-now-button:hover {
-          transform: scale(1.02);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+          animation: none;
+        }
+        
+        .book-now-button:active {
+          transform: translateY(0);
+          animation: none;
         }
 
         .booking-form-container {
@@ -1217,6 +1303,21 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
 
           .form-row {
             grid-template-columns: 1fr;
+          }
+          
+          .selection-summary {
+            padding: 15px;
+            margin-top: 15px;
+            margin-left: -20px;
+            margin-right: -20px;
+            margin-bottom: -20px;
+            border-radius: 12px 12px 0 0;
+          }
+          
+          .book-now-button {
+            font-size: 1.05rem;
+            padding: 16px;
+            font-weight: 700;
           }
         }
       `}</style>

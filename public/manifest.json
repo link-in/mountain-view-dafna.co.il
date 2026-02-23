@@ -1,7 +1,7 @@
 {
-  "name": "Hostly",
-  "short_name": "Hostly",
-  "description": "Hostly - מערכת ניהול אירוח חכמה",
+  "name": "נוף הרים בדפנה",
+  "short_name": "נוף הרים",
+  "description": "נוף הרים בדפנה - מערכת ניהול אירוח",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#ffffff",

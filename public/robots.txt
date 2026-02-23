@@ -5,7 +5,12 @@ Allow: /
 # Disallow admin and dashboard areas
 Disallow: /admin
 Disallow: /dashboard
+
+# Allow hotel feed for Google
+Allow: /api/hotel-feed
+
+# Block other API endpoints
 Disallow: /api
 
 # Sitemap
-Sitemap: https://yourdomain.com/sitemap.xml
+Sitemap: https://mountain-view-dafna.co.il/sitemap.xml

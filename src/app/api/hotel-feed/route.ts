@@ -4,6 +4,9 @@ import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
 const PROPERTY_ID = '306559'
 const ROOM_ID = '638851'
 
+// Price multiplier for direct bookings (16% markup to match website pricing)
+const DIRECT_BOOKING_MULTIPLIER = 1.16
+
 export async function GET() {
   try {
     // Fetch availability for next 180 days
@@ -60,7 +63,8 @@ export async function GET() {
     calendar.forEach((entry: any) => {
       const fromDate = new Date(entry.from)
       const toDate = new Date(entry.to)
-      const price = entry.price1 || 0
+      const basePrice = entry.price1 || 0
+      const directPrice = Math.round(basePrice * DIRECT_BOOKING_MULTIPLIER)
 
       for (let d = new Date(fromDate); d <= toDate; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().split('T')[0]
@@ -76,7 +80,7 @@ export async function GET() {
       <latitude>33.2363</latitude>
       <longitude>35.6528</longitude>
       <date>${dateStr}</date>
-      <price currency="ILS">${price}</price>
+      <price currency="ILS">${directPrice}</price>
       <availability>${isAvailable ? 1 : 0}</availability>
       <checkin>15:00</checkin>
       <checkout>11:00</checkout>

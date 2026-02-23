@@ -1,4 +1,3 @@
-import logo from '@/assets/images/favicon.ico'
 import type { Metadata } from 'next'
 import { Open_Sans, Poppins, Rubik } from 'next/font/google'
 
@@ -38,7 +37,7 @@ export const metadata: Metadata = {
   description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
   manifest: '/manifest.json?v=2',
   icons: {
-    icon: logo.src,
+    icon: '/photos/logo.png',
     apple: [
       { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Hostly',
+    title: 'נוף הרים בדפנה',
   },
   themeColor: '#667eea',
   viewport: {
@@ -54,6 +53,28 @@ export const metadata: Metadata = {
     initialScale: 1,
     maximumScale: 1,
     userScalable: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'he_IL',
+    url: 'https://mountain-view.co.il',
+    siteName: 'נוף הרים בדפנה',
+    title: 'נוף הרים בדפנה',
+    description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
+    images: [
+      {
+        url: '/photos/logo.png',
+        width: 1200,
+        height: 630,
+        alt: 'נוף הרים בדפנה',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'נוף הרים בדפנה',
+    description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
+    images: ['/photos/logo.png'],
   },
 }
 

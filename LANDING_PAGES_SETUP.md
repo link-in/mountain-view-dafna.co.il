@@ -335,7 +335,7 @@ VALUES ('[USER_ID]', 'dalit', 'הוילה על הנחל');
 - [ ] סעיפים נוספים (ביקורות, אטרקציות, מסעדות)
 - [ ] A/B Testing
 - [ ] Analytics integration (Google Analytics)
-- [ ] לוח שנה מותאם אישית (במקום Beds24 iframe)
+- [x] לוח שנה מותאם אישית (במקום Beds24 iframe)
 - [ ] Multi-language support
 
 ---

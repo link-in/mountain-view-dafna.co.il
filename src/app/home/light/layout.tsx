@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: 'https://mountain-view-dafna.co.il/images/og-image.jpg',
+        url: 'https://mountain-view-dafna.co.il/photos/logo.png',
         width: 1200,
         height: 630,
         alt: 'נוף הרים בדפנה - צימר מפנק',
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'נוף הרים בדפנה',
     description: 'צימר יוקרתי בדפנה עם ג\'קוזי ספא ונוף להרים',
-    images: ['https://mountain-view-dafna.co.il/images/og-image.jpg'],
+    images: ['https://mountain-view-dafna.co.il/photos/logo.png'],
   },
   robots: {
     index: true,

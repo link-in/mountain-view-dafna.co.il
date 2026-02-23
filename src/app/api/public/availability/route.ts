@@ -7,6 +7,9 @@ export const revalidate = 0
 const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 const getBaseUrl = () => process.env.BEDS24_API_BASE_URL ?? DEFAULT_BASE_URL
 
+// Price multiplier for direct bookings (16% markup to match Airbnb pricing)
+const DIRECT_BOOKING_MULTIPLIER = 1.16
+
 /**
  * Public API endpoint to fetch availability and pricing
  * No authentication required - for guest viewing
@@ -193,7 +196,7 @@ function parseCalendarData(data: any, bookings: any[]): Array<{
       
       for (const row of rows) {
         const date = row?.date || row?.day
-        const price = row?.price || row?.price1 || 0
+        const basePrice = row?.price || row?.price1 || 0
         const minStay = row?.minStay || 1
         
         // Check if date is booked
@@ -203,7 +206,7 @@ function parseCalendarData(data: any, bookings: any[]): Array<{
         if (date) {
           result.push({
             date,
-            price: Number(price),
+            price: Math.round(Number(basePrice) * DIRECT_BOOKING_MULTIPLIER),
             available,
             minStay: Number(minStay)
           })
@@ -214,7 +217,7 @@ function parseCalendarData(data: any, bookings: any[]): Array<{
       if (calendar?.from && calendar?.to) {
         const from = new Date(calendar.from)
         const to = new Date(calendar.to)
-        const price = calendar?.price || calendar?.price1 || 0
+        const basePrice = calendar?.price || calendar?.price1 || 0
         const minStay = calendar?.minStay || 1
         
         let current = from
@@ -225,7 +228,7 @@ function parseCalendarData(data: any, bookings: any[]): Array<{
           
           result.push({
             date: dateStr,
-            price: Number(price),
+            price: Math.round(Number(basePrice) * DIRECT_BOOKING_MULTIPLIER),
             available,
             minStay: Number(minStay)
           })

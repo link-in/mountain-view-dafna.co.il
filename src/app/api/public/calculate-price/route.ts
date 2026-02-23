@@ -7,6 +7,9 @@ export const revalidate = 0
 const PROPERTY_ID = '306559'
 const ROOM_ID = '638851'
 
+// Price multiplier for direct bookings (16% markup to match Airbnb pricing)
+const DIRECT_BOOKING_MULTIPLIER = 1.16
+
 /**
  * Public API endpoint to calculate exact price based on dates and number of guests
  * Returns the total price including any surcharges for extra guests
@@ -51,16 +54,17 @@ export async function POST(request: Request) {
     const checkOutDate = new Date(checkOut)
     const nights = Math.ceil((checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24))
 
-    // Build date-to-price map
+    // Build date-to-price map with direct booking markup
     const priceMap: Record<string, number> = {}
     calendar.forEach((entry: any) => {
       const from = new Date(entry.from)
       const to = new Date(entry.to)
-      const price = entry.price1 || 0
+      const basePrice = entry.price1 || 0
+      const directPrice = Math.round(basePrice * DIRECT_BOOKING_MULTIPLIER)
 
       for (let d = new Date(from); d <= to; d.setDate(d.getDate() + 1)) {
         const dateKey = d.toISOString().split('T')[0]
-        priceMap[dateKey] = price
+        priceMap[dateKey] = directPrice
       }
     })
 
