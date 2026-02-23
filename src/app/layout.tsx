@@ -57,13 +57,13 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'he_IL',
-    url: 'https://mountain-view.co.il',
+    url: 'https://mountain-view-dafna.co.il',
     siteName: 'נוף הרים בדפנה',
     title: 'נוף הרים בדפנה',
     description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
     images: [
       {
-        url: '/photos/logo.png',
+        url: 'https://mountain-view-dafna.co.il/photos/logo.png',
         width: 1200,
         height: 630,
         alt: 'נוף הרים בדפנה',
@@ -74,7 +74,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'נוף הרים בדפנה',
     description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
-    images: ['/photos/logo.png'],
+    images: ['https://mountain-view-dafna.co.il/photos/logo.png'],
   },
 }
 
@@ -93,7 +93,7 @@ export default function RootLayout({
       <head>
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="Hostly" />
+        <meta name="apple-mobile-web-app-title" content="נוף הרים בדפנה" />
         <meta name="mobile-web-app-capable" content="yes" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
