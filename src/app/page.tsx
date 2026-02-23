@@ -11,10 +11,12 @@ import Hero from '@/app/home/light/components/Hero'
 import Portfolio from '@/app/home/light/components/Portfolio'
 import WhatsAppButton from '@/app/home/light/components/WhatsAppButton'
 import WazeButton from '@/app/home/light/components/WazeButton'
+import HotelStructuredDataServer from '@/app/home/light/components/HotelStructuredDataServer'
 
 const Page = () => {
   return (
     <>
+      <HotelStructuredDataServer />
       <div className="header-mobile-only">
         <Header />
       </div>
