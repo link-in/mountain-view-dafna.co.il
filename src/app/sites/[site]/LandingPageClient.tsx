@@ -6,9 +6,9 @@ import Hero from '@/app/sites/components/Hero'
 import Features from '@/app/sites/components/Features'
 import Portfolio from '@/app/sites/components/Portfolio'
 import Contact from '@/app/sites/components/Contact'
-import WhatsAppButton from '@/app/home/light/components/WhatsAppButton'
-import WazeButton from '@/app/home/light/components/WazeButton'
-import FloatingAvailability from '@/app/home/light/components/FloatingAvailability'
+import WhatsAppButton from '@/components/home/WhatsAppButton'
+import WazeButton from '@/components/home/WazeButton'
+import FloatingAvailability from '@/components/home/FloatingAvailability'
 
 interface Section {
   id: string
