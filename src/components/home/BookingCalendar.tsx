@@ -53,17 +53,17 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const [loading, setLoading] = useState(true)
   const [showBookingForm, setShowBookingForm] = useState(false)
   
-  // Form state
-  const [firstName, setFirstName] = useState('')
-  const [lastName, setLastName] = useState('')
-  const [email, setEmail] = useState('')
-  const [phone, setPhone] = useState('')
+  // Form state — ערכי ברירת מחדל לבדיקות (להסיר בפרודקשן)
+  const isDev = process.env.NODE_ENV === 'development'
+  const [firstName, setFirstName] = useState(isDev ? 'ישראל' : '')
+  const [lastName, setLastName] = useState(isDev ? 'ישראלי' : '')
+  const [email, setEmail] = useState(isDev ? 'test@test.com' : '')
+  const [phone, setPhone] = useState(isDev ? '0501234567' : '')
   const [numAdult, setNumAdult] = useState(2)
   const [numChild, setNumChild] = useState(0)
-  const [notes, setNotes] = useState('')
+  const [notes, setNotes] = useState(isDev ? 'בדיקה — אל תאשר' : '')
   const [submitting, setSubmitting] = useState(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
-  const [bookingSuccess, setBookingSuccess] = useState(false)
   
   // Price calculation state
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
@@ -299,7 +299,7 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!checkInDate || !checkOutDate) {
+    if (!checkInDate || !checkOutDate || calculatedPrice === null) {
       return
     }
     
@@ -307,7 +307,14 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
     setBookingError(null)
     
     try {
-      const response = await fetch('/api/public/booking', {
+      // Forward ?test=<token> from the URL to enable mock-mode payments
+      // (used for safe end-to-end testing in production)
+      const testToken =
+        typeof window !== 'undefined'
+          ? new URLSearchParams(window.location.search).get('test')
+          : null
+
+      const response = await fetch('/api/public/payment/init', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -322,38 +329,26 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           numAdult,
           numChild,
           notes,
+          totalPrice: calculatedPrice,
+          ...(testToken ? { testToken } : {}),
         }),
       })
       
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || 'Failed to create booking')
+        throw new Error(error.error || 'שגיאה ביצירת עמוד תשלום')
       }
       
-      const result = await response.json()
-      setBookingSuccess(true)
+      const { paymentUrl } = await response.json()
       
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setCheckInDate(null)
-        setCheckOutDate(null)
-        setShowBookingForm(false)
-        setBookingSuccess(false)
-        setFirstName('')
-        setLastName('')
-        setEmail('')
-        setPhone('')
-        setNumAdult(2)
-        setNotes('')
-        if (onClose) {
-          onClose()
-        }
-      }, 3000)
+      // Redirect to Cardcom secure payment page
+      window.location.href = paymentUrl
     } catch (error) {
-      setBookingError(error instanceof Error ? error.message : 'שגיאה ביצירת ההזמנה')
-    } finally {
+      setBookingError(error instanceof Error ? error.message : 'שגיאה — אנא נסה שוב')
       setSubmitting(false)
     }
+    // Note: setSubmitting(false) is intentionally NOT called on success —
+    // the page navigates away to Cardcom, keeping the button disabled.
   }
 
   const monthLabel = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(currentMonth)
@@ -382,16 +377,6 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
       }, 350)
     }
   }, [checkInDate, checkOutDate])
-
-  if (bookingSuccess) {
-    return (
-      <div className="booking-success">
-        <div className="success-icon">✓</div>
-        <h3>ההזמנה נוצרה בהצלחה!</h3>
-        <p>תקבל אישור בהודעת WhatsApp בקרוב.</p>
-      </div>
-    )
-  }
 
   if (showBookingForm) {
     return (
@@ -674,24 +659,26 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
 
           <button
             type="submit"
-            disabled={submitting}
+            disabled={submitting || calculatedPrice === null || calculatingPrice}
             style={{
               width: '100%',
-              background: submitting ? '#ccc' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: (submitting || calculatedPrice === null || calculatingPrice)
+                ? '#ccc'
+                : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               color: 'white',
               border: 'none',
               padding: '16px',
               borderRadius: '12px',
               fontSize: '1.15rem',
               fontWeight: 700,
-              cursor: submitting ? 'not-allowed' : 'pointer',
+              cursor: (submitting || calculatedPrice === null || calculatingPrice) ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s',
               boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)',
               marginTop: '10px',
-              opacity: submitting ? 0.5 : 1
+              opacity: (submitting || calculatedPrice === null || calculatingPrice) ? 0.5 : 1
             }}
           >
-            {submitting ? 'שולח...' : 'אשר הזמנה'}
+            {submitting ? '⏳ מעביר לתשלום...' : `💳 לתשלום מאובטח — ₪${calculatedPrice?.toLocaleString() ?? ''}`}
           </button>
         </form>
       </div>
