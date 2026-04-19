@@ -380,9 +380,8 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
       
       const { paymentUrl: url } = await response.json()
 
-      // הצג את דף הסליקה inline ב-iframe במקום redirect חיצוני
-      setPaymentUrl(url)
-      setSubmitting(false)
+      // redirect ישיר לקארדקום — הכי אמין לכל מכשיר (כולל מובייל)
+      window.location.href = url
     } catch (error) {
       setBookingError(error instanceof Error ? error.message : 'שגיאה — אנא נסה שוב')
       setSubmitting(false)
