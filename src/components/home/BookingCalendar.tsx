@@ -53,20 +53,27 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const [loading, setLoading] = useState(true)
   const [showBookingForm, setShowBookingForm] = useState(false)
   
-  // Form state — אם ?test=... ב-URL, ממלא פרטי בדיקה אוטומטית
+  // Form state
   const isDev = process.env.NODE_ENV === 'development'
-  const isTestMode =
-    typeof window !== 'undefined'
-      ? Boolean(new URLSearchParams(window.location.search).get('test'))
-      : false
-  const [firstName, setFirstName] = useState(isDev || isTestMode ? 'צור' : '')
-  const [lastName, setLastName] = useState(isDev || isTestMode ? 'ברכה' : '')
-  const [email, setEmail] = useState(isDev || isTestMode ? 'zurbracha@gmail.com' : '')
-  const [phone, setPhone] = useState(isDev || isTestMode ? '0528676516' : '')
+  const [firstName, setFirstName] = useState(isDev ? 'צור' : '')
+  const [lastName, setLastName] = useState(isDev ? 'ברכה' : '')
+  const [email, setEmail] = useState(isDev ? 'zurbracha@gmail.com' : '')
+  const [phone, setPhone] = useState(isDev ? '0528676516' : '')
   const [numAdult, setNumAdult] = useState(2)
   const [numChild, setNumChild] = useState(0)
-  const testId = Math.floor(10000 + Math.random() * 90000)
-  const [notes, setNotes] = useState(isDev || isTestMode ? `הזמנת בדיקה #${testId} — אל תחייב` : '')
+  const [notes, setNotes] = useState(isDev ? `הזמנת בדיקה #${Math.floor(10000 + Math.random() * 90000)} — אל תחייב` : '')
+
+  // מילוי אוטומטי כשיש ?test=... ב-URL (רץ רק ב-client אחרי mount)
+  useEffect(() => {
+    const testToken = new URLSearchParams(window.location.search).get('test')
+    if (!testToken) return
+    const testId = Math.floor(10000 + Math.random() * 90000)
+    setFirstName('צור')
+    setLastName('ברכה')
+    setEmail('zurbracha@gmail.com')
+    setPhone('0528676516')
+    setNotes(`הזמנת בדיקה #${testId} — אל תחייב`)
+  }, [])
   const [submitting, setSubmitting] = useState(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
   
