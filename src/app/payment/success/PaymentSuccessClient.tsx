@@ -25,11 +25,29 @@ export default function PaymentSuccessClient() {
   const isInIframe = typeof window !== 'undefined' && window.self !== window.top
 
   useEffect(() => {
-    const lowProfileId = searchParams.get('LowProfileId')
+    // לוג כל הפרמטרים שמגיעים מקארדקום
+    const allParams = Object.fromEntries(searchParams.entries())
+    console.log('💳 [PaymentSuccess] URL params received from Cardcom:', allParams)
+    console.log('💳 [PaymentSuccess] Full URL:', typeof window !== 'undefined' ? window.location.href : 'SSR')
+    console.log('💳 [PaymentSuccess] isInIframe:', isInIframe)
+
+    // חיפוש LowProfileId בצורה case-insensitive
+    let lowProfileId = searchParams.get('LowProfileId')
+    if (!lowProfileId) {
+      // ניסיון עם וריאציות שקארדקום עשוי לשלוח
+      lowProfileId =
+        searchParams.get('lowprofileid') ??
+        searchParams.get('lowProfileId') ??
+        searchParams.get('low_profile_id') ??
+        null
+    }
+
+    console.log('💳 [PaymentSuccess] LowProfileId found:', lowProfileId)
 
     if (!lowProfileId) {
+      console.error('❌ [PaymentSuccess] Missing LowProfileId. All params:', allParams)
       setStatus('error')
-      setErrorMessage('פרמטרי תשלום חסרים. אנא צור קשר עם התמיכה.')
+      setErrorMessage(`פרמטרי תשלום חסרים. פרמטרים שהתקבלו: ${JSON.stringify(allParams)}`)
       if (isInIframe) window.parent.postMessage({ type: 'payment-error', error: 'פרמטרי תשלום חסרים' }, '*')
       return
     }
@@ -41,6 +59,10 @@ export default function PaymentSuccessClient() {
       attempts += 1
       try {
         const params = new URLSearchParams(searchParams.toString())
+        // וודא ש-LowProfileId קיים בפרמטרים גם אם הגיע בפורמט שונה
+        if (!params.get('LowProfileId') && lowProfileId) {
+          params.set('LowProfileId', lowProfileId)
+        }
         const response = await fetch(`/api/public/payment/verify?${params.toString()}`)
         const data = await response.json()
 
