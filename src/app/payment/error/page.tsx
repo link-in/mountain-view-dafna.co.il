@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
-export default function PaymentErrorPage() {
+function PaymentErrorContent() {
   const searchParams = useSearchParams()
   const errorCode = searchParams.get('errorCode') ?? ''
 
@@ -80,5 +80,13 @@ export default function PaymentErrorPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function PaymentErrorPage() {
+  return (
+    <Suspense fallback={null}>
+      <PaymentErrorContent />
+    </Suspense>
   )
 }

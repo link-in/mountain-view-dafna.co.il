@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 
-export default function PaymentCancelPage() {
+function PaymentCancelContent() {
   useEffect(() => {
     if (window.self !== window.top) {
       window.parent.postMessage({ type: 'payment-cancelled' }, '*')
@@ -55,5 +55,13 @@ export default function PaymentCancelPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function PaymentCancelPage() {
+  return (
+    <Suspense fallback={null}>
+      <PaymentCancelContent />
+    </Suspense>
   )
 }
