@@ -1,17 +1,20 @@
-import Link from 'next/link'
+'use client'
 
-export const metadata = {
-  title: 'שגיאה בתשלום | נוף הרים בדפנה',
-  robots: { index: false },
-}
+import { useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
-export default function PaymentErrorPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>
-}) {
-  const errorCode = String(searchParams?.errorCode ?? '')
-  const uniqueID = String(searchParams?.uniqueID ?? '')
+export default function PaymentErrorPage() {
+  const searchParams = useSearchParams()
+  const errorCode = searchParams.get('errorCode') ?? ''
+
+  useEffect(() => {
+    if (window.self !== window.top) {
+      window.parent.postMessage({
+        type: 'payment-error',
+        error: errorCode ? `התשלום נכשל (קוד: ${errorCode})` : 'התשלום נכשל',
+      }, '*')
+    }
+  }, [errorCode])
 
   return (
     <div style={{
@@ -48,12 +51,7 @@ export default function PaymentErrorPage({
           ✗
         </div>
 
-        <h1 style={{
-          fontSize: '1.8rem',
-          fontWeight: 700,
-          color: '#c62828',
-          marginBottom: '12px',
-        }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, color: '#c62828', marginBottom: '12px' }}>
           התשלום נכשל
         </h1>
 
@@ -77,36 +75,9 @@ export default function PaymentErrorPage({
           </p>
         )}
 
-        <p style={{
-          background: '#fff8e1',
-          border: '1px solid #ffe082',
-          borderRadius: '10px',
-          padding: '14px',
-          fontSize: '0.92rem',
-          color: '#6d4c00',
-          marginBottom: '28px',
-        }}>
-          ניתן לנסות שוב או לפנות אלינו ישירות לקביעת הזמנה.
+        <p style={{ color: '#888', fontSize: '0.9rem' }}>
+          ניתן לסגור חלון זה ולנסות שוב.
         </p>
-
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link
-            href="/"
-            style={{
-              display: 'inline-block',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              padding: '14px 28px',
-              borderRadius: '30px',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.97rem',
-              boxShadow: '0 6px 16px rgba(102,126,234,0.3)',
-            }}
-          >
-            חזרה ונסה שוב
-          </Link>
-        </div>
       </div>
     </div>
   )

@@ -63,6 +63,27 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const [numChild, setNumChild] = useState(0)
   const [notes, setNotes] = useState(isDev ? `הזמנת בדיקה #${Math.floor(10000 + Math.random() * 90000)} — אל תחייב` : '')
 
+  // האזנה לתוצאת תשלום מה-iframe (success / cancelled / error)
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (!event.data?.type) return
+      if (event.data.type === 'payment-success') {
+        setPaymentStatus('success')
+        setPaymentResult(event.data.result ?? null)
+        setPaymentUrl(null)
+      } else if (event.data.type === 'payment-cancelled') {
+        setPaymentStatus('cancelled')
+        setPaymentUrl(null)
+      } else if (event.data.type === 'payment-error') {
+        setPaymentStatus('error')
+        setPaymentResult(event.data ?? null)
+        setPaymentUrl(null)
+      }
+    }
+    window.addEventListener('message', handleMessage)
+    return () => window.removeEventListener('message', handleMessage)
+  }, [])
+
   // מילוי אוטומטי כשיש ?test=... ב-URL (רץ רק ב-client אחרי mount)
   useEffect(() => {
     const testToken = new URLSearchParams(window.location.search).get('test')
@@ -76,6 +97,9 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   }, [])
   const [submitting, setSubmitting] = useState(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null)
+  const [paymentStatus, setPaymentStatus] = useState<'idle' | 'success' | 'cancelled' | 'error'>('idle')
+  const [paymentResult, setPaymentResult] = useState<Record<string, unknown> | null>(null)
   
   // Price calculation state
   const [calculatedPrice, setCalculatedPrice] = useState<number | null>(null)
@@ -351,10 +375,11 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
         throw new Error(error.error || 'שגיאה ביצירת עמוד תשלום')
       }
       
-      const { paymentUrl } = await response.json()
-      
-      // Redirect to Cardcom secure payment page
-      window.location.href = paymentUrl
+      const { paymentUrl: url } = await response.json()
+
+      // הצג את דף הסליקה inline ב-iframe במקום redirect חיצוני
+      setPaymentUrl(url)
+      setSubmitting(false)
     } catch (error) {
       setBookingError(error instanceof Error ? error.message : 'שגיאה — אנא נסה שוב')
       setSubmitting(false)
@@ -389,6 +414,67 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
       }, 350)
     }
   }, [checkInDate, checkOutDate])
+
+  // שלב 3 — הצגת תוצאת תשלום inline
+  if (paymentStatus === 'success') {
+    const r = paymentResult as { guestName?: string; bookingId?: string; checkIn?: string; checkOut?: string; amountPaid?: number } | null
+    return (
+      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl', textAlign: 'center', padding: '40px 20px' }}>
+        <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg,#4caf50,#45a049)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2.5rem', color: 'white', boxShadow: '0 8px 24px rgba(76,175,80,0.3)' }}>✓</div>
+        <h2 style={{ color: '#2e7d32', marginBottom: '8px' }}>ההזמנה אושרה!</h2>
+        <p style={{ color: '#666', marginBottom: '24px' }}>תודה {r?.guestName}! קיבלנו את תשלומך בהצלחה.</p>
+        {r && (
+          <div style={{ background: '#f1f8e9', border: '2px solid #a5d6a7', borderRadius: '14px', padding: '20px', marginBottom: '24px', textAlign: 'right' }}>
+            {r.bookingId && <div style={{ padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.07)', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#555' }}>מספר הזמנה</span><strong>{r.bookingId}</strong></div>}
+            {r.checkIn && <div style={{ padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.07)', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#555' }}>כניסה</span><span>{r.checkIn}</span></div>}
+            {r.checkOut && <div style={{ padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.07)', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#555' }}>יציאה</span><span>{r.checkOut}</span></div>}
+            {r.amountPaid && <div style={{ padding: '8px 0', display: 'flex', justifyContent: 'space-between' }}><span style={{ color: '#555' }}>סכום ששולם</span><strong style={{ color: '#2e7d32' }}>₪{Number(r.amountPaid).toLocaleString()}</strong></div>}
+          </div>
+        )}
+        <p style={{ background: '#fff8e1', border: '1px solid #ffe082', borderRadius: '10px', padding: '12px', fontSize: '0.9rem', color: '#6d4c00' }}>📱 הודעת WhatsApp עם פרטי ההזמנה נשלחה לטלפון שלך.</p>
+      </div>
+    )
+  }
+
+  if (paymentStatus === 'cancelled') {
+    return (
+      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl', textAlign: 'center', padding: '40px 20px' }}>
+        <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg,#ff9800,#f57c00)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2.5rem', color: 'white' }}>↩</div>
+        <h2 style={{ color: '#e65100', marginBottom: '8px' }}>ביטלת את התשלום</h2>
+        <p style={{ color: '#666', marginBottom: '24px' }}>לא בוצע חיוב. התאריכים שבחרת עדיין פנויים.</p>
+        <button onClick={() => { setPaymentStatus('idle'); setShowBookingForm(true) }} style={{ background: 'linear-gradient(135deg,#667eea,#764ba2)', color: 'white', border: 'none', padding: '14px 32px', borderRadius: '30px', fontWeight: 600, cursor: 'pointer', fontSize: '1rem' }}>חזרה לטופס</button>
+      </div>
+    )
+  }
+
+  if (paymentStatus === 'error') {
+    return (
+      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl', textAlign: 'center', padding: '40px 20px' }}>
+        <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg,#ef5350,#c62828)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', fontSize: '2.5rem', color: 'white' }}>✗</div>
+        <h2 style={{ color: '#c62828', marginBottom: '8px' }}>שגיאה בתשלום</h2>
+        <p style={{ color: '#666', marginBottom: '8px' }}>{(paymentResult as { error?: string } | null)?.error ?? 'אירעה שגיאה בעיבוד התשלום.'}</p>
+        <p style={{ color: '#888', fontSize: '0.9rem', marginBottom: '24px' }}>לא בוצע חיוב.</p>
+        <button onClick={() => { setPaymentStatus('idle'); setShowBookingForm(true) }} style={{ background: 'linear-gradient(135deg,#667eea,#764ba2)', color: 'white', border: 'none', padding: '14px 32px', borderRadius: '30px', fontWeight: 600, cursor: 'pointer', fontSize: '1rem' }}>נסה שוב</button>
+      </div>
+    )
+  }
+
+  // שלב 3 — iframe תשלום
+  if (paymentUrl) {
+    return (
+      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl' }}>
+        <button onClick={() => { setPaymentUrl(null); setShowBookingForm(true) }} style={{ background: 'transparent', border: '2px solid #667eea', color: '#667eea', padding: '8px 20px', borderRadius: '25px', fontWeight: 600, cursor: 'pointer', marginBottom: '16px', fontSize: '0.95rem' }}>← חזרה לטופס</button>
+        <div style={{ background: 'linear-gradient(135deg,#667eea,#764ba2)', color: 'white', textAlign: 'center', padding: '12px', borderRadius: '12px 12px 0 0', fontWeight: 600 }}>
+          🔒 תשלום מאובטח — Cardcom
+        </div>
+        <iframe
+          src={paymentUrl}
+          style={{ width: '100%', height: '680px', border: 'none', borderRadius: '0 0 12px 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
+          title="דף תשלום מאובטח"
+        />
+      </div>
+    )
+  }
 
   if (showBookingForm) {
     return (

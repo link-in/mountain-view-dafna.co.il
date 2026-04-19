@@ -22,12 +22,15 @@ export default function PaymentSuccessClient() {
   const [result, setResult] = useState<BookingResult | null>(null)
   const [errorMessage, setErrorMessage] = useState('')
 
+  const isInIframe = typeof window !== 'undefined' && window.self !== window.top
+
   useEffect(() => {
     const lowProfileId = searchParams.get('LowProfileId')
 
     if (!lowProfileId) {
       setStatus('error')
       setErrorMessage('פרמטרי תשלום חסרים. אנא צור קשר עם התמיכה.')
+      if (isInIframe) window.parent.postMessage({ type: 'payment-error', error: 'פרמטרי תשלום חסרים' }, '*')
       return
     }
 
@@ -41,7 +44,6 @@ export default function PaymentSuccessClient() {
         const response = await fetch(`/api/public/payment/verify?${params.toString()}`)
         const data = await response.json()
 
-        // Webhook hasn't finished yet — retry
         if (response.status === 202 && attempts < maxAttempts) {
           setTimeout(() => void verifyPayment(), 1500)
           return
@@ -50,11 +52,13 @@ export default function PaymentSuccessClient() {
         if (!response.ok || !data.success) {
           setStatus('error')
           setErrorMessage(data.error ?? 'אימות התשלום נכשל. אנא צור קשר עם התמיכה.')
+          if (isInIframe) window.parent.postMessage({ type: 'payment-error', error: data.error ?? 'אימות התשלום נכשל' }, '*')
           return
         }
 
         setResult(data as BookingResult)
         setStatus('success')
+        if (isInIframe) window.parent.postMessage({ type: 'payment-success', result: data }, '*')
       } catch {
         if (attempts < maxAttempts) {
           setTimeout(() => void verifyPayment(), 1500)
@@ -62,11 +66,12 @@ export default function PaymentSuccessClient() {
         }
         setStatus('error')
         setErrorMessage('שגיאת תקשורת. אנא צור קשר עם התמיכה.')
+        if (isInIframe) window.parent.postMessage({ type: 'payment-error', error: 'שגיאת תקשורת' }, '*')
       }
     }
 
     void verifyPayment()
-  }, [searchParams])
+  }, [searchParams, isInIframe])
 
   if (status === 'loading') {
     return <LoadingView />

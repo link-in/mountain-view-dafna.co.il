@@ -1,11 +1,14 @@
-import Link from 'next/link'
+'use client'
 
-export const metadata = {
-  title: 'הזמנה בוטלה | נוף הרים בדפנה',
-  robots: { index: false },
-}
+import { useEffect } from 'react'
 
 export default function PaymentCancelPage() {
+  useEffect(() => {
+    if (window.self !== window.top) {
+      window.parent.postMessage({ type: 'payment-cancelled' }, '*')
+    }
+  }, [])
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -41,12 +44,7 @@ export default function PaymentCancelPage() {
           ↩
         </div>
 
-        <h1 style={{
-          fontSize: '1.8rem',
-          fontWeight: 700,
-          color: '#e65100',
-          marginBottom: '12px',
-        }}>
+        <h1 style={{ fontSize: '1.8rem', fontWeight: 700, color: '#e65100', marginBottom: '12px' }}>
           ביטלת את התשלום
         </h1>
 
@@ -55,25 +53,6 @@ export default function PaymentCancelPage() {
           <br />
           התאריכים שבחרת עדיין פנויים — ניתן לחזור ולהשלים את ההזמנה.
         </p>
-
-        <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link
-            href="/"
-            style={{
-              display: 'inline-block',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              color: 'white',
-              padding: '14px 28px',
-              borderRadius: '30px',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.97rem',
-              boxShadow: '0 6px 16px rgba(102,126,234,0.3)',
-            }}
-          >
-            חזרה לאתר
-          </Link>
-        </div>
       </div>
     </div>
   )
