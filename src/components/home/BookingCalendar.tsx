@@ -464,19 +464,40 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
     )
   }
 
-  // שלב 3 — iframe תשלום
+  // שלב 3 — ממתין לחזרה מדף התשלום (נפתח בחלון חדש)
   if (paymentUrl) {
     return (
-      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl' }}>
-        <button onClick={() => { setPaymentUrl(null); setShowBookingForm(true) }} style={{ background: 'transparent', border: '2px solid #667eea', color: '#667eea', padding: '8px 20px', borderRadius: '25px', fontWeight: 600, cursor: 'pointer', marginBottom: '16px', fontSize: '0.95rem' }}>← חזרה לטופס</button>
-        <div style={{ background: 'linear-gradient(135deg,#667eea,#764ba2)', color: 'white', textAlign: 'center', padding: '12px', borderRadius: '12px 12px 0 0', fontWeight: 600 }}>
-          🔒 תשלום מאובטח — Cardcom
-        </div>
-        <iframe
-          src={paymentUrl}
-          style={{ width: '100%', height: '680px', border: 'none', borderRadius: '0 0 12px 12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}
-          title="דף תשלום מאובטח"
-        />
+      <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto', direction: 'rtl', textAlign: 'center', padding: '40px 20px' }}>
+        <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔒</div>
+        <h3 style={{ color: '#333', marginBottom: '12px' }}>עמוד התשלום נפתח בחלון חדש</h3>
+        <p style={{ color: '#666', marginBottom: '28px', lineHeight: 1.6 }}>
+          השלם את התשלום בחלון שנפתח.<br />
+          לאחר התשלום תועבר אוטומטית חזרה לאתר.
+        </p>
+        <button
+          onClick={() => window.open(paymentUrl, '_blank')}
+          style={{
+            background: 'linear-gradient(135deg,#667eea,#764ba2)',
+            color: 'white',
+            border: 'none',
+            padding: '14px 32px',
+            borderRadius: '30px',
+            fontWeight: 600,
+            cursor: 'pointer',
+            fontSize: '1rem',
+            marginBottom: '16px',
+            display: 'block',
+            width: '100%',
+          }}
+        >
+          💳 פתח את עמוד התשלום
+        </button>
+        <button
+          onClick={() => { setPaymentUrl(null); setShowBookingForm(true) }}
+          style={{ background: 'transparent', border: '2px solid #667eea', color: '#667eea', padding: '10px 24px', borderRadius: '25px', fontWeight: 600, cursor: 'pointer', fontSize: '0.95rem' }}
+        >
+          ← חזרה לטופס
+        </button>
       </div>
     )
   }
