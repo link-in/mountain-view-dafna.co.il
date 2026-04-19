@@ -350,6 +350,9 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           ? new URLSearchParams(window.location.search).get('test')
           : null
 
+      // בסביבת בדיקה עם טוקן — שלח ₪1 בלבד (לבדיקת זרימת תשלום אמיתי)
+      const priceToCharge = testToken ? 1 : calculatedPrice
+
       const response = await fetch('/api/public/payment/init', {
         method: 'POST',
         headers: {
@@ -365,7 +368,7 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
           numAdult,
           numChild,
           notes,
-          totalPrice: calculatedPrice,
+          totalPrice: priceToCharge,
           ...(testToken ? { testToken } : {}),
         }),
       })
@@ -391,6 +394,8 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const monthLabel = new Intl.DateTimeFormat('he-IL', { month: 'long', year: 'numeric' }).format(currentMonth)
   const { nights } = calculateTotal()
   const total = calculatedPrice !== null ? calculatedPrice : 0
+  const isTestMode2 = typeof window !== 'undefined' && Boolean(new URLSearchParams(window.location.search).get('test'))
+  const displayPrice = isTestMode2 ? 1 : (calculatedPrice ?? 0)
 
   // Check if we can go back to previous month (can't go before current month)
   const canGoBackward = () => {
@@ -776,7 +781,7 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
               opacity: (submitting || calculatedPrice === null || calculatingPrice) ? 0.5 : 1
             }}
           >
-            {submitting ? '⏳ מעביר לתשלום...' : `💳 לתשלום מאובטח — ₪${calculatedPrice?.toLocaleString() ?? ''}`}
+            {submitting ? '⏳ מעביר לתשלום...' : `💳 לתשלום מאובטח — ₪${displayPrice.toLocaleString()}`}
           </button>
         </form>
       </div>
