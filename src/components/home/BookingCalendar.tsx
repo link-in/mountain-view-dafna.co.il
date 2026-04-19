@@ -65,7 +65,8 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const [phone, setPhone] = useState(isDev || isTestMode ? '0528676516' : '')
   const [numAdult, setNumAdult] = useState(2)
   const [numChild, setNumChild] = useState(0)
-  const [notes, setNotes] = useState(isDev || isTestMode ? 'בדיקה — אל תחייב' : '')
+  const testId = Math.floor(10000 + Math.random() * 90000)
+  const [notes, setNotes] = useState(isDev || isTestMode ? `הזמנת בדיקה #${testId} — אל תחייב` : '')
   const [submitting, setSubmitting] = useState(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
   
