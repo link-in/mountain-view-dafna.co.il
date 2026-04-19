@@ -10,20 +10,20 @@ const getSiteUrl = () =>
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://mountain-view-dafna.co.il'
 
 /**
- * Mock mode is activated when EITHER:
- *   1. CARDCOM_MOCK_MODE=true (legacy, useful for local dev)
- *   2. The request includes a `testToken` matching CARDCOM_TEST_TOKEN
- *      → lets you test in production via URL (?test=<token>)
+ * Mock mode — רק כשמוגדר CARDCOM_MOCK_MODE=true (פיתוח מקומי בלבד).
+ * ?test=<token> כבר לא מפעיל mock — הוא שולח תשלום אמיתי של ₪1 לקארדקום.
  */
-function isMockMode(submittedTestToken?: string): boolean {
-  if (process.env.CARDCOM_MOCK_MODE === 'true') return true
+function isMockMode(): boolean {
+  return process.env.CARDCOM_MOCK_MODE === 'true'
+}
 
-  const expectedToken = process.env.CARDCOM_TEST_TOKEN
-  if (expectedToken && submittedTestToken && submittedTestToken === expectedToken) {
-    return true
-  }
-
-  return false
+/**
+ * בדיקה אם הטוקן שנשלח תואם ל-CARDCOM_TEST_TOKEN.
+ * אם כן — המחיר יורד ל-₪1 אך התשלום נשלח לקארדקום האמיתי.
+ */
+function isValidTestToken(submittedToken?: string): boolean {
+  const expected = process.env.CARDCOM_TEST_TOKEN
+  return !!expected && !!submittedToken && submittedToken === expected
 }
 
 const getOperation = (): CardcomOperation =>
@@ -119,9 +119,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Database error' }, { status: 500 })
   }
 
-  // ── MOCK MODE ─────────────────────────────────────────────────────────────
+  // ── MOCK MODE (פיתוח מקומי בלבד) ──────────────────────────────────────────
   const submittedTestToken = typeof data.testToken === 'string' ? data.testToken : undefined
-  if (isMockMode(submittedTestToken)) {
+  if (isMockMode()) {
     const mockLowProfileId = `mock-lp-${Date.now()}`
 
     // Save the mock LowProfileId so verify can find this booking
@@ -147,9 +147,15 @@ export async function POST(request: Request) {
   }
 
   // ── Request a Cardcom LowProfile payment page URL ─────────────────────────
+  // אם נשלח טוקן בדיקה תקף — מחיר ₪1 (תשלום אמיתי לצורך בדיקת webhook/WhatsApp)
+  const chargeAmount = isValidTestToken(submittedTestToken) ? 1 : totalPrice
+  if (chargeAmount !== totalPrice) {
+    console.log(`🧪 [TEST TOKEN] Price overridden: ₪${totalPrice} → ₪${chargeAmount}`)
+  }
+
   try {
     const { url: paymentUrl, lowProfileId } = await createLowProfile({
-      amount: totalPrice,
+      amount: chargeAmount,
       uniqueId,
       operation,
       guestName,
