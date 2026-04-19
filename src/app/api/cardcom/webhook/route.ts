@@ -27,7 +27,8 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json()
-    lowProfileId = body?.LowProfileId ?? ''
+    // קארדקום V11 שולח LowProfileId בגוף ה-webhook
+    lowProfileId = body?.LowProfileId ?? body?.lowprofilecode ?? body?.lowProfileId ?? ''
 
     console.log('📩 [Cardcom Webhook] Received:', {
       lowProfileId,

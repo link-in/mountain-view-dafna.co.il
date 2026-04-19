@@ -31,16 +31,13 @@ export default function PaymentSuccessClient() {
     console.log('💳 [PaymentSuccess] Full URL:', typeof window !== 'undefined' ? window.location.href : 'SSR')
     console.log('💳 [PaymentSuccess] isInIframe:', isInIframe)
 
-    // חיפוש LowProfileId בצורה case-insensitive
-    let lowProfileId = searchParams.get('LowProfileId')
-    if (!lowProfileId) {
-      // ניסיון עם וריאציות שקארדקום עשוי לשלוח
-      lowProfileId =
-        searchParams.get('lowprofileid') ??
-        searchParams.get('lowProfileId') ??
-        searchParams.get('low_profile_id') ??
-        null
-    }
+    // קארדקום V11 שולח lowprofilecode (לא LowProfileId!)
+    let lowProfileId =
+      searchParams.get('lowprofilecode') ??
+      searchParams.get('LowProfileId') ??
+      searchParams.get('lowprofileid') ??
+      searchParams.get('lowProfileId') ??
+      null
 
     console.log('💳 [PaymentSuccess] LowProfileId found:', lowProfileId)
 

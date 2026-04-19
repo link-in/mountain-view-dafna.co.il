@@ -19,7 +19,12 @@ export const revalidate = 0
  */
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const lowProfileId = searchParams.get('LowProfileId') ?? ''
+  // קארדקום V11 שולח lowprofilecode בריידיירקט (לא LowProfileId)
+  const lowProfileId =
+    searchParams.get('lowprofilecode') ??
+    searchParams.get('LowProfileId') ??
+    searchParams.get('lowprofileid') ??
+    ''
   const isMockBypass = searchParams.get('mock') === 'true'
   const isMockMode = process.env.CARDCOM_MOCK_MODE === 'true'
 
