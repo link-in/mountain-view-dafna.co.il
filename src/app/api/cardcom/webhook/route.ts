@@ -228,7 +228,7 @@ async function sendWhatsAppNotifications(
   if (guestPhone) {
     await sendWhatsAppMessage({
       to: guestPhone,
-      message: `שלום ${guestName}! 🏔️\n\nהזמנתך במאונטיין וויו אושרה ✅\n💳 תשלום של ₪${amountShekels.toLocaleString()} בוצע בהצלחה!\n📅 כניסה: ${checkIn}\n📅 יציאה: ${checkOut}\n👥 מבוגרים: ${numAdult}${numChild > 0 ? `\n👶 ילדים: ${numChild}` : ''}\n🔖 מספר הזמנה: ${bookingId}\n\nנשמח לארח אותך! 🎉`,
+      message: `שלום ${guestName}! 🏔️\n\nהזמנתך בנוף הרים בדפנה אושרה ✅\n💳 תשלום של ₪${amountShekels.toLocaleString()} בוצע בהצלחה!\n📅 כניסה: ${checkIn}\n📅 יציאה: ${checkOut}\n👥 מבוגרים: ${numAdult}${numChild > 0 ? `\n👶 ילדים: ${numChild}` : ''}\n🔖 מספר הזמנה: ${bookingId}\n\nנשמח לארח אותך! 🎉`,
     })
   }
 
