@@ -213,7 +213,11 @@ async function sendWhatsAppNotifications(
   amountAgorot: number
 ) {
   const guestName = `${String(guest.firstName || '')} ${String(guest.lastName || '')}`.trim()
-  const guestPhone = String(guest.phone || '')
+  const rawPhone = String(guest.phone || '')
+  // המרה לפורמט בינלאומי: 05X → 97Z5X
+  const guestPhone = rawPhone.startsWith('0')
+    ? `972${rawPhone.slice(1)}`
+    : rawPhone
   const guestEmail = String(guest.email || '')
   const checkIn = String(guest.checkIn || '')
   const checkOut = String(guest.checkOut || '')
