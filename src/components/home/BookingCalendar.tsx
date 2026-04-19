@@ -53,15 +53,19 @@ export default function BookingCalendar({ onClose }: BookingCalendarProps) {
   const [loading, setLoading] = useState(true)
   const [showBookingForm, setShowBookingForm] = useState(false)
   
-  // Form state — ערכי ברירת מחדל לבדיקות (להסיר בפרודקשן)
+  // Form state — אם ?test=... ב-URL, ממלא פרטי בדיקה אוטומטית
   const isDev = process.env.NODE_ENV === 'development'
-  const [firstName, setFirstName] = useState(isDev ? 'ישראל' : '')
-  const [lastName, setLastName] = useState(isDev ? 'ישראלי' : '')
-  const [email, setEmail] = useState(isDev ? 'test@test.com' : '')
-  const [phone, setPhone] = useState(isDev ? '0501234567' : '')
+  const isTestMode =
+    typeof window !== 'undefined'
+      ? Boolean(new URLSearchParams(window.location.search).get('test'))
+      : false
+  const [firstName, setFirstName] = useState(isDev || isTestMode ? 'צור' : '')
+  const [lastName, setLastName] = useState(isDev || isTestMode ? 'ברכה' : '')
+  const [email, setEmail] = useState(isDev || isTestMode ? 'zurbracha@gmail.com' : '')
+  const [phone, setPhone] = useState(isDev || isTestMode ? '0528676516' : '')
   const [numAdult, setNumAdult] = useState(2)
   const [numChild, setNumChild] = useState(0)
-  const [notes, setNotes] = useState(isDev ? 'בדיקה — אל תאשר' : '')
+  const [notes, setNotes] = useState(isDev || isTestMode ? 'בדיקה — אל תחייב' : '')
   const [submitting, setSubmitting] = useState(false)
   const [bookingError, setBookingError] = useState<string | null>(null)
   
