@@ -131,6 +131,7 @@ export async function POST(request: Request) {
 
   const txId = lpResult.TranzactionId ?? 'N/A'
   const authNum = lpResult.TranzactionInfo?.AuthNum ?? ''
+  const amountShekels = pending.amount_agorot / 100
 
   const beds24Booking = {
     propertyId: Number(propertyId),
@@ -143,13 +144,24 @@ export async function POST(request: Request) {
     mobile: guest.phone || '',
     numAdult: Number(guest.numAdult) || 1,
     numChild: Number(guest.numChild) || 0,
-    status: 'confirmed',
+    status: 1, // 1 = Confirmed ב-Beds24 V2
+    referer: 'website',
+    price: amountShekels,
     notes: [
       guest.notes || '',
-      `תשלום קארדקום: txId=${txId}, authNum=${authNum}`,
+      `תשלום קארדקום: txId=${txId}, authNum=${authNum}, סכום=₪${amountShekels}`,
     ]
       .filter(Boolean)
       .join(' | '),
+    invoice: [
+      {
+        type: 'charge',
+        description: `לינה ${guest.checkIn} — ${guest.checkOut}`,
+        amount: amountShekels,
+        currency: 'ILS',
+        isPaid: 1,
+      },
+    ],
   }
 
   try {
