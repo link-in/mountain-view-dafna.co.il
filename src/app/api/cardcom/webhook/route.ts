@@ -10,6 +10,7 @@ export const revalidate = 0
 
 const DEFAULT_BASE_URL = 'https://api.beds24.com/v2'
 const getBaseUrl = () => process.env.BEDS24_API_BASE_URL ?? DEFAULT_BASE_URL
+const WEBHOOK_VERSION = 'invoice4u-v2'
 
 /**
  * POST /api/cardcom/webhook
@@ -35,6 +36,7 @@ export async function POST(request: Request) {
       lowProfileId,
       responseCode: body?.ResponseCode,
       operation: body?.Operation,
+      version: WEBHOOK_VERSION,
     })
   } catch {
     console.warn('⚠️ [Cardcom Webhook] Could not parse body')
@@ -134,6 +136,14 @@ export async function POST(request: Request) {
   const txId = lpResult.TranzactionId ?? 'N/A'
   const authNum = lpResult.TranzactionInfo?.AuthNum ?? ''
   const amountShekels = pending.amount_agorot / 100
+
+  console.log('🧾 [Invoice4U] Starting document creation:', {
+    lowProfileId,
+    amount: amountShekels,
+    transactionId: txId,
+    authNum,
+    hasApiKey: Boolean(process.env.INVOICE4U_API_KEY),
+  })
 
   try {
     const invoiceResult = await processSuccessfulPayment({
