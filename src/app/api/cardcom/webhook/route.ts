@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getLowProfileResult } from '@/lib/cardcom/client'
+import { processSuccessfulPayment } from '@/lib/invoice4u/client'
 import { createAdminClient } from '@/lib/supabase/server'
 import { fetchWithTokenRefresh } from '@/lib/beds24/tokenManager'
 import { sendWhatsAppMessage } from '@/lib/whatsapp'
@@ -133,6 +134,27 @@ export async function POST(request: Request) {
   const txId = lpResult.TranzactionId ?? 'N/A'
   const authNum = lpResult.TranzactionInfo?.AuthNum ?? ''
   const amountShekels = pending.amount_agorot / 100
+
+  try {
+    const invoiceResult = await processSuccessfulPayment({
+      Sum: amountShekels,
+      ConfirmationNo: authNum || txId,
+      TransactionId: txId,
+      L4Digit: lpResult.TranzactionInfo?.Last4Digits,
+      CardType: lpResult.TranzactionInfo?.CardName,
+      CustomerName: `${String(guest.firstName || '')} ${String(guest.lastName || '')}`.trim(),
+      Email: String(guest.email || ''),
+      TranzactionInfo: lpResult.TranzactionInfo ?? undefined,
+    })
+
+    console.log('✅ [Invoice4U] Document created:', {
+      documentId: invoiceResult.documentId,
+      pdfUrl: invoiceResult.pdfUrl,
+    })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('❌ [Invoice4U] Failed to create tax invoice receipt:', message)
+  }
 
   const beds24Booking = {
     propertyId: Number(propertyId),
