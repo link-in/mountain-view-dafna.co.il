@@ -282,7 +282,10 @@ export async function POST(request: Request) {
       message: 'Invoice4U document created',
       data: {
         documentId: invoiceResult.documentId ?? '',
+        documentNumber: invoiceResult.documentNumber ?? '',
         pdfUrl: invoiceResult.pdfUrl ?? '',
+        mailsAttached: invoiceResult.mailsAttached ?? '',
+        emailSent: Boolean(invoiceResult.mailsAttached),
       },
       supabase,
     })

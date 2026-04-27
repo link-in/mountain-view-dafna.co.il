@@ -47,6 +47,7 @@ export interface Invoice4UDocumentResult {
   documentId?: string
   documentNumber?: string
   pdfUrl?: string
+  mailsAttached?: string
   response: UnknownRecord
 }
 
@@ -141,17 +142,25 @@ function extractInvoiceResult(response: UnknownRecord): Invoice4UDocumentResult 
       ? String(documentNumberRaw)
       : undefined
   const pdfUrl = toStringOrUndefined(
-    root.PdfUrl ?? root.PDFUrl ?? root.PdfLink ?? root.DocumentUrl ?? root.AttachmentUrl
+    root.PrintOriginalPDFLink ??
+      root.PdfUrl ??
+      root.PDFUrl ??
+      root.PdfLink ??
+      root.DocumentUrl ??
+      root.AttachmentUrl
   )
 
   if (!documentId && !documentNumber && !pdfUrl) {
     throw new Error('Invoice4U response did not include a created document')
   }
 
+  const mailsAttached = toStringOrUndefined(root.MailsAttached) ?? undefined
+
   return {
     documentId,
     documentNumber,
     pdfUrl,
+    mailsAttached,
     response,
   }
 }
@@ -174,9 +183,13 @@ export async function processSuccessfulPayment(
   const createUrl = getInvoice4UCreateUrl()
   const payment = normalizeCardcomPayment(cardcomData)
 
-  const associatedEmails = []
+  const associatedEmails: Array<{ Mail: string; IsUserMail: boolean }> = []
   if (payment.email) {
     associatedEmails.push({ Mail: payment.email, IsUserMail: false })
+  }
+  const ownerEmail = process.env.INVOICE4U_OWNER_EMAIL
+  if (ownerEmail && ownerEmail !== payment.email) {
+    associatedEmails.push({ Mail: ownerEmail, IsUserMail: true })
   }
 
   const nowMs = Date.now()
