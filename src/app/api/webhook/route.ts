@@ -117,9 +117,16 @@ async function getOwnerInfo(booking: Beds24Booking): Promise<OwnerInfo> {
 
 export async function POST(request: NextRequest) {
   try {
-    // Parse the incoming JSON payload from Beds24 (wrapper object)
-    const webhookData: Beds24WebhookWrapper = await request.json()
-    const booking = webhookData.booking
+    // Parse the incoming JSON payload from Beds24
+    // Beds24 can send either {booking: {...}} or the booking object directly
+    const rawBody = await request.json()
+    const webhookData: Beds24WebhookWrapper = rawBody
+    const booking: Beds24Booking = rawBody?.booking ?? rawBody
+
+    if (!booking || typeof booking.id === 'undefined') {
+      console.warn('⚠️ [Beds24 Webhook] Missing or invalid booking in payload:', JSON.stringify(rawBody).slice(0, 300))
+      return NextResponse.json({ success: false, message: 'Invalid payload: missing booking' }, { status: 200 })
+    }
 
     // Log the received data to console for debugging
     console.log('📥 Received Beds24 Webhook:')
