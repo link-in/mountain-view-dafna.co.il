@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { createLowProfile, type CardcomOperation } from '@/lib/cardcom/client'
+import { logPaymentEvent } from '@/lib/payment-audit/logPaymentEvent'
 import { createAdminClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
@@ -112,10 +113,58 @@ export async function POST(request: Request) {
 
     if (insertError) {
       console.error('❌ Failed to save pending booking:', insertError)
+      await logPaymentEvent({
+        uniquePaymentId: uniqueId,
+        stage: 'pending_booking_create_failed',
+        status: 'error',
+        message: insertError.message,
+        data: {
+          guestName,
+          email: String(data.email),
+          checkIn,
+          checkOut,
+          totalPrice,
+          operation,
+        },
+        supabase,
+      })
       return NextResponse.json({ error: 'Failed to save booking data' }, { status: 500 })
     }
+
+    await logPaymentEvent({
+      uniquePaymentId: uniqueId,
+      stage: 'pending_booking_created',
+      status: 'success',
+      message: 'Pending booking saved before Cardcom redirect',
+      data: {
+        guestName,
+        email: String(data.email),
+        phone: String(data.phone),
+        checkIn,
+        checkOut,
+        numAdult: Number(data.numAdult) || 1,
+        numChild: Number(data.numChild) || 0,
+        totalPrice,
+        operation,
+      },
+      supabase,
+    })
   } catch (err) {
     console.error('❌ Supabase error:', err)
+    await logPaymentEvent({
+      uniquePaymentId: uniqueId,
+      stage: 'pending_booking_database_error',
+      status: 'error',
+      message: err instanceof Error ? err.message : String(err),
+      data: {
+        guestName,
+        email: String(data.email),
+        checkIn,
+        checkOut,
+        totalPrice,
+        operation,
+      },
+    })
     return NextResponse.json({ error: 'Database error' }, { status: 500 })
   }
 
@@ -137,8 +186,26 @@ export async function POST(request: Request) {
           cardcom_tranzaction_id: 0,
         })
         .eq('unique_payment_id', uniqueId)
+
+      await logPaymentEvent({
+        uniquePaymentId: uniqueId,
+        lowProfileId: mockLowProfileId,
+        stage: 'cardcom_mock_paid',
+        status: 'success',
+        message: 'Mock payment marked as paid locally',
+        data: { totalPrice, operation },
+        supabase,
+      })
     } catch (err) {
       console.error('🧪 [MOCK] Failed to save mock LowProfileId:', err)
+      await logPaymentEvent({
+        uniquePaymentId: uniqueId,
+        lowProfileId: mockLowProfileId,
+        stage: 'cardcom_mock_update_failed',
+        status: 'error',
+        message: err instanceof Error ? err.message : String(err),
+        data: { totalPrice, operation },
+      })
     }
 
     const mockUrl = buildMockCheckoutUrl(siteUrl, uniqueId, totalPrice, mockLowProfileId)
@@ -151,6 +218,13 @@ export async function POST(request: Request) {
   const chargeAmount = isValidTestToken(submittedTestToken) ? 1 : totalPrice
   if (chargeAmount !== totalPrice) {
     console.log(`🧪 [TEST TOKEN] Price overridden: ₪${totalPrice} → ₪${chargeAmount}`)
+    await logPaymentEvent({
+      uniquePaymentId: uniqueId,
+      stage: 'cardcom_test_price_applied',
+      status: 'info',
+      message: 'Test token lowered Cardcom charge amount',
+      data: { originalAmount: totalPrice, chargeAmount },
+    })
   }
 
   try {
@@ -178,9 +252,41 @@ export async function POST(request: Request) {
       .eq('unique_payment_id', uniqueId)
 
     console.log('✅ Cardcom LowProfile created:', { uniqueId, lowProfileId, totalPrice, operation })
+    await logPaymentEvent({
+      uniquePaymentId: uniqueId,
+      lowProfileId,
+      stage: 'cardcom_lowprofile_created',
+      status: 'success',
+      message: 'Cardcom LowProfile payment page created',
+      data: {
+        totalPrice,
+        chargeAmount,
+        operation,
+        guestName,
+        email: String(data.email),
+        checkIn,
+        checkOut,
+      },
+      supabase,
+    })
     return NextResponse.json({ paymentUrl, uniqueId })
   } catch (err) {
     console.error('❌ Cardcom createLowProfile error:', err)
+    await logPaymentEvent({
+      uniquePaymentId: uniqueId,
+      stage: 'cardcom_lowprofile_failed',
+      status: 'error',
+      message: err instanceof Error ? err.message : String(err),
+      data: {
+        totalPrice,
+        chargeAmount,
+        operation,
+        guestName,
+        email: String(data.email),
+        checkIn,
+        checkOut,
+      },
+    })
 
     try {
       const supabase = createAdminClient()

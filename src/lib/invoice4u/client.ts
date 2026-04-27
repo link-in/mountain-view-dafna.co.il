@@ -1,6 +1,8 @@
 import { z } from 'zod'
+import { randomUUID } from 'crypto'
 
-const DEFAULT_INVOICE4U_CREATE_URL = 'https://api.invoice4u.co.il/v1/Documents/Create'
+const DEFAULT_INVOICE4U_CREATE_URL =
+  'https://api.invoice4u.co.il/Services/ApiService.svc/CreateDocument'
 
 const invoice4uResponseSchema = z.object({}).passthrough()
 
@@ -43,18 +45,19 @@ export interface CardcomSuccessfulPaymentData {
 
 export interface Invoice4UDocumentResult {
   documentId?: string
+  documentNumber?: string
   pdfUrl?: string
   response: UnknownRecord
 }
 
-function getInvoice4UApiKey(): string {
-  const apiKey = process.env.INVOICE4U_API_KEY
+function getInvoice4UToken(): string {
+  const token = process.env.INVOICE4U_API_KEY ?? process.env.INVOICE4U_TOKEN
 
-  if (!apiKey) {
+  if (!token) {
     throw new Error('Missing INVOICE4U_API_KEY environment variable')
   }
 
-  return apiKey
+  return token
 }
 
 function getInvoice4UCreateUrl(): string {
@@ -119,123 +122,104 @@ function normalizeCardcomPayment(cardcomData: CardcomSuccessfulPaymentData) {
   }
 }
 
-function findStringField(value: unknown, fieldNames: string[]): string | undefined {
-  if (!value || typeof value !== 'object') {
-    return undefined
-  }
-
-  const record = value as UnknownRecord
-
-  for (const fieldName of fieldNames) {
-    const fieldValue = toStringOrUndefined(record[fieldName])
-    if (fieldValue) {
-      return fieldValue
-    }
-  }
-
-  for (const nestedValue of Object.values(record)) {
-    const nestedResult = findStringField(nestedValue, fieldNames)
-    if (nestedResult) {
-      return nestedResult
-    }
-  }
-
-  return undefined
-}
-
-function findBooleanField(value: unknown, fieldNames: string[]): boolean | undefined {
-  if (!value || typeof value !== 'object') {
-    return undefined
-  }
-
-  const record = value as UnknownRecord
-
-  for (const fieldName of fieldNames) {
-    if (typeof record[fieldName] === 'boolean') {
-      return record[fieldName]
-    }
-  }
-
-  for (const nestedValue of Object.values(record)) {
-    const nestedResult = findBooleanField(nestedValue, fieldNames)
-    if (nestedResult !== undefined) {
-      return nestedResult
-    }
-  }
-
-  return undefined
-}
-
 function extractInvoiceResult(response: UnknownRecord): Invoice4UDocumentResult {
-  const success = findBooleanField(response, ['IsSuccess', 'Success', 'Succeeded'])
+  const root = (response.d && typeof response.d === 'object' ? response.d : response) as UnknownRecord
+  const errors = Array.isArray(root.Errors) ? root.Errors : []
 
-  if (success === false) {
-    const message =
-      findStringField(response, ['ErrorMessage', 'Message', 'Description']) ??
-      'Invoice4U returned an unsuccessful response'
-    throw new Error(`Invoice4U error: ${message}`)
+  if (errors.length > 0) {
+    const firstError = errors[0] as UnknownRecord
+    const errorCode = toStringOrUndefined(firstError.Error) ?? 'UnknownError'
+    const errorId = toStringOrUndefined(firstError.ID)
+    throw new Error(`Invoice4U error: ${errorCode}${errorId ? ` (ID ${errorId})` : ''}`)
   }
 
-  const documentId = findStringField(response, [
-    'DocumentId',
-    'DocumentID',
-    'DocumentNumber',
-    'Id',
-    'ID',
-  ])
-  const pdfUrl = findStringField(response, ['PdfUrl', 'PDFUrl', 'PdfLink', 'DocumentUrl', 'Url'])
+  const rawId = toStringOrUndefined(root.ID)
+  const documentId = rawId && rawId !== '00000000-0000-0000-0000-000000000000' ? rawId : undefined
+  const documentNumberRaw = toNumber(root.DocumentNumber)
+  const documentNumber =
+    typeof documentNumberRaw === 'number' && documentNumberRaw > 0
+      ? String(documentNumberRaw)
+      : undefined
+  const pdfUrl = toStringOrUndefined(
+    root.PdfUrl ?? root.PDFUrl ?? root.PdfLink ?? root.DocumentUrl ?? root.AttachmentUrl
+  )
 
-  if (!documentId && !pdfUrl) {
-    throw new Error('Invoice4U response is missing a document ID or PDF URL')
+  if (!documentId && !documentNumber && !pdfUrl) {
+    throw new Error('Invoice4U response did not include a created document')
   }
 
   return {
     documentId,
+    documentNumber,
     pdfUrl,
     response,
   }
 }
 
+/**
+ * DocumentType enum (Invoice4U API):
+ * 1 = Invoice  2 = Receipt  3 = InvoiceReceipt (חשבונית מס קבלה)
+ * 4 = InvoiceCredit  5 = ProformaInvoice  6 = InvoiceOrder  7 = InvoiceQuote
+ *
+ * PaymentType enum (required for Receipt / InvoiceReceipt docs):
+ * 1 = CreditCard  2 = Check  3 = MoneyTransfer  4 = Cash  5 = Credit  7 = Other
+ */
+const DOC_TYPE_TAX_INVOICE_RECEIPT = 3
+const PAYMENT_TYPE_CREDIT_CARD = 1
+
 export async function processSuccessfulPayment(
   cardcomData: CardcomSuccessfulPaymentData
 ): Promise<Invoice4UDocumentResult> {
-  const apiKey = getInvoice4UApiKey()
+  const token = getInvoice4UToken()
+  const createUrl = getInvoice4UCreateUrl()
   const payment = normalizeCardcomPayment(cardcomData)
 
-  const payload = {
-    General: {
-      ApiKey: apiKey,
-      DocumentType: 3,
-      Subject: 'רכישה באתר - קארדקום',
-      Recipient: {
-        Name: payment.customerName,
-        ...(payment.email ? { Email: payment.email } : {}),
-      },
-      IsSendOriginiByEmail: true,
-    },
-    Items: [
-      {
-        Name: 'רכישה מקוונת',
-        Quantity: 1,
-        Price: payment.amount,
-        VatIncluded: true,
-      },
-    ],
-    Payments: [
-      {
-        PaymentType: 3,
-        Amount: payment.amount,
-        CreditCardDetails: {
-          ...(payment.cardName ? { CardName: payment.cardName } : {}),
-          TransactionId: payment.transactionId,
-          ...(payment.last4Digits ? { Last4Digits: payment.last4Digits } : {}),
-          PaymentsNumber: payment.paymentsNumber,
-        },
-      },
-    ],
+  const associatedEmails = []
+  if (payment.email) {
+    associatedEmails.push({ Mail: payment.email, IsUserMail: false })
   }
 
-  const response = await fetch(getInvoice4UCreateUrl(), {
+  const nowMs = Date.now()
+  const dateValue = `/Date(${nowMs}+0200)/`
+
+  const payload = {
+    doc: {
+      GeneralCustomer: {
+        Name: payment.customerName,
+        ...(payment.last4Digits ? { Identifier: payment.last4Digits } : {}),
+      },
+      DocumentType: DOC_TYPE_TAX_INVOICE_RECEIPT,
+      Subject: 'רכישה באתר - נוף הרים בדפנה',
+      Currency: 'ILS',
+      TaxIncluded: true,
+      TaxPercentage: 18,
+      RoundAmount: 0,
+      ApiIdentifier: randomUUID(),
+      Items: [
+        {
+          Code: '001',
+          Name: 'לינה - נוף הרים בדפנה',
+          Quantity: 1,
+          Price: payment.amount,
+        },
+      ],
+      Payments: [
+        {
+          PaymentType: PAYMENT_TYPE_CREDIT_CARD,
+          Date: dateValue,
+          Amount: payment.amount,
+          ...(payment.cardName ? { CreditCardName: payment.cardName } : {}),
+          NumberOfPayments: payment.paymentsNumber,
+          PaymentNumber: 1,
+          ExpirationDate: '',
+        },
+      ],
+      ...(associatedEmails.length > 0 ? { AssociatedEmails: associatedEmails } : {}),
+    },
+    token,
+  }
+
+  const response = await fetch(createUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -247,5 +231,5 @@ export async function processSuccessfulPayment(
   }
 
   const parsedResponse = invoice4uResponseSchema.parse(await response.json())
-  return extractInvoiceResult(parsedResponse)
+  return extractInvoiceResult(parsedResponse as UnknownRecord)
 }
