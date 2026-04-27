@@ -234,6 +234,18 @@ export async function POST(request: Request) {
   const authNum = lpResult.TranzactionInfo?.AuthNum ?? ''
   const amountShekels = pending.amount_agorot / 100
 
+  if (process.env.INVOICE4U_SKIP === 'true') {
+    console.log('⏭️  [Invoice4U] Skipped — INVOICE4U_SKIP=true (test/dev mode)')
+    await logPaymentEvent({
+      uniquePaymentId: pending.unique_payment_id,
+      lowProfileId,
+      stage: 'invoice4u_skipped',
+      status: 'info',
+      message: 'Invoice4U skipped (INVOICE4U_SKIP=true)',
+      data: { amount: amountShekels },
+      supabase,
+    })
+  } else {
   console.log('🧾 [Invoice4U] Starting document creation:', {
     lowProfileId,
     amount: amountShekels,
@@ -306,6 +318,7 @@ export async function POST(request: Request) {
       supabase,
     })
   }
+  } // end INVOICE4U_SKIP else
 
   const beds24Booking = {
     propertyId: Number(propertyId),
