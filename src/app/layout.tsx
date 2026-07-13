@@ -35,9 +35,13 @@ const rubik = Rubik({
 export const metadata: Metadata = {
   title: 'נוף הרים בדפנה',
   description: 'מערכת ניהול אירוח - נוף הרים בדפנה',
-  manifest: '/manifest.json?v=2',
+  manifest: '/manifest.json?v=3',
   icons: {
-    icon: '/photos/logo.png',
+    icon: [
+      { url: '/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/favicon-48x48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/photos/logo.png', sizes: '456x439', type: 'image/png' },
+    ],
     apple: [
       { url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
@@ -47,7 +51,7 @@ export const metadata: Metadata = {
     statusBarStyle: 'default',
     title: 'נוף הרים בדפנה',
   },
-  themeColor: '#667eea',
+  themeColor: '#0d9488',
   viewport: {
     width: 'device-width',
     initialScale: 1,

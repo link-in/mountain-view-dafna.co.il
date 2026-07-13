@@ -2,6 +2,23 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
+const TEMPLATE_EXACT_PATHS = new Set([
+  '/contact',
+  '/about',
+  '/service',
+  '/shop',
+  '/blog',
+  '/portfolio',
+  '/home',
+])
+
+const TEMPLATE_PREFIXES = ['/shop/', '/blog/', '/portfolio/', '/home/'] as const
+
+function isTemplateDemoPath(path: string): boolean {
+  if (TEMPLATE_EXACT_PATHS.has(path)) return true
+  return TEMPLATE_PREFIXES.some((prefix) => path.startsWith(prefix))
+}
+
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const hostname = request.headers.get('host') || ''
@@ -12,6 +29,14 @@ export async function middleware(request: NextRequest) {
   const cleanHostname = hostname.split(':')[0] // הסר port
   if ((cleanHostname === 'hostly.co.il' || cleanHostname === 'www.hostly.co.il') && path === '/') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
+  }
+
+  // =========================================
+  // Template demo pages → homepage (301)
+  // Stops Google indexing leftover theme pages
+  // =========================================
+  if (isTemplateDemoPath(path)) {
+    return NextResponse.redirect(new URL('/', request.url), 301)
   }
   
   // =========================================
